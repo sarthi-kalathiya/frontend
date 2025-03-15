@@ -1,0 +1,209 @@
+// Variables
+$primary-color: #000000;
+$secondary-color: #6c757d;
+$success-color: #4caf50;
+$danger-color: #f44336;
+$warning-color: #ff9800;
+$info-color: #2196f3;
+$text-color: #333333;
+$light-gray: #f8f8f8;
+$border-color: #e0e0e0;
+
+// Modal backdrop
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  
+  &.closing {
+    opacity: 0;
+  }
+}
+
+// Modal container
+.modal-container {
+  width: 100%;
+  max-width: 450px;
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+  
+  &.closing {
+    transform: translateY(20px);
+  }
+}
+
+// Modal content
+.modal-content {
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  
+  // Modal types
+  &.modal-success {
+    .modal-header .modal-icon i {
+      color: $success-color;
+    }
+  }
+  
+  &.modal-danger {
+    .modal-header .modal-icon i {
+      color: $danger-color;
+    }
+  }
+  
+  &.modal-warning {
+    .modal-header .modal-icon i {
+      color: $warning-color;
+    }
+  }
+  
+  &.modal-info {
+    .modal-header .modal-icon i {
+      color: $info-color;
+    }
+  }
+}
+
+// Modal header
+.modal-header {
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid $border-color;
+  
+  .modal-icon {
+    margin-right: 14px;
+    
+    i {
+      font-size: 24px;
+    }
+  }
+  
+  .modal-title {
+    flex: 1;
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: $text-color;
+  }
+  
+  .btn-close {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #999;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: $light-gray;
+      color: $text-color;
+    }
+  }
+}
+
+// Modal body
+.modal-body {
+  padding: 24px;
+  
+  .modal-message {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
+    color: $text-color;
+  }
+}
+
+// Modal footer
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid $border-color;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  
+  button {
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: none;
+    
+    &.btn-secondary {
+      background-color: $secondary-color;
+      color: white;
+      
+      &:hover {
+        background-color: lighten($secondary-color, 10%);
+      }
+    }
+    
+    &.btn-success {
+      background-color: $success-color;
+      color: white;
+      
+      &:hover {
+        background-color: lighten($success-color, 10%);
+      }
+    }
+    
+    &.btn-danger {
+      background-color: $danger-color;
+      color: white;
+      
+      &:hover {
+        background-color: lighten($danger-color, 10%);
+      }
+    }
+    
+    &.btn-warning {
+      background-color: $warning-color;
+      color: white;
+      
+      &:hover {
+        background-color: lighten($warning-color, 10%);
+      }
+    }
+    
+    &.btn-info {
+      background-color: $info-color;
+      color: white;
+      
+      &:hover {
+        background-color: lighten($info-color, 10%);
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 576px) {
+  .modal-container {
+    max-width: calc(100% - 30px);
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+    }
+  }
+} 

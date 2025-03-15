@@ -1,0 +1,557 @@
+@use 'sass:color';
+
+// Variables
+$primary-color: #000000;
+$secondary-color: #333333;
+$text-color: #333333;
+$light-gray: #f8f8f8;
+$border-color: #e0e0e0;
+$success-color: #4caf50;
+$danger-color: #f44336;
+$info-color: #2196f3;
+
+.user-management {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  
+  .section-header {
+    margin-bottom: 24px;
+    
+    h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: $primary-color;
+      margin: 0 0 8px 0;
+    }
+    
+    p {
+      font-size: 14px;
+      color: #666;
+      margin: 0;
+    }
+  }
+  
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+    
+    .search-box {
+      position: relative;
+      min-width: 250px;
+      
+      input {
+        width: 100%;
+        padding: 10px 38px 10px 14px;
+        border: 1px solid $border-color;
+        border-radius: 4px;
+        font-size: 14px;
+        
+        &:focus {
+          outline: none;
+          border-color: $secondary-color;
+        }
+      }
+      
+      .btn-search {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+      }
+    }
+    
+    .filter-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .filter-selects {
+      display: flex;
+      gap: 12px;
+      
+      .custom-select {
+        position: relative;
+      }
+      
+      .form-select {
+        padding: 10px 14px;
+        border: 1px solid $border-color;
+        border-radius: 4px;
+        background-color: white;
+        font-size: 14px;
+        min-width: 150px;
+        color: $text-color;
+        position: relative;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px top 50%;
+        background-size: 10px auto;
+        transition: all 0.2s ease;
+        
+        &:focus {
+          outline: none;
+          border-color: $secondary-color;
+          box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        &:hover {
+          border-color: color.adjust($border-color, $lightness: -10%);
+        }
+      }
+    }
+    
+    .add-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background-color: $primary-color;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      
+      &:hover {
+        background-color: color.adjust($primary-color, $lightness: -10%);
+      }
+    }
+  }
+  
+  .data-table {
+    overflow-x: auto;
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      
+      th, td {
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid $border-color;
+      }
+      
+      th {
+        font-weight: 600;
+        color: $secondary-color;
+        font-size: 14px;
+        background-color: $light-gray;
+      }
+      
+      td {
+        font-size: 14px;
+        color: $text-color;
+      }
+      
+      tbody tr {
+        &:hover {
+          background-color: $light-gray;
+        }
+        
+        &:last-child td {
+          border-bottom: none;
+        }
+      }
+      
+      .user-name {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        
+        .user-avatar {
+          width: 36px;
+          height: 36px;
+          
+          .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            background-color: $primary-color;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            font-size: 14px;
+          }
+        }
+      }
+      
+      .badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        display: inline-block;
+        
+        &.badge-primary {
+          background-color: rgba($primary-color, 0.1);
+          color: $primary-color;
+        }
+        
+        &.badge-success {
+          background-color: rgba($success-color, 0.1);
+          color: $success-color;
+        }
+        
+        &.badge-danger {
+          background-color: rgba($danger-color, 0.1);
+          color: $danger-color;
+        }
+        
+        &.badge-info {
+          background-color: rgba($info-color, 0.1);
+          color: $info-color;
+        }
+      }
+      
+      .action-buttons {
+        position: relative;
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        
+        .btn-icon {
+          background: none;
+          border: none;
+          color: #666;
+          font-size: 16px;
+          padding: 6px 8px;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: background-color 0.2s;
+          
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+          }
+          
+          &.action-menu {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+      }
+      
+      // New container for dropdown that's positioned outside of table cell constraints
+      .action-dropdown-container {
+        position: fixed; // Use fixed positioning instead of absolute
+        z-index: 1100; // Even higher z-index
+      }
+      
+      .action-dropdown {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background-color: white;
+        border-radius: 4px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        min-width: 150px;
+        z-index: 1050;
+        overflow: visible;
+        
+        &.flip-up {
+        bottom: 0;
+          top: auto;
+        }
+        
+        .action-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          width: 100%;
+          text-align: left;
+          padding: 10px 14px;
+          border: none;
+          background: none;
+          font-size: 14px;
+          color: $text-color;
+          cursor: pointer;
+          transition: background-color 0.2s;
+          
+          i {
+            color: #666;
+            width: 16px;
+            text-align: center;
+          }
+          
+          &:hover {
+            background-color: $light-gray;
+          }
+
+          // New styles for activate/deactivate
+          &[title*="Activate"] {
+            i {
+              color: $success-color;
+            }
+          }
+          
+          &[title*="Deactivate"] {
+            i {
+              color: $danger-color;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .user-management {
+    padding: 16px;
+    
+    .section-header {
+      margin-bottom: 16px;
+    }
+  }
+  
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch !important;
+    
+    .search-box {
+      width: 100%;
+    }
+    
+    .filter-actions {
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+    
+    .filter-selects {
+      width: 100%;
+      
+      .form-select {
+        flex: 1;
+      }
+    }
+    
+    .add-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+/* Custom Dropdown Menu Styling */
+.dropdown-menu {
+  position: absolute;
+  z-index: 1000;
+  min-width: 150px;
+  padding: 8px 0;
+  margin: 0;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    clear: both;
+    font-weight: 400;
+    color: $text-color;
+    text-align: inherit;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
+    width: 100%;
+    
+    &:hover, &:focus {
+      color: color.adjust($text-color, $lightness: -10%);
+      text-decoration: none;
+      background-color: $light-gray;
+    }
+    
+    &.active {
+      color: $primary-color;
+      background-color: rgba($primary-color, 0.05);
+      font-weight: 500;
+      
+      &::before {
+        content: "✓";
+        margin-right: 8px;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+// Loading state
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: $secondary-color;
+    font-size: 14px;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// Error state
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  
+  .error-message {
+    color: $danger-color;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+  
+  .btn-retry {
+    padding: 8px 16px;
+    background-color: $primary-color;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    
+    &:hover {
+      background-color: color.adjust($primary-color, $lightness: -10%);
+    }
+  }
+}
+
+// Empty state
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  
+  p {
+    color: $secondary-color;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+  
+  .btn-reset {
+    padding: 8px 16px;
+    background-color: transparent;
+    color: $secondary-color;
+    border: 1px solid $border-color;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    
+    &:hover {
+      background-color: $light-gray;
+    }
+  }
+}
+
+// Pagination controls
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  margin-top: 16px;
+  border-top: 1px solid $border-color;
+  
+  .pagination-info {
+    color: $secondary-color;
+    font-size: 14px;
+  }
+  
+  .pagination-buttons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    
+    .page-ellipsis {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $secondary-color;
+      font-size: 14px;
+    }
+    
+    .page-btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: white;
+      border: 1px solid $border-color;
+      border-radius: 4px;
+      color: $secondary-color;
+      font-size: 14px;
+      cursor: pointer;
+      
+      &:hover:not(:disabled) {
+        background-color: $light-gray;
+      }
+      
+      &.active {
+        background-color: $primary-color;
+        color: white;
+        border-color: $primary-color;
+      }
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// Responsive adjustments for pagination
+@media (max-width: 768px) {
+  .pagination-controls {
+    flex-direction: column;
+    gap: 12px;
+    
+    .pagination-info {
+      text-align: center;
+    }
+  }
+} 

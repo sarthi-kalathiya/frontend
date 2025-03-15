@@ -1,0 +1,137 @@
+<div class="layout-container" (click)="closeAllDropdowns()">
+  <!-- Top Navbar -->
+  <header class="top-navbar">
+    <div class="site-brand">
+      <img src="assets/logo.svg" alt="Logo" class="logo-img">
+      <h1 class="site-title">Exam Admin Dashboard</h1>
+    </div>
+    
+    <div class="search-box">
+      <form (submit)="searchSubmit()">
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          name="searchQuery" 
+          placeholder="Search..." 
+          title="Search the portal"
+        >
+        <button type="submit" title="Search">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+    </div>
+    
+    <div class="navbar-actions">
+      <div class="notification-dropdown">
+        <button 
+          class="notification-btn" 
+          (click)="handleNotificationClick($event)" 
+          title="Notifications"
+        >
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge" *ngIf="hasUnreadNotifications()"></span>
+        </button>
+        
+        <div class="dropdown-menu notifications-menu" *ngIf="showNotifications">
+          <div class="dropdown-header">
+            <h3>Notifications</h3>
+            <button class="mark-read-btn" (click)="handleMarkAllRead($event)" title="Mark all as read">
+              Mark all as read
+            </button>
+          </div>
+          
+          <div class="notification-list">
+            <div 
+              *ngFor="let notification of notifications" 
+              class="notification-item"
+              [ngClass]="{'unread': !notification.read}"
+            >
+              <div class="notification-content">
+                <p class="notification-title">{{ notification.title }}</p>
+                <p class="notification-time">{{ notification.time }}</p>
+              </div>
+            </div>
+            
+            <div *ngIf="notifications.length === 0" class="empty-state">
+              No notifications
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="profile-dropdown">
+        <button 
+          class="profile-btn" 
+          (click)="handleUserMenuClick($event)" 
+          title="User profile"
+        >
+          <div class="user-avatar">
+            <img 
+              *ngIf="currentUser?.profilePicture" 
+              [src]="currentUser?.profilePicture" 
+              alt="Profile picture"
+            >
+            <span *ngIf="!currentUser?.profilePicture">{{ currentUser?.firstName?.charAt(0) || '' }}{{ currentUser?.lastName?.charAt(0) || '' }}</span>
+          </div>
+          <span class="user-name">{{ currentUser?.firstName || '' }} {{ currentUser?.lastName || '' }}</span>
+        </button>
+        
+        <div class="dropdown-menu user-menu" *ngIf="showUserMenu">
+          <div class="user-info">
+            <p class="user-fullname">{{ currentUser?.firstName || '' }} {{ currentUser?.lastName || '' }}</p>
+            <p class="user-email">{{ currentUser?.email || '' }}</p>
+          </div>
+          
+          <div class="menu-items">
+            <a href="javascript:void(0)" class="menu-item">
+              <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="javascript:void(0)" class="menu-item">
+              <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="javascript:void(0)" class="menu-item" (click)="logout()">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  <!-- Tab Navigation - Updated to match screenshots -->
+  <nav class="tab-navigation">
+    <div class="nav-tabs">
+      <button 
+        class="tab-item" 
+        [ngClass]="{'active': activeTab === 'dashboard'}"
+        (click)="navigateTo('/admin/dashboard')"
+        title="Go to Dashboard"
+      >
+        Dashboard
+      </button>
+      
+      <button 
+        class="tab-item" 
+        [ngClass]="{'active': activeTab === 'users'}"
+        (click)="navigateTo('/admin/users')"
+        title="Go to Users"
+      >
+        Users
+      </button>
+      
+      <button 
+        class="tab-item" 
+        [ngClass]="{'active': activeTab === 'subjects'}"
+        (click)="navigateTo('/admin/subjects')"
+        title="Go to Subjects"
+      >
+        Subjects
+      </button>
+    </div>
+  </nav>
+  
+  <!-- Main Content -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div> 

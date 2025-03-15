@@ -1,0 +1,28 @@
+<div class="modal-backdrop" *ngIf="visible" [class.closing]="closing" (click)="onBackdropClick($event)">
+  <div class="modal-container" [class.closing]="closing">
+    <div class="modal-content" [class]="getColorClass()">
+      <div class="modal-header">
+        <div class="modal-icon">
+          <i class="fas" [ngClass]="getIconClass()"></i>
+        </div>
+        <h3 class="modal-title">{{ options?.title }}</h3>
+        <button class="btn-close" (click)="onCancel()" title="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <p class="modal-message">{{ options?.message }}</p>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="onCancel()">
+          {{ options?.cancelButtonText || 'Cancel' }}
+        </button>
+        <button class="btn btn-primary" [class]="'btn-' + (options?.type || 'warning')" (click)="onConfirm()">
+          {{ options?.confirmButtonText || 'Confirm' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

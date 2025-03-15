@@ -1,0 +1,208 @@
+<div class="user-management">
+  <div class="section-header">
+    <h2>User Management</h2>
+    <p>Add, edit, and manage users in the system.</p>
+  </div>
+  
+  <div class="filter-bar">
+    <div class="search-box">
+      <input type="text" placeholder="Search users..." 
+             [ngModel]="searchTerm" 
+             (input)="onSearchInput($event)">
+      <button class="btn-search" title="Search">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+    
+    <div class="filter-actions">
+      <div class="filter-selects">
+        <div class="custom-select">
+          <button class="form-select" (click)="$event.stopPropagation(); toggleRoleDropdown()">
+            {{ selectedRole }}
+          </button>
+          <div class="dropdown-menu" *ngIf="showRoleDropdown">
+            <button class="dropdown-item" [ngClass]="{'active': selectedRole === 'All Roles'}" (click)="selectRole('All Roles')">
+              All Roles
+            </button>
+            <button class="dropdown-item" [ngClass]="{'active': selectedRole === 'ADMIN'}" (click)="selectRole('ADMIN')">
+              ADMIN
+            </button>
+            <button class="dropdown-item" [ngClass]="{'active': selectedRole === 'TEACHER'}" (click)="selectRole('TEACHER')">
+              TEACHER
+            </button>
+            <button class="dropdown-item" [ngClass]="{'active': selectedRole === 'STUDENT'}" (click)="selectRole('STUDENT')">
+              STUDENT
+            </button>
+          </div>
+        </div>
+        
+        <div class="custom-select">
+          <button class="form-select" (click)="$event.stopPropagation(); toggleStatusDropdown()">
+            {{ selectedStatus }}
+          </button>
+          <div class="dropdown-menu" *ngIf="showStatusDropdown">
+            <button class="dropdown-item" [ngClass]="{'active': selectedStatus === 'All Statuses'}" (click)="selectStatus('All Statuses')">
+              All Statuses
+            </button>
+            <button class="dropdown-item" [ngClass]="{'active': selectedStatus === 'Active'}" (click)="selectStatus('Active')">
+              Active
+            </button>
+            <button class="dropdown-item" [ngClass]="{'active': selectedStatus === 'Inactive'}" (click)="selectStatus('Inactive')">
+              Inactive
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <button class="btn btn-primary add-btn" (click)="openAddUserModal()">
+        <i class="fas fa-user-plus"></i>
+        Add User
+      </button>
+    </div>
+  </div>
+  
+  <div class="data-table">
+    <!-- Loading and error states -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading users...</p>
+    </div>
+    
+    <div *ngIf="!isLoading && error" class="error-state">
+      <p class="error-message">{{ error }}</p>
+      <button class="btn-retry" (click)="loadUsers()">Try Again</button>
+    </div>
+    
+    <!-- Empty state -->
+    <div *ngIf="!isLoading && !error && filteredUsers.length === 0" class="empty-state">
+      <p>No users found matching your filters.</p>
+      <button class="btn-reset" (click)="selectRole('All Roles'); selectStatus('All Statuses'); searchTerm = ''; onSearch();">
+        Reset Filters
+      </button>
+    </div>
+    
+    <!-- User table -->
+    <table *ngIf="!isLoading && !error && filteredUsers.length > 0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of filteredUsers">
+          <td class="user-name">
+            <div class="user-avatar">
+              <div class="avatar-placeholder">{{ user.firstName?.charAt(0) || user.name.charAt(0) || '' }}</div>
+            </div>
+            <span>{{ user.firstName && user.lastName ? user.firstName + ' ' + user.lastName : user.name }}</span>
+          </td>
+          <td>{{ user.email }}</td>
+          <td>
+            <span class="badge" [ngClass]="getRoleBadgeClass(user.role)">{{ user.role }}</span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="user.isActive ? 'badge-success' : 'badge-danger'">
+              {{ user.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-icon action-menu" title="More actions" (click)="$event.stopPropagation(); toggleActionMenu(user.id, $event)">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+            </div>
+            
+            <!-- Move dropdown outside of the cell flow for better positioning -->
+            <div class="action-dropdown-container" *ngIf="activeActionMenu === user.id">
+              <div class="action-dropdown" [class.flip-up]="flipUpMenuIds.has(user.id)">
+                <button class="action-item" title="Edit user" (click)="editUser(user.id, $event)">
+                  <i class="fas fa-edit"></i> Edit
+                </button>
+                
+                <button class="action-item" title="View user details" (click)="viewUser(user.id, $event)">
+                  <i class="fas fa-eye"></i> View
+                </button>
+                
+                <button 
+                  class="action-item" 
+                  [title]="user.isActive ? 'Deactivate user' : 'Activate user'"
+                  (click)="toggleUserStatus(user.id, $event)"
+                >
+                  <i class="fas" [ngClass]="user.isActive ? 'fa-ban' : 'fa-check-circle'"></i>
+                  {{ user.isActive ? 'Deactivate' : 'Activate' }}
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <!-- Pagination controls -->
+    <div class="pagination-controls" *ngIf="!isLoading && !error && totalPages > 1">
+      <div class="pagination-info">
+        Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalItems) }} of {{ totalItems }} users
+      </div>
+      
+      <div class="pagination-buttons">
+        <button 
+          class="page-btn" 
+          [disabled]="currentPage === 1" 
+          (click)="onPageChange(currentPage - 1)" 
+          title="Previous page"
+        >
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        
+        <ng-container *ngFor="let page of getPageNumbers()">
+          <!-- Render ellipsis for -1 value -->
+          <span *ngIf="page === -1" class="page-ellipsis">...</span>
+          
+          <!-- Render normal page button for actual page numbers -->
+          <button 
+            *ngIf="page !== -1"
+            class="page-btn" 
+            [class.active]="page === currentPage"
+            (click)="onPageChange(page)"
+            title="Go to page {{ page }}"
+          >
+            {{ page }}
+          </button>
+        </ng-container>
+        
+        <button 
+          class="page-btn" 
+          [disabled]="currentPage === totalPages" 
+          (click)="onPageChange(currentPage + 1)"
+          title="Next page"
+        >
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<app-add-user-modal 
+  *ngIf="showAddUserModal" 
+  (close)="closeAddUserModal($event)"
+></app-add-user-modal>
+
+<!-- View User Modal -->
+<app-view-user-modal
+  *ngIf="showViewUserModal"
+  [userId]="selectedUserId"
+  (close)="closeViewUserModal()"
+></app-view-user-modal>
+
+<!-- Edit User Modal -->
+<app-edit-user-modal
+  *ngIf="showEditUserModal"
+  [userId]="selectedUserId"
+  (close)="closeEditUserModal($event)"
+></app-edit-user-modal> 

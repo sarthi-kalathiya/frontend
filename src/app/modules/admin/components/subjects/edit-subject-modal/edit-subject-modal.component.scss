@@ -1,0 +1,224 @@
+@use 'sass:color';
+
+// Variables
+$primary-color: #000000;
+$secondary-color: #333333;
+$text-color: #333333;
+$light-gray: #f8f8f8;
+$border-color: #e0e0e0;
+$success-color: #4caf50;
+$danger-color: #f44336;
+
+// Modal Backdrop
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+
+// Modal Container
+.modal-container {
+  width: 100%;
+  max-width: 550px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: modal-in 0.3s ease-out;
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Modal Header
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid $border-color;
+  
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: $primary-color;
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #999;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    
+    &:hover {
+      color: $primary-color;
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+  }
+}
+
+// Modal Body
+.modal-body {
+  padding: 24px;
+  
+  form {
+    .form-group {
+      margin-bottom: 16px;
+      
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: $secondary-color;
+      }
+      
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid $border-color;
+        border-radius: 4px;
+        font-size: 14px;
+        background-color: white;
+        
+        &:focus {
+          outline: none;
+          border-color: $secondary-color;
+          box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        &.is-invalid {
+          border-color: $danger-color;
+        }
+      }
+      
+      .error-message {
+        color: $danger-color;
+        font-size: 12px;
+        margin-top: 4px;
+      }
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 16px;
+      
+      .form-group {
+        flex: 1;
+      }
+    }
+  }
+}
+
+// Modal Footer
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid $border-color;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  
+  button {
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    &.btn-secondary {
+      background-color: white;
+      border: 1px solid $border-color;
+      color: $text-color;
+      
+      &:hover:not(:disabled) {
+        background-color: $light-gray;
+      }
+    }
+    
+    &.btn-primary {
+      background-color: $primary-color;
+      border: none;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      &:hover:not(:disabled) {
+        background-color: color.adjust($primary-color, $lightness: 10%);
+      }
+      
+      .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        border-right-color: white;
+        border-radius: 50%;
+        animation: spinner-border 0.75s linear infinite;
+      }
+      
+      @keyframes spinner-border {
+        to { transform: rotate(360deg); }
+      }
+    }
+  }
+}
+
+// Responsive Adjustments
+@media (max-width: 576px) {
+  .modal-container {
+    max-width: 95%;
+  }
+  
+  .modal-body {
+    padding: 16px;
+    
+    .form-row {
+      flex-direction: column;
+      gap: 16px;
+    }
+  }
+  
+  .modal-footer {
+    padding: 12px 16px;
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+      
+      &.btn-secondary {
+        order: 2;
+      }
+      
+      &.btn-primary {
+        order: 1;
+      }
+    }
+  }
+} 

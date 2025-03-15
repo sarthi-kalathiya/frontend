@@ -1,0 +1,147 @@
+<div class="signup-container">
+  <div class="signup-card">
+    <div class="signup-header">
+      <h2>Admin Registration</h2>
+      <p>Create a new administrator account</p>
+    </div>
+    
+    @if (error) {
+    <div class="alert alert-danger">
+      {{ error }}
+    </div>
+    }
+    
+    @if (success) {
+    <div class="alert alert-success">
+      {{ success }}
+    </div>
+    }
+    
+    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="signup-form">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input
+          type="text"
+          id="name"
+          formControlName="name"
+          class="form-control"
+          placeholder="Enter your full name"
+          [class.is-invalid]="name?.invalid && (name?.dirty || name?.touched)"
+        />
+        @if (name?.invalid && (name?.dirty || name?.touched)) {
+        <div class="invalid-feedback">
+          @if (name?.errors?.['required']) {
+            Name is required
+          }
+          @if (name?.errors?.['minlength']) {
+            Name must be at least 3 characters long
+          }
+        </div>
+        }
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          placeholder="Enter your email"
+          [class.is-invalid]="email?.invalid && (email?.dirty || email?.touched)"
+        />
+        @if (email?.invalid && (email?.dirty || email?.touched)) {
+        <div class="invalid-feedback">
+          @if (email?.errors?.['required']) {
+            Email is required
+          }
+          @if (email?.errors?.['email']) {
+            Please enter a valid email address
+          }
+        </div>
+        }
+      </div>
+      
+      <div class="form-group">
+        <label for="contactNumber">Contact Number</label>
+        <input
+          type="tel"
+          id="contactNumber"
+          formControlName="contactNumber"
+          class="form-control"
+          placeholder="Enter 10-digit contact number"
+          [class.is-invalid]="contactNumber?.invalid && (contactNumber?.dirty || contactNumber?.touched)"
+        />
+        @if (contactNumber?.invalid && (contactNumber?.dirty || contactNumber?.touched)) {
+        <div class="invalid-feedback">
+          @if (contactNumber?.errors?.['required']) {
+            Contact number is required
+          }
+          @if (contactNumber?.errors?.['pattern']) {
+            Contact number must be 10 digits
+          }
+        </div>
+        }
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="form-control"
+          placeholder="Enter your password"
+          [class.is-invalid]="password?.invalid && (password?.dirty || password?.touched)"
+        />
+        @if (password?.invalid && (password?.dirty || password?.touched)) {
+        <div class="invalid-feedback">
+          @if (password?.errors?.['required']) {
+            Password is required
+          }
+          @if (password?.errors?.['minlength']) {
+            Password must be at least 8 characters long
+          }
+        </div>
+        }
+      </div>
+      
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          formControlName="confirmPassword"
+          class="form-control"
+          placeholder="Confirm your password"
+          [class.is-invalid]="(confirmPassword?.invalid || signupForm.hasError('passwordMismatch')) && (confirmPassword?.dirty || confirmPassword?.touched)"
+        />
+        @if ((confirmPassword?.invalid || signupForm.hasError('passwordMismatch')) && (confirmPassword?.dirty || confirmPassword?.touched)) {
+        <div class="invalid-feedback">
+          @if (confirmPassword?.errors?.['required']) {
+            Please confirm your password
+          }
+          @if (signupForm.hasError('passwordMismatch')) {
+            Passwords do not match
+          }
+        </div>
+        }
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="signupForm.invalid || isLoading">
+          @if (isLoading) {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Loading...
+          } @else {
+            Register
+          }
+        </button>
+      </div>
+      
+      <div class="signup-footer">
+        <p>Already have an account? <a [routerLink]="['/auth/admin/login']">Sign in</a></p>
+      </div>
+    </form>
+  </div>
+</div> 

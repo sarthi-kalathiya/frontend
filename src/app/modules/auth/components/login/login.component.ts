@@ -1,0 +1,96 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
+
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule]
+})
+export class LoginComponent implements OnInit {
+  loginForm!: FormGroup;
+  isLoading = false;
+  error = '';
+  returnUrl: string = '/';
+  adminMode = false;
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit(): void {
+    this.loginForm = this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+
+    // Get return URL from route parameters or default to '/'
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    
+    console.log('Login Component: Return URL:', this.returnUrl);
+    
+    // Check if user is already logged in
+    if (this.authService.isLoggedIn()) {
+      this.redirectBasedOnRole();
+    }
+  }
+
+  get email() { return this.loginForm.get('email'); }
+  get password() { return this.loginForm.get('password'); }
+
+  onSubmit(): void {
+    if (this.loginForm.invalid) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.error = '';
+
+    // Use the unified login method
+    this.authService.unifiedLogin(this.loginForm.value).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        if (response.status === 'success' && response.data) {
+          this.redirectBasedOnRole();
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.error = err.error?.message || 'Failed to login. Please check your credentials.';
+      }
+    });
+  }
+
+  private redirectBasedOnRole(): void {
+    // Get user role and redirect accordingly
+    const role = this.authService.getUserRole();
+    
+    // Use return URL if it's not the default, otherwise route based on role
+    if (this.returnUrl !== '/') {
+      this.router.navigate([this.returnUrl]);
+      return;
+    }
+    
+    switch (role) {
+      case 'ADMIN':
+        this.router.navigate(['/admin/dashboard']);
+        break;
+      case 'TEACHER':
+        this.router.navigate(['/teacher/dashboard']);
+        break;
+      case 'STUDENT':
+        this.router.navigate(['/student/dashboard']);
+        break;
+      default:
+        // If no role or unknown role, stay on login page
+        break;
+    }
+  }
+} 

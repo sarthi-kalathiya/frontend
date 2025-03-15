@@ -1,0 +1,119 @@
+<div class="modal-backdrop" (click)="closeModal()">
+  <div class="modal-container" (click)="stopPropagation($event)">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h2>Edit Subject</h2>
+      <button class="close-btn" (click)="closeModal()" aria-label="Close modal">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <!-- Modal Body -->
+    <div class="modal-body">
+      <form (ngSubmit)="handleSubmit()" #subjectForm="ngForm">
+        <!-- Subject Name -->
+        <div class="form-group">
+          <label for="name">Subject Name *</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            [(ngModel)]="editForm.name" 
+            required 
+            [class.is-invalid]="errors['name']"
+          />
+          <div class="error-message" *ngIf="errors['name']">
+            {{ errors['name'] }}
+          </div>
+        </div>
+        
+        <!-- Subject Code -->
+        <div class="form-group">
+          <label for="code">Subject Code *</label>
+          <input 
+            type="text" 
+            id="code" 
+            name="code" 
+            [(ngModel)]="editForm.code" 
+            placeholder="e.g. MATH-101" 
+            required 
+            [class.is-invalid]="errors['code']"
+          />
+          <div class="error-message" *ngIf="errors['code']">
+            {{ errors['code'] }}
+          </div>
+        </div>
+        
+        <!-- Row with Credits and Status -->
+        <div class="form-row">
+          <!-- Credits -->
+          <div class="form-group">
+            <label for="credits">Credits *</label>
+            <input 
+              type="number" 
+              id="credits" 
+              name="credits" 
+              [(ngModel)]="editForm.credits" 
+              min="1" 
+              max="6" 
+              required 
+              [class.is-invalid]="errors['credits']"
+            />
+            <div class="error-message" *ngIf="errors['credits']">
+              {{ errors['credits'] }}
+            </div>
+          </div>
+          
+          <!-- Status -->
+          <div class="form-group">
+            <label for="status">Status</label>
+            <select 
+              id="status" 
+              name="status" 
+              [(ngModel)]="editForm.isActive"
+            >
+              <option [ngValue]="true">Active</option>
+              <option [ngValue]="false">Inactive</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Description -->
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea 
+            id="description" 
+            name="description" 
+            [(ngModel)]="editForm.description" 
+            rows="4" 
+            [class.is-invalid]="errors['description']"
+          ></textarea>
+          <div class="error-message" *ngIf="errors['description']">
+            {{ errors['description'] }}
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button 
+        type="button" 
+        class="btn-secondary" 
+        (click)="closeModal()"
+        [disabled]="isSubmitting"
+      >
+        Cancel
+      </button>
+      <button 
+        type="button" 
+        class="btn-primary" 
+        (click)="handleSubmit()" 
+        [disabled]="isSubmitting"
+      >
+        <span class="spinner" *ngIf="isSubmitting"></span>
+        <span>{{ isSubmitting ? 'Saving...' : 'Save Changes' }}</span>
+      </button>
+    </div>
+  </div>
+</div> 
