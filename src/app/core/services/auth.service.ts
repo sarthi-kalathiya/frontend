@@ -64,7 +64,7 @@ export class AuthService {
     console.log('Unified login request:', loginData);
     
     // Try admin login first
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/admin/signin`, loginData).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/signin`, loginData).pipe(
       tap(response => {
         console.log('Admin login response:', response);
         if (response.status === 'success' && response.data) {
@@ -98,7 +98,7 @@ export class AuthService {
 
   adminLogin(loginData: LoginRequest): Observable<AuthResponse> {
     console.log('Admin login request:', loginData);
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/admin/signin`, loginData).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/signin`, loginData).pipe(
       tap(response => {
         console.log('Admin login response:', response);
         if (response.status === 'success' && response.data) {

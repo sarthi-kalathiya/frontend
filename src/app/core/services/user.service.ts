@@ -63,6 +63,11 @@ export class UserService {
     return this.http.put<any>(`${this.apiUrl}/user/admin/users/${userId}`, userData);
   }
 
+  // Update user subjects
+  updateUserSubjects(userId: string, subjectIds: string[]): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/user/admin/users/${userId}/subjects`, { subjectIds });
+  }
+
   // Update user status
   updateUserStatus(userId: string, isActive: boolean): Observable<any> {
     return this.http.patch<any>(`${this.apiUrl}/user/admin/users/${userId}/status`, { isActive });

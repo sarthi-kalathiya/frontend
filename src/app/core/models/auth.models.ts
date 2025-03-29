@@ -4,7 +4,8 @@ export interface LoginRequest {
 }
 
 export interface SignupRequest {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   contactNumber: string;
@@ -22,9 +23,9 @@ export interface AuthResponse {
 
 export interface UserData {
   id: string;
-  name: string;
-  firstName?: string;
-  lastName?: string;
+  name?: string;
+  firstName: string;
+  lastName: string;
   email: string;
   role: 'ADMIN' | 'TEACHER' | 'STUDENT';
   contactNumber: string;

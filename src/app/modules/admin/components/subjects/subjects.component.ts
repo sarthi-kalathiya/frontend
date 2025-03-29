@@ -6,6 +6,7 @@ import { ToastService } from '../../../../core/services/toast.service';
 import { AddSubjectModalComponent } from './add-subject-modal/add-subject-modal.component';
 import { ViewSubjectModalComponent } from './view-subject-modal/view-subject-modal.component';
 import { EditSubjectModalComponent } from './edit-subject-modal/edit-subject-modal.component';
+import { ActionMenuComponent, ActionMenuItem } from '../../../../shared/components/action-menu/action-menu.component';
 
 interface Subject {
   id: string;
@@ -29,7 +30,8 @@ interface Subject {
     FormsModule, 
     AddSubjectModalComponent,
     ViewSubjectModalComponent,
-    EditSubjectModalComponent
+    EditSubjectModalComponent,
+    ActionMenuComponent
   ]
 })
 export class SubjectsComponent implements OnInit {
@@ -37,7 +39,6 @@ export class SubjectsComponent implements OnInit {
   filteredSubjects: Subject[] = [];
   searchTerm: string = '';
   selectedStatus: string = 'All Statuses';
-  activeActionMenu: string | null = null;
   showStatusDropdown: boolean = false;
   showAddSubjectModal: boolean = false;
   showViewSubjectModal: boolean = false;
@@ -45,8 +46,11 @@ export class SubjectsComponent implements OnInit {
   selectedSubject: Subject | null = null;
   isLoading: boolean = false;
   error: string = '';
-  flipUpMenuIds: Set<string> = new Set();
-  
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalItems: number = 0;
+  totalPages: number = 0;
+
   constructor(
     private subjectService: SubjectService,
     private toastService: ToastService
@@ -54,7 +58,6 @@ export class SubjectsComponent implements OnInit {
   
   @HostListener('document:click')
   closeDropdowns() {
-    this.activeActionMenu = null;
     this.showStatusDropdown = false;
   }
   
@@ -72,20 +75,78 @@ export class SubjectsComponent implements OnInit {
       filters.searchTerm = this.searchTerm;
     }
     
-    if (this.selectedStatus !== 'All Statuses') {
-      filters.status = this.selectedStatus.toLowerCase();
+    // Set includeInactive based on selected status
+    if (this.selectedStatus === 'All Statuses') {
+      filters.includeInactive = true;
+    } else if (this.selectedStatus === 'Inactive') {
+      filters.includeInactive = true;
+    } else {
+      filters.includeInactive = false;
     }
     
-    this.subjectService.getSubjects(filters).subscribe({
-      next: (response) => {
+    // Add pagination parameters
+    filters.page = this.currentPage;
+    filters.pageSize = this.pageSize;
+    
+    console.log('Loading subjects with filters:', filters);
+    
+    this.subjectService.getAllSubjects(filters).subscribe({
+      next: (response: any) => {
+        console.log('API Response:', response);
         this.isLoading = false;
-        this.subjects = response.data || [];
+        
+        // Handle different response formats
+        if (response) {
+          if (response.data) {
+            // Standard API response with data property
+            this.subjects = response.data;
+            
+            // Get pagination info
+            if (response.pagination) {
+              this.totalItems = response.pagination.totalItems;
+              this.totalPages = response.pagination.totalPages;
+              this.currentPage = response.pagination.currentPage;
+            } else {
+              this.totalItems = this.subjects.length;
+              this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+            }
+          } else if (Array.isArray(response)) {
+            // Direct array response
+            this.subjects = response;
+            this.totalItems = response.length;
+            this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+          } else if (response.status === 'success' && Array.isArray(response.data)) {
+            // Success response format with data array
+            this.subjects = response.data;
+            
+            // Check if pagination is embedded in the response
+            if (response.pagination) {
+              this.totalItems = response.pagination.totalItems;
+              this.totalPages = response.pagination.totalPages;
+              this.currentPage = response.pagination.currentPage || this.currentPage;
+            } else {
+              this.totalItems = this.subjects.length;
+              this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+            }
+          } else {
+            console.error('Unexpected response format:', response);
+            this.error = 'Invalid response format from server';
+            this.subjects = [];
+            this.totalItems = 0;
+            this.totalPages = 0;
+          }
+        } else {
+          this.subjects = [];
+          this.totalItems = 0;
+          this.totalPages = 0;
+        }
+        
         this.applyFilters(); // Apply client-side filtering for any additional filtering
       },
-      error: (err) => {
+      error: (err: any) => {
+        console.error('Error loading subjects:', err);
         this.isLoading = false;
         this.error = err.error?.message || 'Failed to load subjects';
-        console.error('Error loading subjects:', err);
         
         // Fallback to mock data in case of error during development
         this.loadMockSubjects();
@@ -171,72 +232,104 @@ export class SubjectsComponent implements OnInit {
     this.loadSubjects();
   }
   
+  onSearchInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchTerm = target.value;
+    
+    // Debounce search to avoid excessive API calls
+    clearTimeout(this._searchTimeout);
+    this._searchTimeout = setTimeout(() => {
+      this.loadSubjects();
+    }, 300);
+  }
+  
+  private _searchTimeout: any;
+  
   onStatusChange(): void {
     // For server-side filtering, reload subjects
     this.loadSubjects();
   }
   
-  toggleActionMenu(subjectId: string, event?: MouseEvent): void {
-    if (event) {
-      event.stopPropagation();
-    }
-    
-    this.activeActionMenu = this.activeActionMenu === subjectId ? null : subjectId;
-    
-    // Check if we need to flip the menu up (if item is near the bottom of the table)
-    if (this.activeActionMenu && event) {
-      // Get viewport height
-      const viewportHeight = window.innerHeight;
-      // Get position of the clicked button
-      const buttonRect = (event.target as HTMLElement).getBoundingClientRect();
-      // Calculate if the menu would go off screen (assuming menu height ~120px)
-      const estimatedMenuHeight = 120; 
-      
-      this.flipUpMenuIds.clear();
-      if (buttonRect.bottom + estimatedMenuHeight > viewportHeight) {
-        this.flipUpMenuIds.add(subjectId);
+  // Get menu items for a subject
+  getMenuItems(subject: Subject): ActionMenuItem[] {
+    return [
+      {
+        id: 'view',
+        label: 'View',
+        icon: 'fa-eye',
+        action: 'view'
+      },
+      {
+        id: 'edit',
+        label: 'Edit',
+        icon: 'fa-edit',
+        action: 'edit'
+      },
+      {
+        id: 'toggle-status',
+        label: subject.isActive ? 'Deactivate' : 'Activate',
+        icon: subject.isActive ? 'fa-ban' : 'fa-check-circle',
+        action: 'toggle-status'
       }
+    ];
+  }
+  
+  // Handle action from menu
+  handleMenuAction(event: {action: string, id: string}): void {
+    const subjectId = event.id;
+    const action = event.action;
+    
+    switch(action) {
+      case 'view':
+        this.viewSubject(subjectId);
+        break;
+      case 'edit':
+        this.editSubject(subjectId);
+        break;
+      case 'toggle-status':
+        this.toggleSubjectStatus(subjectId);
+        break;
+      default:
+        console.warn('Unknown action:', action);
     }
   }
   
-  editSubject(subjectId: string, event: MouseEvent): void {
-    event.stopPropagation();
+  editSubject(subjectId: string): void {
     const subject = this.subjects.find(s => s.id === subjectId);
     if (subject) {
       this.selectedSubject = subject;
       this.showEditSubjectModal = true;
     }
-    this.activeActionMenu = null;
   }
   
-  viewSubject(subjectId: string, event: MouseEvent): void {
-    event.stopPropagation();
+  viewSubject(subjectId: string): void {
     const subject = this.subjects.find(s => s.id === subjectId);
     if (subject) {
       this.selectedSubject = subject;
       this.showViewSubjectModal = true;
     }
-    this.activeActionMenu = null;
   }
   
-  deleteSubject(subjectId: string, event: MouseEvent): void {
-    event.stopPropagation();
+  toggleSubjectStatus(subjectId: string): void {
+    const subject = this.subjects.find(s => s.id === subjectId);
+    if (!subject) return;
     
-    if (confirm('Are you sure you want to delete this subject?')) {
-      this.subjectService.deleteSubject(subjectId).subscribe({
+    const newStatus = !subject.isActive;
+    const actionName = newStatus ? 'activate' : 'deactivate';
+    
+    if (confirm(`Are you sure you want to ${actionName} this subject?`)) {
+      this.subjectService.updateSubjectStatus(subjectId, newStatus).subscribe({
         next: () => {
-          this.toastService.showSuccess('Subject deleted successfully');
+          this.toastService.showSuccess(`Subject ${actionName}d successfully`);
           // Reload subjects
           this.loadSubjects();
         },
         error: (err) => {
-          this.toastService.showError(err.error?.message || 'Failed to delete subject');
-          console.error('Error deleting subject:', err);
+          this.toastService.showError(err.error?.message || `Failed to ${actionName} subject`);
+          console.error(`Error ${actionName}ing subject:`, err);
         }
       });
     }
-    
-    this.activeActionMenu = null;
   }
   
   toggleStatusDropdown(event?: MouseEvent): void {
@@ -264,32 +357,6 @@ export class SubjectsComponent implements OnInit {
     if (refresh) {
       this.loadSubjects();
     }
-  }
-  
-  toggleSubjectStatus(subjectId: string, event: MouseEvent): void {
-    event.stopPropagation();
-    
-    const subject = this.subjects.find(s => s.id === subjectId);
-    if (!subject) return;
-    
-    const newStatus = !subject.isActive;
-    const actionName = newStatus ? 'activate' : 'deactivate';
-    
-    if (confirm(`Are you sure you want to ${actionName} this subject?`)) {
-      this.subjectService.updateSubjectStatus(subjectId, newStatus).subscribe({
-        next: () => {
-          this.toastService.showSuccess(`Subject ${actionName}d successfully`);
-          // Reload subjects
-          this.loadSubjects();
-        },
-        error: (err) => {
-          this.toastService.showError(err.error?.message || `Failed to ${actionName} subject`);
-          console.error(`Error ${actionName}ing subject:`, err);
-        }
-      });
-    }
-    
-    this.activeActionMenu = null;
   }
   
   closeViewSubjectModal(): void {

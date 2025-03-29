@@ -35,9 +35,19 @@
               formControlName="firstName" 
               [class.is-invalid]="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched"
             >
-            <div class="invalid-feedback" *ngIf="userForm.get('firstName')?.errors?.['required'] && userForm.get('firstName')?.touched">
-              First name is required
-            </div>
+            @if (userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched) {
+              <div class="invalid-feedback">
+                @if (userForm.get('firstName')?.errors?.['required']) {
+                  First name is required
+                }
+                @if (userForm.get('firstName')?.errors?.['minlength']) {
+                  First name must be at least 2 characters
+                }
+                @if (userForm.get('firstName')?.errors?.['maxlength']) {
+                  First name must be at most 50 characters
+                }
+              </div>
+            }
           </div>
           
           <div class="form-group">
@@ -48,9 +58,19 @@
               formControlName="lastName"
               [class.is-invalid]="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched"
             >
-            <div class="invalid-feedback" *ngIf="userForm.get('lastName')?.errors?.['required'] && userForm.get('lastName')?.touched">
-              Last name is required
-            </div>
+            @if (userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched) {
+              <div class="invalid-feedback">
+                @if (userForm.get('lastName')?.errors?.['required']) {
+                  Last name is required
+                }
+                @if (userForm.get('lastName')?.errors?.['minlength']) {
+                  Last name must be at least 2 characters
+                }
+                @if (userForm.get('lastName')?.errors?.['maxlength']) {
+                  Last name must be at most 50 characters
+                }
+              </div>
+            }
           </div>
         </div>
         
@@ -62,12 +82,16 @@
             formControlName="email"
             [class.is-invalid]="userForm.get('email')?.invalid && userForm.get('email')?.touched"
           >
-          <div class="invalid-feedback" *ngIf="userForm.get('email')?.errors?.['required'] && userForm.get('email')?.touched">
-            Email is required
-          </div>
-          <div class="invalid-feedback" *ngIf="userForm.get('email')?.errors?.['email'] && userForm.get('email')?.touched">
-            Please enter a valid email address
-          </div>
+          @if (userForm.get('email')?.invalid && userForm.get('email')?.touched) {
+            <div class="invalid-feedback">
+              @if (userForm.get('email')?.errors?.['required']) {
+                Email is required
+              }
+              @if (userForm.get('email')?.errors?.['email']) {
+                Please enter a valid email address
+              }
+            </div>
+          }
         </div>
         
         <div class="form-group">
@@ -76,15 +100,19 @@
             type="tel" 
             id="contactNumber" 
             formControlName="contactNumber"
-            placeholder="+1 555-123-4567"
+            placeholder="000000000(00)"
             [class.is-invalid]="userForm.get('contactNumber')?.invalid && userForm.get('contactNumber')?.touched"
           >
-          <div class="invalid-feedback" *ngIf="userForm.get('contactNumber')?.errors?.['required'] && userForm.get('contactNumber')?.touched">
-            Contact number is required
-          </div>
-          <div class="invalid-feedback" *ngIf="userForm.get('contactNumber')?.errors?.['pattern'] && userForm.get('contactNumber')?.touched">
-            Please enter a valid phone number (at least 10 digits)
-          </div>
+          @if (userForm.get('contactNumber')?.invalid && userForm.get('contactNumber')?.touched) {
+            <div class="invalid-feedback">
+              @if (userForm.get('contactNumber')?.errors?.['required']) {
+                Contact number is required
+              }
+              @if (userForm.get('contactNumber')?.errors?.['pattern']) {
+                Please enter a valid phone number
+              }
+            </div>
+          }
         </div>
       </div>
       

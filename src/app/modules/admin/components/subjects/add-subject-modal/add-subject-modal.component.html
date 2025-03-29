@@ -1,16 +1,15 @@
-<div class="modal-backdrop" (click)="closeModal()">
-  <div class="modal-container" (click)="stopPropagation($event)">
-    <!-- Modal Header -->
+<div class="modal-backdrop" (click)="closeModal()"></div>
+<div class="modal-container">
+  <div class="modal-content">
     <div class="modal-header">
       <h2>Add New Subject</h2>
-      <button class="close-btn" (click)="closeModal()" aria-label="Close modal">
+      <button class="close-btn" (click)="closeModal()" title="Close">
         <i class="fas fa-times"></i>
       </button>
     </div>
     
-    <!-- Modal Body -->
-    <div class="modal-body">
-      <form (ngSubmit)="handleSubmit()" #subjectForm="ngForm">
+    <form (ngSubmit)="handleSubmit()" #subjectForm="ngForm">
+      <div class="modal-body">
         <!-- Subject Name -->
         <div class="form-group">
           <label for="name">Subject Name *</label>
@@ -22,7 +21,7 @@
             required 
             [class.is-invalid]="errors['name']"
           />
-          <div class="error-message" *ngIf="errors['name']">
+          <div class="invalid-feedback" *ngIf="errors['name']">
             {{ errors['name'] }}
           </div>
         </div>
@@ -39,7 +38,7 @@
             required 
             [class.is-invalid]="errors['code']"
           />
-          <div class="error-message" *ngIf="errors['code']">
+          <div class="invalid-feedback" *ngIf="errors['code']">
             {{ errors['code'] }}
           </div>
         </div>
@@ -59,7 +58,7 @@
               required 
               [class.is-invalid]="errors['credits']"
             />
-            <div class="error-message" *ngIf="errors['credits']">
+            <div class="invalid-feedback" *ngIf="errors['credits']">
               {{ errors['credits'] }}
             </div>
           </div>
@@ -88,32 +87,30 @@
             rows="4" 
             [class.is-invalid]="errors['description']"
           ></textarea>
-          <div class="error-message" *ngIf="errors['description']">
+          <div class="invalid-feedback" *ngIf="errors['description']">
             {{ errors['description'] }}
           </div>
         </div>
-      </form>
-    </div>
-    
-    <!-- Modal Footer -->
-    <div class="modal-footer">
-      <button 
-        type="button" 
-        class="btn-secondary" 
-        (click)="closeModal()"
-        [disabled]="isSubmitting"
-      >
-        Cancel
-      </button>
-      <button 
-        type="button" 
-        class="btn-primary" 
-        (click)="handleSubmit()" 
-        [disabled]="isSubmitting"
-      >
-        <span class="spinner" *ngIf="isSubmitting"></span>
-        <span>{{ isSubmitting ? 'Creating...' : 'Create Subject' }}</span>
-      </button>
-    </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          (click)="closeModal()"
+          [disabled]="isSubmitting"
+        >
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          class="btn btn-primary" 
+          [disabled]="isSubmitting"
+        >
+          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          {{ isSubmitting ? 'Creating...' : 'Create Subject' }}
+        </button>
+      </div>
+    </form>
   </div>
 </div> 

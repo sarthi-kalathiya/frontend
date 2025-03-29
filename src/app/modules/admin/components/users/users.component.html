@@ -96,7 +96,7 @@
         <tr *ngFor="let user of filteredUsers">
           <td class="user-name">
             <div class="user-avatar">
-              <div class="avatar-placeholder">{{ user.firstName?.charAt(0) || user.name.charAt(0) || '' }}</div>
+              <div class="avatar-placeholder">{{ user.firstName?.charAt(0) || user.lastName.charAt(0) || '' }}</div>
             </div>
             <span>{{ user.firstName && user.lastName ? user.firstName + ' ' + user.lastName : user.name }}</span>
           </td>
@@ -110,33 +110,11 @@
             </span>
           </td>
           <td>
-            <div class="action-buttons">
-              <button class="btn-icon action-menu" title="More actions" (click)="$event.stopPropagation(); toggleActionMenu(user.id, $event)">
-                <i class="fas fa-ellipsis-v"></i>
-              </button>
-            </div>
-            
-            <!-- Move dropdown outside of the cell flow for better positioning -->
-            <div class="action-dropdown-container" *ngIf="activeActionMenu === user.id">
-              <div class="action-dropdown" [class.flip-up]="flipUpMenuIds.has(user.id)">
-                <button class="action-item" title="Edit user" (click)="editUser(user.id, $event)">
-                  <i class="fas fa-edit"></i> Edit
-                </button>
-                
-                <button class="action-item" title="View user details" (click)="viewUser(user.id, $event)">
-                  <i class="fas fa-eye"></i> View
-                </button>
-                
-                <button 
-                  class="action-item" 
-                  [title]="user.isActive ? 'Deactivate user' : 'Activate user'"
-                  (click)="toggleUserStatus(user.id, $event)"
-                >
-                  <i class="fas" [ngClass]="user.isActive ? 'fa-ban' : 'fa-check-circle'"></i>
-                  {{ user.isActive ? 'Deactivate' : 'Activate' }}
-                </button>
-              </div>
-            </div>
+            <app-action-menu
+              [items]="getUserMenuItems(user)"
+              [targetId]="user.id"
+              (onAction)="handleMenuAction($event)"
+            ></app-action-menu>
           </td>
         </tr>
       </tbody>
@@ -205,4 +183,13 @@
   *ngIf="showEditUserModal"
   [userId]="selectedUserId"
   (close)="closeEditUserModal($event)"
-></app-edit-user-modal> 
+></app-edit-user-modal>
+
+<!-- Manage Subjects Modal -->
+<app-manage-subjects-modal
+  *ngIf="showManageSubjectsModal"
+  [userId]="selectedUserId"
+  [userName]="selectedUserName"
+  [userRole]="selectedUserRole"
+  (close)="closeManageSubjectsModal($event)"
+></app-manage-subjects-modal> 

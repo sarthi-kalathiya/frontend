@@ -27,10 +27,13 @@ export class EditUserModalComponent implements OnInit {
   ) {
     // Initialize form with empty values
     this.userForm = this.fb.group({
-      firstName: ['', [Validators.required]],
-      lastName: ['', [Validators.required]],
+      firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+      lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       email: ['', [Validators.required, Validators.email]],
-      contactNumber: ['', [Validators.required, Validators.pattern(/^\+?[\d\s-]{10,}$/)]]
+      contactNumber: ['', [
+        Validators.required, 
+        Validators.pattern(/^\d{9,11}$/)
+      ]]
     });
   }
   

@@ -118,8 +118,4 @@ export class EditSubjectModalComponent implements OnInit {
       }
     });
   }
-
-  stopPropagation(event: MouseEvent): void {
-    event.stopPropagation();
-  }
 } 

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -9,7 +9,7 @@ import { AuthService } from '../../../../core/services/auth.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule]
+  imports: [CommonModule, ReactiveFormsModule, RouterLink]
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
@@ -17,6 +17,7 @@ export class LoginComponent implements OnInit {
   error = '';
   returnUrl: string = '/';
   adminMode = false;
+  showPassword = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -28,7 +29,7 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required]]
     });
 
     // Get return URL from route parameters or default to '/'
@@ -40,6 +41,10 @@ export class LoginComponent implements OnInit {
     if (this.authService.isLoggedIn()) {
       this.redirectBasedOnRole();
     }
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   get email() { return this.loginForm.get('email'); }

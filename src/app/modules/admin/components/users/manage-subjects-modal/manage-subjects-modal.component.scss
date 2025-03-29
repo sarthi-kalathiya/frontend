@@ -1,0 +1,362 @@
+// Variables
+$primary-color: #000000;
+$secondary-color: #6c757d;
+$success-color: #4caf50;
+$danger-color: #f44336;
+$warning-color: #ff9800;
+$info-color: #2196f3;
+$text-color: #333333;
+$light-gray: #f8f8f8;
+$border-color: #e0e0e0;
+
+// Modal backdrop
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+// Modal container
+.modal-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1051;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+}
+
+// Modal content
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+// Modal header
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #999;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: $light-gray;
+      color: $text-color;
+    }
+  }
+}
+
+// Loading container
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  
+  .spinner-border {
+    margin-bottom: 16px;
+    color: $primary-color;
+  }
+  
+  p {
+    color: $secondary-color;
+    margin: 0;
+  }
+}
+
+// Error container
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  
+  .alert {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 4px;
+    
+    &.alert-danger {
+      background-color: rgba($danger-color, 0.1);
+      color: darken($danger-color, 10%);
+      border: 1px solid rgba($danger-color, 0.2);
+    }
+  }
+}
+
+// Modal body
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+  
+  // User info
+  .user-info {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid $border-color;
+    
+    p {
+      margin: 0;
+      font-size: 15px;
+      
+      strong {
+        font-weight: 600;
+      }
+      
+      .badge {
+        margin-left: 8px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        display: inline-block;
+        
+        &.badge-info {
+          background-color: $info-color;
+          color: white;
+        }
+        
+        &.badge-success {
+          background-color: $success-color;
+          color: white;
+        }
+      }
+    }
+  }
+  
+  // Subjects management layout
+  .subjects-management {
+    display: flex;
+    gap: 24px;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+    
+    // Column styling
+    .subjects-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 16px 0;
+        padding-bottom: 8px;
+        border-bottom: 1px solid $border-color;
+      }
+      
+      // Search box in available subjects
+      .search-box {
+        margin-bottom: 16px;
+        display: flex;
+        
+        input {
+          flex: 1;
+          padding: 10px 12px;
+          border: 1px solid $border-color;
+          border-right: none;
+          border-radius: 4px 0 0 4px;
+          font-size: 14px;
+          
+          &:focus {
+            outline: none;
+            border-color: $primary-color;
+          }
+        }
+        
+        .btn-search {
+          padding: 10px 12px;
+          background-color: $primary-color;
+          color: white;
+          border: none;
+          border-radius: 0 4px 4px 0;
+          cursor: pointer;
+          
+          &:hover {
+            background-color: lighten($primary-color, 15%);
+          }
+        }
+      }
+      
+      // Subjects list
+      .subjects-list {
+        flex: 1;
+        overflow-y: auto;
+        border: 1px solid $border-color;
+        border-radius: 4px;
+        background-color: $light-gray;
+        padding: 8px;
+        max-height: 400px;
+        
+        .empty-list {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100px;
+          
+          p {
+            color: $secondary-color;
+            font-size: 14px;
+            margin: 0;
+          }
+        }
+        
+        .subject-item {
+          background-color: white;
+          border-radius: 4px;
+          padding: 12px;
+          margin-bottom: 8px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+          
+          .subject-info {
+            flex: 1;
+            
+            .subject-name {
+              font-weight: 500;
+              font-size: 14px;
+              margin-bottom: 4px;
+            }
+            
+            .subject-code {
+              font-size: 12px;
+              color: $secondary-color;
+            }
+          }
+          
+          // Add button
+          .btn-add {
+            width: 30px;
+            height: 30px;
+            border-radius: 15px;
+            background-color: $success-color;
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            
+            &:hover {
+              background-color: darken($success-color, 10%);
+            }
+          }
+          
+          // Remove button
+          .btn-remove {
+            width: 30px;
+            height: 30px;
+            border-radius: 15px;
+            background-color: $danger-color;
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            
+            &:hover {
+              background-color: darken($danger-color, 10%);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Modal footer
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid $border-color;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  
+  button {
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: none;
+    
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+    
+    &.btn-secondary {
+      background-color: $secondary-color;
+      color: white;
+      
+      &:hover:not(:disabled) {
+        background-color: darken($secondary-color, 10%);
+      }
+    }
+    
+    &.btn-primary {
+      background-color: $primary-color;
+      color: white;
+      
+      &:hover:not(:disabled) {
+        background-color: lighten($primary-color, 15%);
+      }
+    }
+    
+    .spinner-border-sm {
+      width: 1rem;
+      height: 1rem;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+  }
+} 

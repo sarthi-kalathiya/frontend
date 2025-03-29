@@ -16,6 +16,8 @@ export class SignupComponent implements OnInit {
   isLoading = false;
   error = '';
   success = '';
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -25,11 +27,19 @@ export class SignupComponent implements OnInit {
 
   ngOnInit(): void {
     this.signupForm = this.formBuilder.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
+      firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+      lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
+      password: ['', [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).+$/)
+      ]],
       confirmPassword: ['', Validators.required],
-      contactNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]]
+      contactNumber: ['', [
+        Validators.required, 
+        Validators.pattern(/^\d{9,11}$/)
+      ]]
     }, { 
       validators: this.passwordMatchValidator 
     });
@@ -42,7 +52,16 @@ export class SignupComponent implements OnInit {
     return password === confirmPassword ? null : { passwordMismatch: true };
   }
 
-  get name() { return this.signupForm.get('name'); }
+  togglePasswordVisibility(field: 'password' | 'confirm'): void {
+    if (field === 'password') {
+      this.showPassword = !this.showPassword;
+    } else {
+      this.showConfirmPassword = !this.showConfirmPassword;
+    }
+  }
+
+  get firstName() { return this.signupForm.get('firstName'); }
+  get lastName() { return this.signupForm.get('lastName'); }
   get email() { return this.signupForm.get('email'); }
   get password() { return this.signupForm.get('password'); }
   get confirmPassword() { return this.signupForm.get('confirmPassword'); }
@@ -69,14 +88,14 @@ export class SignupComponent implements OnInit {
         
         // Check for success based on the API response structure
         if (response && response.status === 'success') {
-          this.success = 'Admin account created successfully. Redirecting to login...';
+          this.success = 'Account created successfully. Redirecting to login...';
           this.signupForm.reset();
           
           // Navigate to login page after a delay
           console.log('Will redirect to login in 2 seconds');
           setTimeout(() => {
             console.log('Redirecting to login now');
-            this.router.navigate(['/auth/admin/login']);
+            this.router.navigate(['/auth/login']);
           }, 2000);
         } else {
           // Handle unexpected response format

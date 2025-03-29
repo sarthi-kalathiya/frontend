@@ -1,0 +1,22 @@
+<div class="action-menu-container">
+  <!-- Toggle button -->
+  <button class="btn-icon action-menu-toggle" title="More actions" (click)="toggle($event)">
+    <i class="fas fa-ellipsis-v"></i>
+  </button>
+  
+  <!-- Action dropdown menu -->
+  <div class="action-menu-dropdown" *ngIf="isOpen" [ngStyle]="{'top.px': buttonPosition.top, 'left.px': buttonPosition.left}" [class.flip-up]="flipUp">
+    <div class="action-dropdown">
+      <ng-container *ngFor="let item of items">
+        <button 
+          *ngIf="item.visible !== false"
+          class="action-item" 
+          [attr.title]="item.label" 
+          (click)="handleAction(item.action)"
+        >
+          <i class="fas" [ngClass]="item.icon"></i> {{ item.label }}
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</div> 

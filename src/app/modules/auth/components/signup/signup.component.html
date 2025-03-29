@@ -1,10 +1,8 @@
-<div class="signup-container">
-  <div class="signup-card">
-    <div class="signup-header">
-      <h2>Admin Registration</h2>
-      <p>Create a new administrator account</p>
-    </div>
-    
+<div class="auth-container">
+  <div class="auth-card">
+    <h1>Create an account</h1>
+    <p class="subtitle">Enter your information to create an account</p>
+
     @if (error) {
     <div class="alert alert-danger">
       {{ error }}
@@ -17,41 +15,83 @@
     </div>
     }
     
-    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="signup-form">
-      <div class="form-group">
-        <label for="name">Full Name</label>
-        <input
-          type="text"
-          id="name"
-          formControlName="name"
-          class="form-control"
-          placeholder="Enter your full name"
-          [class.is-invalid]="name?.invalid && (name?.dirty || name?.touched)"
-        />
-        @if (name?.invalid && (name?.dirty || name?.touched)) {
-        <div class="invalid-feedback">
-          @if (name?.errors?.['required']) {
-            Name is required
+    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">First Name <span class="required">*</span></label>
+          <input
+            type="text"
+            id="firstName"
+            formControlName="firstName"
+            class="form-control"
+            placeholder="John"
+          />
+          @if (firstName?.invalid && (firstName?.dirty || firstName?.touched)) {
+          <div class="error-message">
+            @if (firstName?.errors?.['required']) {
+              First name is required
+            }
+            @if (firstName?.errors?.['minlength']) {
+              First name must be at least 2 characters
+            }
+          </div>
           }
-          @if (name?.errors?.['minlength']) {
-            Name must be at least 3 characters long
+        </div>
+        
+        <div class="form-group">
+          <label for="lastName">Last Name <span class="required">*</span></label>
+          <input
+            type="text"
+            id="lastName"
+            formControlName="lastName"
+            class="form-control"
+            placeholder="Doe"
+          />
+          @if (lastName?.invalid && (lastName?.dirty || lastName?.touched)) {
+          <div class="error-message">
+            @if (lastName?.errors?.['required']) {
+              Last name is required
+            }
+            @if (lastName?.errors?.['minlength']) {
+              Last name must be at least 2 characters
+            }
+          </div>
+          }
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="contactNumber">Contact Number <span class="required">*</span></label>
+        <input
+          type="tel"
+          id="contactNumber"
+          formControlName="contactNumber"
+          class="form-control"
+          placeholder="1234567890"
+        />
+        @if (contactNumber?.invalid && (contactNumber?.dirty || contactNumber?.touched)) {
+        <div class="error-message">
+          @if (contactNumber?.errors?.['required']) {
+            Contact number is required
+          }
+          @if (contactNumber?.errors?.['pattern']) {
+            Please enter a valid phone number
           }
         </div>
         }
       </div>
       
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email">Email <span class="required">*</span></label>
         <input
           type="email"
           id="email"
           formControlName="email"
           class="form-control"
-          placeholder="Enter your email"
-          [class.is-invalid]="email?.invalid && (email?.dirty || email?.touched)"
+          placeholder="john.doe@example.com"
         />
         @if (email?.invalid && (email?.dirty || email?.touched)) {
-        <div class="invalid-feedback">
+        <div class="error-message">
           @if (email?.errors?.['required']) {
             Email is required
           }
@@ -63,61 +103,50 @@
       </div>
       
       <div class="form-group">
-        <label for="contactNumber">Contact Number</label>
-        <input
-          type="tel"
-          id="contactNumber"
-          formControlName="contactNumber"
-          class="form-control"
-          placeholder="Enter 10-digit contact number"
-          [class.is-invalid]="contactNumber?.invalid && (contactNumber?.dirty || contactNumber?.touched)"
-        />
-        @if (contactNumber?.invalid && (contactNumber?.dirty || contactNumber?.touched)) {
-        <div class="invalid-feedback">
-          @if (contactNumber?.errors?.['required']) {
-            Contact number is required
-          }
-          @if (contactNumber?.errors?.['pattern']) {
-            Contact number must be 10 digits
-          }
+        <label for="password">Password <span class="required">*</span></label>
+        <div class="password-field">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            formControlName="password"
+            class="form-control"
+            placeholder="••••••••"
+          />
+          <button type="button" class="password-toggle" (click)="togglePasswordVisibility('password')" aria-label="Toggle password visibility">
+            <i class="fa" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
         </div>
-        }
-      </div>
-      
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input
-          type="password"
-          id="password"
-          formControlName="password"
-          class="form-control"
-          placeholder="Enter your password"
-          [class.is-invalid]="password?.invalid && (password?.dirty || password?.touched)"
-        />
         @if (password?.invalid && (password?.dirty || password?.touched)) {
-        <div class="invalid-feedback">
+        <div class="error-message">
           @if (password?.errors?.['required']) {
             Password is required
           }
           @if (password?.errors?.['minlength']) {
             Password must be at least 8 characters long
           }
+          @if (password?.errors?.['pattern']) {
+            Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character
+          }
         </div>
         }
       </div>
       
       <div class="form-group">
-        <label for="confirmPassword">Confirm Password</label>
-        <input
-          type="password"
-          id="confirmPassword"
-          formControlName="confirmPassword"
-          class="form-control"
-          placeholder="Confirm your password"
-          [class.is-invalid]="(confirmPassword?.invalid || signupForm.hasError('passwordMismatch')) && (confirmPassword?.dirty || confirmPassword?.touched)"
-        />
+        <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
+        <div class="password-field">
+          <input
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            class="form-control"
+            placeholder="••••••••"
+          />
+          <button type="button" class="password-toggle" (click)="togglePasswordVisibility('confirm')" aria-label="Toggle confirm password visibility">
+            <i class="fa" [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
+        </div>
         @if ((confirmPassword?.invalid || signupForm.hasError('passwordMismatch')) && (confirmPassword?.dirty || confirmPassword?.touched)) {
-        <div class="invalid-feedback">
+        <div class="error-message">
           @if (confirmPassword?.errors?.['required']) {
             Please confirm your password
           }
@@ -128,19 +157,17 @@
         }
       </div>
       
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary" [disabled]="signupForm.invalid || isLoading">
-          @if (isLoading) {
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            Loading...
-          } @else {
-            Register
-          }
-        </button>
-      </div>
+      <button type="submit" class="btn-submit" [disabled]="signupForm.invalid || isLoading">
+        @if (isLoading) {
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          Creating account...
+        } @else {
+          Create account
+        }
+      </button>
       
-      <div class="signup-footer">
-        <p>Already have an account? <a [routerLink]="['/auth/admin/login']">Sign in</a></p>
+      <div class="auth-footer">
+        <p>Already have an account? <a [routerLink]="['/auth/login']">Sign in</a></p>
       </div>
     </form>
   </div>

@@ -80,6 +80,10 @@ $info-color: #2196f3;
       display: flex;
       gap: 12px;
       
+      .custom-select {
+        position: relative;
+      }
+      
       .form-select {
         padding: 10px 14px;
         border: 1px solid $border-color;
@@ -104,57 +108,7 @@ $info-color: #2196f3;
         }
         
         &:hover {
-          border-color: darken($border-color, 10%);
-        }
-      }
-    }
-    
-    .custom-select {
-      position: relative;
-    }
-    
-    /* Custom Dropdown Menu Styling */
-    .dropdown-menu {
-      position: absolute;
-      z-index: 1000;
-      min-width: 150px;
-      padding: 8px 0;
-      margin: 0;
-      background-color: #fff;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      border-radius: 4px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-      
-      .dropdown-item {
-        display: flex;
-        align-items: center;
-        padding: 8px 16px;
-        clear: both;
-        font-weight: 400;
-        color: $text-color;
-        text-align: inherit;
-        white-space: nowrap;
-        background-color: transparent;
-        border: 0;
-        cursor: pointer;
-        width: 100%;
-        
-        &:hover, &:focus {
-          color: darken($text-color, 10%);
-          text-decoration: none;
-          background-color: $light-gray;
-        }
-        
-        &.active {
-          color: $primary-color;
-          background-color: rgba($primary-color, 0.05);
-          font-weight: 500;
-          
-          &::before {
-            content: "✓";
-            margin-right: 8px;
-            font-weight: bold;
-          }
+          border-color: color.adjust($border-color, $lightness: -10%);
         }
       }
     }
@@ -174,7 +128,7 @@ $info-color: #2196f3;
       transition: background-color 0.2s;
       
       &:hover {
-        background-color: color.adjust($primary-color, $lightness: 10%);
+        background-color: color.adjust($primary-color, $lightness: -10%);
       }
     }
   }
@@ -214,6 +168,13 @@ $info-color: #2196f3;
         }
       }
       
+      .description-cell {
+        max-width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
       .badge {
         padding: 4px 8px;
         border-radius: 4px;
@@ -231,77 +192,129 @@ $info-color: #2196f3;
           color: $danger-color;
         }
       }
+    }
+  }
+  
+  // Loading, error, and empty states
+  .loading-state, .error-state, .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 0;
+    text-align: center;
+    
+    p {
+      margin: 16px 0;
+      color: #666;
+    }
+  }
+  
+  .loading-state {
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top-color: $primary-color;
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  }
+  
+  .error-state {
+    .error-message {
+      color: $danger-color;
+      font-weight: 500;
+    }
+    
+    .btn-retry {
+      padding: 8px 16px;
+      background-color: $primary-color;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s;
       
-      .action-buttons {
-        display: flex;
-        position: relative;
+      &:hover {
+        background-color: color.adjust($primary-color, $lightness: -10%);
+      }
+    }
+  }
+  
+  .empty-state {
+    .btn-reset {
+      padding: 8px 16px;
+      background-color: $primary-color;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      
+      &:hover {
+        background-color: color.adjust($primary-color, $lightness: -10%);
+      }
+    }
+  }
+  
+  // Dropdown Menu
+  .dropdown-menu {
+    position: absolute;
+    z-index: 1000;
+    min-width: 150px;
+    padding: 8px 0;
+    margin-top: 4px;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px;
+      clear: both;
+      font-weight: 400;
+      color: $text-color;
+      text-align: inherit;
+      white-space: nowrap;
+      background-color: transparent;
+      border: 0;
+      cursor: pointer;
+      width: 100%;
+      
+      &:hover, &:focus {
+        color: color.adjust($text-color, $lightness: -10%);
+        text-decoration: none;
+        background-color: $light-gray;
+      }
+      
+      &.active {
+        color: $primary-color;
+        background-color: rgba($primary-color, 0.05);
+        font-weight: 500;
         
-        .action-btn {
-          background: none;
-          border: none;
-          color: #666;
-          font-size: 16px;
-          padding: 6px 8px;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: background-color 0.2s;
-          
-          &:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-          }
-        }
-        
-        .action-menu {
-          position: absolute;
-          right: 0;
-          top: 100%;
-          background: white;
-          border: 1px solid $border-color;
-          border-radius: 4px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          min-width: 150px;
-          z-index: 1000;
-          
-          // Fix for bottom items - check if menu would go off screen
-          &.flip-up {
-            bottom: 100%;
-            top: auto;
-          }
-          
-          .action-item {
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            color: $text-color;
-            
-            &:hover {
-              background-color: $light-gray;
-            }
-            
-            &.delete {
-              color: $danger-color;
-            }
-            
-            &.activate {
-              color: $success-color;
-            }
-            
-            &.deactivate {
-              color: $danger-color;
-            }
-            
-            i {
-              width: 16px;
-              text-align: center;
-            }
-          }
+        &::before {
+          content: "✓";
+          margin-right: 8px;
+          font-weight: bold;
         }
       }
     }
   }
+}
+
+// Global dropdown container (outside table)
+.global-dropdown-container {
+  position: fixed;
+  z-index: 1051;
 }
 
 @media (max-width: 768px) {

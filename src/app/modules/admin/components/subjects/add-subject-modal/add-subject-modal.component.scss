@@ -190,6 +190,7 @@ $danger-color: #f44336;
   }
 }
 
+// Spinner animation
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -202,6 +203,13 @@ $danger-color: #f44336;
   border-radius: 50%;
   border-top-color: white;
   animation: spin 1s ease-in-out infinite;
+  
+  &.spinner-border-sm {
+    width: 14px;
+    height: 14px;
+    border-width: 2px;
+    margin-right: 8px;
+  }
 }
 
 // Responsive adjustments

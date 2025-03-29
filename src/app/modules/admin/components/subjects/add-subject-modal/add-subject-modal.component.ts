@@ -85,6 +85,9 @@ export class AddSubjectModalComponent implements OnInit {
     
     this.isSubmitting = true;
     
+    // Log the form data to verify isActive is being sent correctly
+    console.log('Submitting subject with data:', this.subject);
+    
     this.subjectService.createSubject(this.subject).subscribe({
       next: (response) => {
         this.isSubmitting = false;
@@ -107,9 +110,5 @@ export class AddSubjectModalComponent implements OnInit {
         console.error('Error creating subject:', error);
       }
     });
-  }
-
-  stopPropagation(event: MouseEvent): void {
-    event.stopPropagation();
   }
 } 

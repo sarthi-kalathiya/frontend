@@ -8,8 +8,10 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { AddUserModalComponent } from './add-user-modal/add-user-modal.component';
 import { ViewUserModalComponent } from './view-user-modal/view-user-modal.component';
 import { EditUserModalComponent } from './edit-user-modal/edit-user-modal.component';
+import { ManageSubjectsModalComponent } from './manage-subjects-modal/manage-subjects-modal.component';
 import { ConfirmationModalService } from '../../../../core/services/confirmation-modal.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { ActionMenuComponent, ActionMenuItem } from '../../../../shared/components/action-menu/action-menu.component';
 
 interface CacheEntry {
   data: UserData[];
@@ -27,7 +29,15 @@ interface CacheEntry {
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, AddUserModalComponent, ViewUserModalComponent, EditUserModalComponent]
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    AddUserModalComponent, 
+    ViewUserModalComponent, 
+    EditUserModalComponent,
+    ManageSubjectsModalComponent,
+    ActionMenuComponent
+  ]
 })
 export class UsersComponent implements OnInit, OnDestroy {
   // User data
@@ -51,7 +61,10 @@ export class UsersComponent implements OnInit, OnDestroy {
   showAddUserModal: boolean = false;
   showViewUserModal: boolean = false;
   showEditUserModal: boolean = false;
+  showManageSubjectsModal: boolean = false;
   selectedUserId: string = '';
+  selectedUserName: string = '';
+  selectedUserRole: string = '';
   
   // Pagination
   currentPage: number = 1;
@@ -307,17 +320,13 @@ export class UsersComponent implements OnInit, OnDestroy {
     }
   }
   
-  viewUser(userId: string, event: MouseEvent): void {
-    event.stopPropagation();
-    
+  viewUser(userId: string): void {
     this.selectedUserId = userId;
     this.showViewUserModal = true;
     this.activeActionMenu = null;
   }
   
-  editUser(userId: string, event: MouseEvent): void {
-    event.stopPropagation();
-    
+  editUser(userId: string): void {
     this.selectedUserId = userId;
     this.showEditUserModal = true;
     this.activeActionMenu = null;
@@ -353,9 +362,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.activeActionMenu = null;
   }
   
-  toggleUserStatus(userId: string, event: MouseEvent): void {
-    event.stopPropagation();
-    
+  toggleUserStatus(userId: string): void {
     const user = this.users.find(u => u.id === userId);
     if (!user) return;
     
@@ -363,30 +370,37 @@ export class UsersComponent implements OnInit, OnDestroy {
     const actionName = newStatus ? 'activate' : 'deactivate';
     
     this.confirmationModalService.confirm({
-      title: `${newStatus ? 'Activate' : 'Deactivate'} User`,
+      title: `Confirm ${actionName} user`,
       message: `Are you sure you want to ${actionName} this user?`,
-      confirmButtonText: newStatus ? 'Activate' : 'Deactivate',
+      confirmButtonText: 'Yes, ' + actionName,
       cancelButtonText: 'Cancel',
-      type: newStatus ? 'success' : 'warning'
-    }).subscribe(confirmed => {
+      type: 'warning'
+    }).subscribe((confirmed: boolean) => {
       if (confirmed) {
         this.userService.updateUserStatus(userId, newStatus).subscribe({
           next: () => {
             this.toastService.showSuccess(`User ${actionName}d successfully`);
-            // Clear cache after modifying data
-            this.clearCache();
-            // Reload the current page
             this.loadUsers();
           },
-          error: (err) => {
-            console.error(`Error ${actionName}ing user:`, err);
-            this.toastService.showError(`Failed to ${actionName} user. Please try again.`);
+          error: (error) => {
+            console.error(`Error ${actionName}ing user:`, error);
+            this.toastService.showError(error.message || `Failed to ${actionName} user`);
           }
         });
       }
     });
-    
-    this.activeActionMenu = null;
+  }
+  
+  manageSubjects(userId: string): void {
+    const user = this.users.find(u => u.id === userId);
+    if (user) {
+      this.selectedUserId = userId;
+      this.selectedUserName = user.firstName && user.lastName ? 
+        `${user.firstName} ${user.lastName}` : user.name || '';
+      this.selectedUserRole = user.role;
+      this.showManageSubjectsModal = true;
+      this.activeActionMenu = null;
+    }
   }
   
   // Generate an array of page numbers for pagination
@@ -459,6 +473,16 @@ export class UsersComponent implements OnInit, OnDestroy {
     }
   }
   
+  closeManageSubjectsModal(refresh?: boolean): void {
+    this.showManageSubjectsModal = false;
+    
+    // If refresh is true, reload the users list
+    if (refresh) {
+      this.clearCache(); // Clear cache to get fresh data
+      this.loadUsers();
+    }
+  }
+  
   // Cache-related methods
   private createCacheKey(): string {
     return `page=${this.currentPage}_size=${this.pageSize}_search=${this.searchTerm}_role=${this.selectedRole}_status=${this.selectedStatus}`;
@@ -512,5 +536,64 @@ export class UsersComponent implements OnInit, OnDestroy {
   clearCache(): void {
     this.cache = {};
     sessionStorage.removeItem('usersCache');
+  }
+  
+  // Get menu items for a user
+  getUserMenuItems(user: UserData): ActionMenuItem[] {
+    const menuItems: ActionMenuItem[] = [
+      {
+        id: 'edit',
+        label: 'Edit',
+        icon: 'fa-edit',
+        action: 'edit'
+      },
+      {
+        id: 'view',
+        label: 'View',
+        icon: 'fa-eye',
+        action: 'view'
+      },
+      {
+        id: 'toggle-status',
+        label: user.isActive ? 'Deactivate' : 'Activate',
+        icon: user.isActive ? 'fa-ban' : 'fa-check-circle',
+        action: 'toggle-status'
+      }
+    ];
+    
+    // Add manage subjects option for teachers and students
+    if (user.role === 'TEACHER' || user.role === 'STUDENT') {
+      menuItems.push({
+        id: 'manage-subjects',
+        label: 'Manage Subjects',
+        icon: 'fa-book',
+        action: 'manage-subjects'
+      });
+    }
+    
+    return menuItems;
+  }
+  
+  // Handle action from menu
+  handleMenuAction(event: {action: string, id: string}): void {
+    const userId = event.id;
+    const action = event.action;
+    
+    switch(action) {
+      case 'view':
+        this.viewUser(userId);
+        break;
+      case 'edit':
+        this.editUser(userId);
+        break;
+      case 'toggle-status':
+        this.toggleUserStatus(userId);
+        break;
+      case 'manage-subjects':
+        this.manageSubjects(userId);
+        break;
+      default:
+        console.warn('Unknown action:', action);
+    }
   }
 } 
