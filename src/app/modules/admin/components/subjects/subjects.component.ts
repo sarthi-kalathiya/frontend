@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SubjectService } from '../../../../core/services/subject.service';
@@ -8,6 +8,8 @@ import { ViewSubjectModalComponent } from './view-subject-modal/view-subject-mod
 import { EditSubjectModalComponent } from './edit-subject-modal/edit-subject-modal.component';
 import { ActionMenuComponent, ActionMenuItem } from '../../../../shared/components/action-menu/action-menu.component';
 import { ConfirmationModalService } from '../../../../core/services/confirmation-modal.service';
+import { Subject as RxjsSubject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 interface Subject {
   id: string;
@@ -19,6 +21,17 @@ interface Subject {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+interface CacheEntry {
+  data: Subject[];
+  pagination: {
+    total: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
+  };
+  timestamp: number;
 }
 
 @Component({
@@ -35,10 +48,12 @@ interface Subject {
     ActionMenuComponent
   ]
 })
-export class SubjectsComponent implements OnInit {
+export class SubjectsComponent implements OnInit, OnDestroy {
   subjects: Subject[] = [];
   filteredSubjects: Subject[] = [];
   searchTerm: string = '';
+  private searchSubject = new RxjsSubject<string>();
+  private searchSubscription!: Subscription;
   selectedStatus: string = 'All Statuses';
   showStatusDropdown: boolean = false;
   showAddSubjectModal: boolean = false;
@@ -51,6 +66,13 @@ export class SubjectsComponent implements OnInit {
   pageSize: number = 5;
   totalItems: number = 0;
   totalPages: number = 0;
+  
+  // Cache system
+  private cache: { [key: string]: CacheEntry } = {};
+  private cacheExpiration = 5 * 60 * 1000; // 5 minutes in milliseconds
+  
+  // Math object reference for template
+  Math = Math;
 
   constructor(
     private subjectService: SubjectService,
@@ -64,10 +86,51 @@ export class SubjectsComponent implements OnInit {
   }
   
   ngOnInit(): void {
+    // Set up debounced search
+    this.searchSubscription = this.searchSubject.pipe(
+      debounceTime(400), // Wait 400ms after the user stops typing
+      distinctUntilChanged() // Only emit if the value changed
+    ).subscribe(searchTerm => {
+      this.searchTerm = searchTerm;
+      this.currentPage = 1; // Reset to first page on search
+      this.loadSubjects();
+    });
+    
+    // Load initial subjects
     this.loadSubjects();
+    
+    // Try to restore cache from sessionStorage
+    const savedCache = sessionStorage.getItem('subjectsCache');
+    if (savedCache) {
+      try {
+        this.cache = JSON.parse(savedCache);
+        
+        // Clean up any expired cache entries
+        this.cleanExpiredCache();
+      } catch (e) {
+        console.error('Error parsing cached data', e);
+        sessionStorage.removeItem('subjectsCache');
+      }
+    }
+  }
+  
+  ngOnDestroy(): void {
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
   }
   
   loadSubjects(): void {
+    // Create a cache key based on current filters
+    const cacheKey = this.createCacheKey();
+    
+    // Check if we already have valid cached data
+    if (this.cache[cacheKey] && this.isCacheValid(this.cache[cacheKey])) {
+      console.log('Using cached data for', cacheKey);
+      this.processCachedData(this.cache[cacheKey]);
+      return;
+    }
+    
     this.isLoading = true;
     this.error = '';
     
@@ -82,8 +145,9 @@ export class SubjectsComponent implements OnInit {
       filters.includeInactive = true;
     } else if (this.selectedStatus === 'Inactive') {
       filters.includeInactive = true;
+      filters.isActive = false;
     } else {
-      filters.includeInactive = false;
+      filters.isActive = true;
     }
     
     // Add pagination parameters
@@ -94,7 +158,6 @@ export class SubjectsComponent implements OnInit {
     
     this.subjectService.getAllSubjects(filters).subscribe({
       next: (response: any) => {
-        console.log('API Response:', response);
         this.isLoading = false;
         
         // Handle different response formats
@@ -108,15 +171,51 @@ export class SubjectsComponent implements OnInit {
               this.totalItems = response.pagination.totalItems;
               this.totalPages = response.pagination.totalPages;
               this.currentPage = response.pagination.currentPage;
+              
+              // Cache the response with a timestamp
+              this.cacheData(cacheKey, {
+                data: response.data,
+                pagination: {
+                  total: response.pagination.totalItems,
+                  page: response.pagination.currentPage,
+                  pageSize: this.pageSize,
+                  totalPages: response.pagination.totalPages
+                },
+                timestamp: Date.now()
+              });
             } else {
               this.totalItems = this.subjects.length;
               this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+              
+              // Cache the response with a timestamp
+              this.cacheData(cacheKey, {
+                data: response.data,
+                pagination: {
+                  total: this.subjects.length,
+                  page: this.currentPage,
+                  pageSize: this.pageSize,
+                  totalPages: Math.ceil(this.totalItems / this.pageSize)
+                },
+                timestamp: Date.now()
+              });
             }
           } else if (Array.isArray(response)) {
             // Direct array response
             this.subjects = response;
             this.totalItems = response.length;
             this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+            
+            // Cache the response with a timestamp
+            this.cacheData(cacheKey, {
+              data: response,
+              pagination: {
+                total: response.length,
+                page: this.currentPage,
+                pageSize: this.pageSize,
+                totalPages: Math.ceil(this.totalItems / this.pageSize)
+              },
+              timestamp: Date.now()
+            });
           } else if (response.status === 'success' && Array.isArray(response.data)) {
             // Success response format with data array
             this.subjects = response.data;
@@ -126,9 +225,33 @@ export class SubjectsComponent implements OnInit {
               this.totalItems = response.pagination.totalItems;
               this.totalPages = response.pagination.totalPages;
               this.currentPage = response.pagination.currentPage || this.currentPage;
+              
+              // Cache the response with a timestamp
+              this.cacheData(cacheKey, {
+                data: response.data,
+                pagination: {
+                  total: response.pagination.totalItems,
+                  page: response.pagination.currentPage || this.currentPage,
+                  pageSize: this.pageSize,
+                  totalPages: response.pagination.totalPages
+                },
+                timestamp: Date.now()
+              });
             } else {
               this.totalItems = this.subjects.length;
               this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+              
+              // Cache the response with a timestamp
+              this.cacheData(cacheKey, {
+                data: response.data,
+                pagination: {
+                  total: this.subjects.length,
+                  page: this.currentPage,
+                  pageSize: this.pageSize,
+                  totalPages: Math.ceil(this.totalItems / this.pageSize)
+                },
+                timestamp: Date.now()
+              });
             }
           } else {
             console.error('Unexpected response format:', response);
@@ -229,23 +352,120 @@ export class SubjectsComponent implements OnInit {
     });
   }
   
+  onSearchInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchSubject.next(target.value);
+  }
+  
+  onPageChange(page: number): void {
+    if (page < 1 || page > this.totalPages || page === this.currentPage) {
+      return;
+    }
+    
+    this.currentPage = page;
+    this.loadSubjects();
+  }
+  
+  // Generate an array of page numbers for pagination
+  getPageNumbers(): number[] {
+    const visiblePages = 5; // Number of page buttons to show
+    const pages: number[] = [];
+    
+    if (this.totalPages <= visiblePages) {
+      // If we have fewer pages than visible count, show all
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Calculate start and end based on current page
+      let start = Math.max(1, this.currentPage - Math.floor(visiblePages / 2));
+      let end = start + visiblePages - 1;
+      
+      // Adjust if end exceeds total pages
+      if (end > this.totalPages) {
+        end = this.totalPages;
+        start = Math.max(1, end - visiblePages + 1);
+      }
+      
+      // Add page numbers
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      
+      // Add ellipsis indicators
+      if (start > 1) {
+        pages.unshift(1);
+        if (start > 2) pages.splice(1, 0, -1); // -1 represents ellipsis
+      }
+      
+      if (end < this.totalPages) {
+        if (end < this.totalPages - 1) pages.push(-1); // -1 represents ellipsis
+        pages.push(this.totalPages);
+      }
+    }
+    
+    return pages;
+  }
+  
+  // Cache-related methods
+  private createCacheKey(): string {
+    return `page=${this.currentPage}_size=${this.pageSize}_search=${this.searchTerm}_status=${this.selectedStatus}`;
+  }
+  
+  private isCacheValid(cacheEntry: CacheEntry): boolean {
+    return Date.now() - cacheEntry.timestamp < this.cacheExpiration;
+  }
+  
+  private processCachedData(cacheEntry: CacheEntry): void {
+    this.subjects = cacheEntry.data;
+    this.filteredSubjects = cacheEntry.data;
+    this.totalItems = cacheEntry.pagination.total;
+    this.totalPages = cacheEntry.pagination.totalPages;
+    this.currentPage = cacheEntry.pagination.page;
+  }
+  
+  private cacheData(key: string, data: CacheEntry): void {
+    this.cache[key] = data;
+    
+    // Store in sessionStorage for persistence
+    try {
+      sessionStorage.setItem('subjectsCache', JSON.stringify(this.cache));
+    } catch (e) {
+      console.error('Error saving cache to sessionStorage', e);
+      // If we hit storage limits, clear and try again
+      sessionStorage.removeItem('subjectsCache');
+      this.cleanExpiredCache();
+      try {
+        sessionStorage.setItem('subjectsCache', JSON.stringify(this.cache));
+      } catch (e) {
+        console.error('Still cannot save cache, abandoning persistence', e);
+      }
+    }
+  }
+  
+  private cleanExpiredCache(): void {
+    const now = Date.now();
+    const newCache: { [key: string]: CacheEntry } = {};
+    
+    Object.keys(this.cache).forEach(key => {
+      if (now - this.cache[key].timestamp < this.cacheExpiration) {
+        newCache[key] = this.cache[key];
+      }
+    });
+    
+    this.cache = newCache;
+  }
+  
+  // Clear cache (call after actions that modify data)
+  clearCache(): void {
+    this.cache = {};
+    sessionStorage.removeItem('subjectsCache');
+  }
+  
   onSearch(): void {
     // For server-side filtering, reload subjects
     this.loadSubjects();
   }
-  
-  onSearchInput(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    this.searchTerm = target.value;
-    
-    // Debounce search to avoid excessive API calls
-    clearTimeout(this._searchTimeout);
-    this._searchTimeout = setTimeout(() => {
-      this.loadSubjects();
-    }, 300);
-  }
-  
-  private _searchTimeout: any;
   
   onStatusChange(): void {
     // For server-side filtering, reload subjects
@@ -364,7 +584,8 @@ export class SubjectsComponent implements OnInit {
   selectStatus(status: string): void {
     this.selectedStatus = status;
     this.showStatusDropdown = false;
-    this.onStatusChange();
+    this.currentPage = 1; // Reset to first page on filter change
+    this.loadSubjects();
   }
   
   // Subject modal methods
@@ -377,6 +598,7 @@ export class SubjectsComponent implements OnInit {
     
     // If refresh is true, reload the subjects list
     if (refresh) {
+      this.clearCache(); // Clear cache for fresh data
       this.loadSubjects();
     }
   }
@@ -392,6 +614,7 @@ export class SubjectsComponent implements OnInit {
     
     // If refresh is true, reload the subjects list
     if (refresh) {
+      this.clearCache(); // Clear cache for fresh data
       this.loadSubjects();
     }
   }
