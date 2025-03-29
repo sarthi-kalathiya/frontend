@@ -1,94 +1,75 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SubjectService } from '../../../../../core/services/subject.service';
 import { ToastService } from '../../../../../core/services/toast.service';
-
-interface SubjectForm {
-  name: string;
-  code: string;
-  credits: number;
-  description: string;
-  isActive: boolean;
-}
 
 @Component({
   selector: 'app-add-subject-modal',
   templateUrl: './add-subject-modal.component.html',
   styleUrls: ['./add-subject-modal.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, ReactiveFormsModule]
 })
 export class AddSubjectModalComponent implements OnInit {
   @Output() close = new EventEmitter<boolean>();
   
-  subject: SubjectForm = {
-    name: '',
-    code: '',
-    credits: 0,
-    description: '',
-    isActive: true
-  };
-  
-  errors: Record<string, string> = {};
-  isSubmitting: boolean = false;
+  subjectForm!: FormGroup;
+  isSubmitting = false;
   
   constructor(
+    private formBuilder: FormBuilder,
     private subjectService: SubjectService,
     private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
-    // Initialize form or load any required data
+    this.subjectForm = this.formBuilder.group({
+      name: ['', [
+        Validators.required, 
+        Validators.minLength(2), 
+        Validators.maxLength(100)
+      ]],
+      code: ['', [
+        Validators.required, 
+        Validators.minLength(2), 
+        Validators.maxLength(20),
+        Validators.pattern(/^[A-Z]{3}-\d{3}$/)
+      ]],
+      description: ['', [
+        Validators.maxLength(500)
+      ]],
+      credits: [3, [
+        Validators.required,
+        Validators.min(1), 
+        Validators.max(10)
+      ]],
+      isActive: [true]
+    });
   }
+
+  // Getter methods for easier access in the template
+  get name() { return this.subjectForm.get('name'); }
+  get code() { return this.subjectForm.get('code'); }
+  get description() { return this.subjectForm.get('description'); }
+  get credits() { return this.subjectForm.get('credits'); }
 
   closeModal(refresh: boolean = false): void {
     this.close.emit(refresh);
   }
 
-  validateForm(): boolean {
-    this.errors = {};
-    
-    // Validate name
-    if (!this.subject.name.trim()) {
-      this.errors['name'] = 'Subject name is required';
-    } else if (this.subject.name.length > 100) {
-      this.errors['name'] = 'Subject name must be less than 100 characters';
-    }
-    
-    // Validate code
-    if (!this.subject.code.trim()) {
-      this.errors['code'] = 'Subject code is required';
-    } else if (!/^[A-Z]{2,5}-\d{3}$/.test(this.subject.code)) {
-      this.errors['code'] = 'Subject code must be in format: DEPT-123';
-    }
-    
-    // Validate credits
-    if (!this.subject.credits) {
-      this.errors['credits'] = 'Credits are required';
-    } else if (this.subject.credits < 1 || this.subject.credits > 6) {
-      this.errors['credits'] = 'Credits must be between 1 and 6';
-    }
-    
-    // Validate description
-    if (this.subject.description && this.subject.description.length > 500) {
-      this.errors['description'] = 'Description must be less than 500 characters';
-    }
-    
-    return Object.keys(this.errors).length === 0;
-  }
-
-  handleSubmit(): void {
-    if (!this.validateForm()) {
+  onSubmit(): void {
+    if (this.subjectForm.invalid) {
+      // Mark all fields as touched to trigger validation errors
+      Object.keys(this.subjectForm.controls).forEach(key => {
+        this.subjectForm.get(key)?.markAsTouched();
+      });
       return;
     }
     
     this.isSubmitting = true;
     
-    // Log the form data to verify isActive is being sent correctly
-    console.log('Submitting subject with data:', this.subject);
-    
-    this.subjectService.createSubject(this.subject).subscribe({
+    this.subjectService.createSubject(this.subjectForm.value).subscribe({
       next: (response) => {
         this.isSubmitting = false;
         this.toastService.showSuccess('Subject created successfully');
@@ -96,17 +77,7 @@ export class AddSubjectModalComponent implements OnInit {
       },
       error: (error) => {
         this.isSubmitting = false;
-        
-        if (error.error?.errors) {
-          // Map server validation errors to form fields
-          for (const field in error.error.errors) {
-            this.errors[field] = error.error.errors[field];
-          }
-        } else {
-          // General error
-          this.toastService.showError(error.error?.message || 'Failed to create subject');
-        }
-        
+        this.toastService.showError(error.error?.message || 'Failed to create subject');
         console.error('Error creating subject:', error);
       }
     });

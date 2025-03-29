@@ -7,6 +7,7 @@ import { AddSubjectModalComponent } from './add-subject-modal/add-subject-modal.
 import { ViewSubjectModalComponent } from './view-subject-modal/view-subject-modal.component';
 import { EditSubjectModalComponent } from './edit-subject-modal/edit-subject-modal.component';
 import { ActionMenuComponent, ActionMenuItem } from '../../../../shared/components/action-menu/action-menu.component';
+import { ConfirmationModalService } from '../../../../core/services/confirmation-modal.service';
 
 interface Subject {
   id: string;
@@ -47,13 +48,14 @@ export class SubjectsComponent implements OnInit {
   isLoading: boolean = false;
   error: string = '';
   currentPage: number = 1;
-  pageSize: number = 10;
+  pageSize: number = 5;
   totalItems: number = 0;
   totalPages: number = 0;
 
   constructor(
     private subjectService: SubjectService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private confirmationModalService: ConfirmationModalService
   ) {}
   
   @HostListener('document:click')
@@ -317,19 +319,39 @@ export class SubjectsComponent implements OnInit {
     const newStatus = !subject.isActive;
     const actionName = newStatus ? 'activate' : 'deactivate';
     
-    if (confirm(`Are you sure you want to ${actionName} this subject?`)) {
-      this.subjectService.updateSubjectStatus(subjectId, newStatus).subscribe({
-        next: () => {
-          this.toastService.showSuccess(`Subject ${actionName}d successfully`);
-          // Reload subjects
-          this.loadSubjects();
-        },
-        error: (err) => {
-          this.toastService.showError(err.error?.message || `Failed to ${actionName} subject`);
-          console.error(`Error ${actionName}ing subject:`, err);
-        }
-      });
-    }
+    this.confirmationModalService.confirm({
+      title: `Confirm ${actionName} subject`,
+      message: `Are you sure you want to ${actionName} this subject?`,
+      confirmButtonText: 'Yes, ' + actionName,
+      cancelButtonText: 'Cancel',
+      type: 'warning'
+    }).subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.subjectService.updateSubjectStatus(subjectId, newStatus).subscribe({
+          next: () => {
+            // Update the local subject data first for immediate UI update
+            const subjectIndex = this.subjects.findIndex(s => s.id === subjectId);
+            if (subjectIndex !== -1) {
+              this.subjects[subjectIndex].isActive = newStatus;
+              
+              // Also update in filteredSubjects if it exists
+              const filteredIndex = this.filteredSubjects.findIndex(s => s.id === subjectId);
+              if (filteredIndex !== -1) {
+                this.filteredSubjects[filteredIndex].isActive = newStatus;
+              }
+            }
+            
+            this.toastService.showSuccess(`Subject ${actionName}d successfully`);
+            // Reload subjects to ensure data consistency
+            this.loadSubjects();
+          },
+          error: (err) => {
+            this.toastService.showError(err.error?.message || `Failed to ${actionName} subject`);
+            console.error(`Error ${actionName}ing subject:`, err);
+          }
+        });
+      }
+    });
   }
   
   toggleStatusDropdown(event?: MouseEvent): void {

@@ -8,7 +8,7 @@
       </button>
     </div>
     
-    <form (ngSubmit)="handleSubmit()" #subjectForm="ngForm">
+    <form [formGroup]="subjectForm" (ngSubmit)="onSubmit()">
       <div class="modal-body">
         <!-- Subject Name -->
         <div class="form-group">
@@ -16,14 +16,22 @@
           <input 
             type="text" 
             id="name" 
-            name="name" 
-            [(ngModel)]="subject.name" 
-            required 
-            [class.is-invalid]="errors['name']"
+            formControlName="name" 
+            [class.is-invalid]="name?.invalid && name?.touched"
           />
-          <div class="invalid-feedback" *ngIf="errors['name']">
-            {{ errors['name'] }}
-          </div>
+          @if (name?.invalid && name?.touched) {
+            <div class="invalid-feedback">
+              @if (name?.errors?.['required']) {
+                Subject name is required
+              }
+              @if (name?.errors?.['minlength']) {
+                Subject name must be at least 2 characters
+              }
+              @if (name?.errors?.['maxlength']) {
+                Subject name must be at most 100 characters
+              }
+            </div>
+          }
         </div>
         
         <!-- Subject Code -->
@@ -32,15 +40,26 @@
           <input 
             type="text" 
             id="code" 
-            name="code" 
-            [(ngModel)]="subject.code" 
-            placeholder="e.g. MATH-101" 
-            required 
-            [class.is-invalid]="errors['code']"
+            formControlName="code" 
+            placeholder="e.g. ABC-123" 
+            [class.is-invalid]="code?.invalid && code?.touched"
           />
-          <div class="invalid-feedback" *ngIf="errors['code']">
-            {{ errors['code'] }}
-          </div>
+          @if (code?.invalid && code?.touched) {
+            <div class="invalid-feedback">
+              @if (code?.errors?.['required']) {
+                Subject code is required
+              }
+              @if (code?.errors?.['minlength']) {
+                Subject code must be at least 2 characters
+              }
+              @if (code?.errors?.['maxlength']) {
+                Subject code must be at most 20 characters
+              }
+              @if (code?.errors?.['pattern']) {
+                Subject code must follow the pattern: ABC-123 (3 uppercase letters, hyphen, 3 digits)
+              }
+            </div>
+          }
         </div>
         
         <!-- Row with Credits and Status -->
@@ -51,25 +70,32 @@
             <input 
               type="number" 
               id="credits" 
-              name="credits" 
-              [(ngModel)]="subject.credits" 
+              formControlName="credits" 
               min="1" 
-              max="6" 
-              required 
-              [class.is-invalid]="errors['credits']"
+              max="10" 
+              [class.is-invalid]="credits?.invalid && credits?.touched"
             />
-            <div class="invalid-feedback" *ngIf="errors['credits']">
-              {{ errors['credits'] }}
-            </div>
+            @if (credits?.invalid && credits?.touched) {
+              <div class="invalid-feedback">
+                @if (credits?.errors?.['required']) {
+                  Credits are required
+                }
+                @if (credits?.errors?.['min']) {
+                  Credits must be at least 1
+                }
+                @if (credits?.errors?.['max']) {
+                  Credits must be at most 10
+                }
+              </div>
+            }
           </div>
           
           <!-- Status -->
           <div class="form-group">
-            <label for="status">Status</label>
+            <label for="isActive">Status</label>
             <select 
-              id="status" 
-              name="status" 
-              [(ngModel)]="subject.isActive"
+              id="isActive" 
+              formControlName="isActive"
             >
               <option [ngValue]="true">Active</option>
               <option [ngValue]="false">Inactive</option>
@@ -82,14 +108,17 @@
           <label for="description">Description</label>
           <textarea 
             id="description" 
-            name="description" 
-            [(ngModel)]="subject.description" 
+            formControlName="description" 
             rows="4" 
-            [class.is-invalid]="errors['description']"
+            [class.is-invalid]="description?.invalid && description?.touched"
           ></textarea>
-          <div class="invalid-feedback" *ngIf="errors['description']">
-            {{ errors['description'] }}
-          </div>
+          @if (description?.invalid && description?.touched) {
+            <div class="invalid-feedback">
+              @if (description?.errors?.['maxlength']) {
+                Description must be at most 500 characters
+              }
+            </div>
+          }
         </div>
       </div>
       
@@ -105,7 +134,7 @@
         <button 
           type="submit" 
           class="btn btn-primary" 
-          [disabled]="isSubmitting"
+          [disabled]="isSubmitting || subjectForm.invalid"
         >
           <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
           {{ isSubmitting ? 'Creating...' : 'Create Subject' }}
