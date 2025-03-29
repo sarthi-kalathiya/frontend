@@ -13,17 +13,6 @@ import { ConfirmationModalService } from '../../../../core/services/confirmation
 import { ToastService } from '../../../../core/services/toast.service';
 import { ActionMenuComponent, ActionMenuItem } from '../../../../shared/components/action-menu/action-menu.component';
 
-interface CacheEntry {
-  data: UserData[];
-  pagination: {
-    total: number;
-    page: number;
-    pageSize: number;
-    totalPages: number;
-  };
-  timestamp: number;
-}
-
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
@@ -72,10 +61,6 @@ export class UsersComponent implements OnInit, OnDestroy {
   totalItems: number = 0;
   totalPages: number = 0;
   
-  // Cache system
-  private cache: { [key: string]: CacheEntry } = {};
-  private cacheExpiration = 5 * 60 * 1000; // 5 minutes in milliseconds
-  
   // Add Math object reference for template
   Math = Math;
   
@@ -111,20 +96,6 @@ export class UsersComponent implements OnInit, OnDestroy {
     
     // Load initial users
     this.loadUsers();
-    
-    // Try to restore cache from sessionStorage
-    const savedCache = sessionStorage.getItem('usersCache');
-    if (savedCache) {
-      try {
-        this.cache = JSON.parse(savedCache);
-        
-        // Clean up any expired cache entries
-        this.cleanExpiredCache();
-      } catch (e) {
-        console.error('Error parsing cached data', e);
-        sessionStorage.removeItem('usersCache');
-      }
-    }
   }
   
   ngOnDestroy(): void {
@@ -135,16 +106,6 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
   
   loadUsers(): void {
-    // Create a cache key based on current filters
-    const cacheKey = this.createCacheKey();
-    
-    // Check if we already have valid cached data
-    if (this.cache[cacheKey] && this.isCacheValid(this.cache[cacheKey])) {
-      console.log('Using cached data for', cacheKey);
-      this.processCachedData(this.cache[cacheKey]);
-      return;
-    }
-    
     this.isLoading = true;
     this.error = '';
     
@@ -165,17 +126,9 @@ export class UsersComponent implements OnInit, OnDestroy {
       filters.isActive = this.selectedStatus === 'Active';
     }
     
-    console.log('Fetching data for', cacheKey);
     this.userService.getUsers(filters).subscribe({
       next: (response) => {
         this.isLoading = false;
-        
-        // Cache the response with a timestamp
-        this.cacheData(cacheKey, {
-          data: response.data,
-          pagination: response.pagination,
-          timestamp: Date.now()
-        });
         
         // Update component state
         this.users = response.data;
@@ -346,8 +299,6 @@ export class UsersComponent implements OnInit, OnDestroy {
         this.userService.deleteUser(userId).subscribe({
           next: () => {
             this.toastService.showSuccess('User deleted successfully');
-            // Clear cache after modifying data
-            this.clearCache();
             // Reload the current page
             this.loadUsers();
           },
@@ -393,8 +344,7 @@ export class UsersComponent implements OnInit, OnDestroy {
             
             this.toastService.showSuccess(`User ${actionName}d successfully`);
             
-            // Clear cache and load users from server to ensure data consistency
-            this.clearCache();
+            // Reload the current page
             this.loadUsers();
           },
           error: (error) => {
@@ -469,7 +419,6 @@ export class UsersComponent implements OnInit, OnDestroy {
     
     // If refresh is true, reload the users list
     if (refresh) {
-      this.clearCache(); // Clear cache to get fresh data
       this.loadUsers();
     }
   }
@@ -483,7 +432,6 @@ export class UsersComponent implements OnInit, OnDestroy {
     
     // If refresh is true, reload the users list
     if (refresh) {
-      this.clearCache(); // Clear cache to get fresh data
       this.loadUsers();
     }
   }
@@ -493,64 +441,8 @@ export class UsersComponent implements OnInit, OnDestroy {
     
     // If refresh is true, reload the users list
     if (refresh) {
-      this.clearCache(); // Clear cache to get fresh data
       this.loadUsers();
     }
-  }
-  
-  // Cache-related methods
-  private createCacheKey(): string {
-    return `page=${this.currentPage}_size=${this.pageSize}_search=${this.searchTerm}_role=${this.selectedRole}_status=${this.selectedStatus}`;
-  }
-  
-  private isCacheValid(cacheEntry: CacheEntry): boolean {
-    return Date.now() - cacheEntry.timestamp < this.cacheExpiration;
-  }
-  
-  private processCachedData(cacheEntry: CacheEntry): void {
-    this.users = cacheEntry.data;
-    this.filteredUsers = cacheEntry.data;
-    this.totalItems = cacheEntry.pagination.total;
-    this.totalPages = cacheEntry.pagination.totalPages;
-    this.currentPage = cacheEntry.pagination.page;
-  }
-  
-  private cacheData(key: string, data: CacheEntry): void {
-    this.cache[key] = data;
-    
-    // Store in sessionStorage for persistence
-    try {
-      sessionStorage.setItem('usersCache', JSON.stringify(this.cache));
-    } catch (e) {
-      console.error('Error saving cache to sessionStorage', e);
-      // If we hit storage limits, clear and try again
-      sessionStorage.removeItem('usersCache');
-      this.cleanExpiredCache();
-      try {
-        sessionStorage.setItem('usersCache', JSON.stringify(this.cache));
-      } catch (e) {
-        console.error('Still cannot save cache, abandoning persistence', e);
-      }
-    }
-  }
-  
-  private cleanExpiredCache(): void {
-    const now = Date.now();
-    const newCache: { [key: string]: CacheEntry } = {};
-    
-    Object.keys(this.cache).forEach(key => {
-      if (now - this.cache[key].timestamp < this.cacheExpiration) {
-        newCache[key] = this.cache[key];
-      }
-    });
-    
-    this.cache = newCache;
-  }
-  
-  // Clear cache (call after actions that modify data)
-  clearCache(): void {
-    this.cache = {};
-    sessionStorage.removeItem('usersCache');
   }
   
   // Get menu items for a user

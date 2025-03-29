@@ -31,36 +31,46 @@ export class AuthService {
         // First decode the token and set basic user info
         const decodedToken = this.jwtHelper.decodeToken(token);
         if (decodedToken) {
-          // Create a minimal user object from the token for initial state
-          const minimalUser: Partial<UserData> = {
-            id: decodedToken.sub || '',
-            email: decodedToken.email || '',
-            role: decodedToken.role as UserData['role'],
-            name: decodedToken.name || '',
-            // Add default values for required properties
-            firstName: decodedToken.firstName || '',
-            lastName: decodedToken.lastName || '',
-            contactNumber: '',
-            isActive: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          };
+          // Check if we have stored user data in localStorage first
+          const storedUserData = this.getStoredUserData();
           
-          // Set the minimal user data first to avoid empty state
-          this.userSubject.next(minimalUser as UserData);
-          
-          // Then fetch the complete user profile to get full data
-          this.fetchCurrentUser().subscribe({
-            next: (userData) => {
-              if (userData && userData.data) {
-                this.userSubject.next(userData.data);
+          if (storedUserData) {
+            // We have complete user data stored, use it
+            this.userSubject.next(storedUserData);
+          } else {
+            // Create a minimal user object from the token for initial state
+            const minimalUser: Partial<UserData> = {
+              id: decodedToken.sub || '',
+              email: decodedToken.email || '',
+              role: decodedToken.role as UserData['role'],
+              name: decodedToken.name || '',
+              // Add default values for required properties
+              firstName: decodedToken.firstName || '',
+              lastName: decodedToken.lastName || '',
+              contactNumber: '',
+              isActive: true,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            };
+            
+            // Set the minimal user data first to avoid empty state
+            this.userSubject.next(minimalUser as UserData);
+            
+            // Then fetch the complete user profile to get full data
+            this.fetchCurrentUser().subscribe({
+              next: (userData) => {
+                if (userData && userData.data) {
+                  // Store the complete user data for future use
+                  this.storeUserData(userData.data);
+                  this.userSubject.next(userData.data);
+                }
+              },
+              error: (error) => {
+                console.error('Error fetching complete user data:', error);
+                // Continue with minimal user data if fetch fails, no need to logout
               }
-            },
-            error: (error) => {
-              console.error('Error fetching complete user data:', error);
-              // Continue with minimal user data if fetch fails, no need to logout
-            }
-          });
+            });
+          }
         } else {
           this.clearTokens();
           this.userSubject.next(null);
@@ -73,6 +83,25 @@ export class AuthService {
       this.clearTokens();
       this.userSubject.next(null);
     }
+  }
+
+  // Store user data in localStorage
+  private storeUserData(userData: UserData): void {
+    localStorage.setItem('userData', JSON.stringify(userData));
+  }
+
+  // Get stored user data from localStorage
+  private getStoredUserData(): UserData | null {
+    const storedData = localStorage.getItem('userData');
+    if (storedData) {
+      try {
+        return JSON.parse(storedData);
+      } catch (e) {
+        console.error('Error parsing stored user data:', e);
+        return null;
+      }
+    }
+    return null;
   }
 
   // Fetch current user's complete profile data
@@ -156,6 +185,7 @@ export class AuthService {
     this.http.post(`${this.apiUrl}/auth/logout`, {}).subscribe();
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userData');
     this.userSubject.next(null);
   }
 
@@ -188,7 +218,10 @@ export class AuthService {
 
   // Update the current user data (used after profile updates)
   updateUserData(userData: UserData): void {
+    // Update the BehaviorSubject
     this.userSubject.next(userData);
+    // Store the updated data in localStorage
+    this.storeUserData(userData);
   }
 
   getUserRole(): string | null {

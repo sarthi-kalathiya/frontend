@@ -1,7 +1,7 @@
 import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SubjectService } from '../../../../core/services/subject.service';
+import { SubjectService, SubjectFilter } from '../../../../core/services/subject.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { AddSubjectModalComponent } from './add-subject-modal/add-subject-modal.component';
 import { ViewSubjectModalComponent } from './view-subject-modal/view-subject-modal.component';
@@ -21,17 +21,6 @@ interface Subject {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-}
-
-interface CacheEntry {
-  data: Subject[];
-  pagination: {
-    total: number;
-    page: number;
-    pageSize: number;
-    totalPages: number;
-  };
-  timestamp: number;
 }
 
 @Component({
@@ -67,10 +56,6 @@ export class SubjectsComponent implements OnInit, OnDestroy {
   totalItems: number = 0;
   totalPages: number = 0;
   
-  // Cache system
-  private cache: { [key: string]: CacheEntry } = {};
-  private cacheExpiration = 5 * 60 * 1000; // 5 minutes in milliseconds
-  
   // Math object reference for template
   Math = Math;
 
@@ -98,20 +83,6 @@ export class SubjectsComponent implements OnInit, OnDestroy {
     
     // Load initial subjects
     this.loadSubjects();
-    
-    // Try to restore cache from sessionStorage
-    const savedCache = sessionStorage.getItem('subjectsCache');
-    if (savedCache) {
-      try {
-        this.cache = JSON.parse(savedCache);
-        
-        // Clean up any expired cache entries
-        this.cleanExpiredCache();
-      } catch (e) {
-        console.error('Error parsing cached data', e);
-        sessionStorage.removeItem('subjectsCache');
-      }
-    }
   }
   
   ngOnDestroy(): void {
@@ -121,21 +92,11 @@ export class SubjectsComponent implements OnInit, OnDestroy {
   }
   
   loadSubjects(): void {
-    // Create a cache key based on current filters
-    const cacheKey = this.createCacheKey();
-    
-    // Check if we already have valid cached data
-    if (this.cache[cacheKey] && this.isCacheValid(this.cache[cacheKey])) {
-      console.log('Using cached data for', cacheKey);
-      this.processCachedData(this.cache[cacheKey]);
-      return;
-    }
-    
     this.isLoading = true;
     this.error = '';
     
     // Create filters for the API
-    const filters: any = {};
+    const filters: SubjectFilter = {};
     if (this.searchTerm) {
       filters.searchTerm = this.searchTerm;
     }
@@ -171,185 +132,61 @@ export class SubjectsComponent implements OnInit, OnDestroy {
               this.totalItems = response.pagination.totalItems;
               this.totalPages = response.pagination.totalPages;
               this.currentPage = response.pagination.currentPage;
-              
-              // Cache the response with a timestamp
-              this.cacheData(cacheKey, {
-                data: response.data,
-                pagination: {
-                  total: response.pagination.totalItems,
-                  page: response.pagination.currentPage,
-                  pageSize: this.pageSize,
-                  totalPages: response.pagination.totalPages
-                },
-                timestamp: Date.now()
-              });
             } else {
               this.totalItems = this.subjects.length;
               this.totalPages = Math.ceil(this.totalItems / this.pageSize);
-              
-              // Cache the response with a timestamp
-              this.cacheData(cacheKey, {
-                data: response.data,
-                pagination: {
-                  total: this.subjects.length,
-                  page: this.currentPage,
-                  pageSize: this.pageSize,
-                  totalPages: Math.ceil(this.totalItems / this.pageSize)
-                },
-                timestamp: Date.now()
-              });
             }
-          } else if (Array.isArray(response)) {
-            // Direct array response
+          } else {
+            // Fallback if response doesn't have a data property
             this.subjects = response;
             this.totalItems = response.length;
             this.totalPages = Math.ceil(this.totalItems / this.pageSize);
-            
-            // Cache the response with a timestamp
-            this.cacheData(cacheKey, {
-              data: response,
-              pagination: {
-                total: response.length,
-                page: this.currentPage,
-                pageSize: this.pageSize,
-                totalPages: Math.ceil(this.totalItems / this.pageSize)
-              },
-              timestamp: Date.now()
-            });
-          } else if (response.status === 'success' && Array.isArray(response.data)) {
-            // Success response format with data array
-            this.subjects = response.data;
-            
-            // Check if pagination is embedded in the response
-            if (response.pagination) {
-              this.totalItems = response.pagination.totalItems;
-              this.totalPages = response.pagination.totalPages;
-              this.currentPage = response.pagination.currentPage || this.currentPage;
-              
-              // Cache the response with a timestamp
-              this.cacheData(cacheKey, {
-                data: response.data,
-                pagination: {
-                  total: response.pagination.totalItems,
-                  page: response.pagination.currentPage || this.currentPage,
-                  pageSize: this.pageSize,
-                  totalPages: response.pagination.totalPages
-                },
-                timestamp: Date.now()
-              });
-            } else {
-              this.totalItems = this.subjects.length;
-              this.totalPages = Math.ceil(this.totalItems / this.pageSize);
-              
-              // Cache the response with a timestamp
-              this.cacheData(cacheKey, {
-                data: response.data,
-                pagination: {
-                  total: this.subjects.length,
-                  page: this.currentPage,
-                  pageSize: this.pageSize,
-                  totalPages: Math.ceil(this.totalItems / this.pageSize)
-                },
-                timestamp: Date.now()
-              });
-            }
-          } else {
-            console.error('Unexpected response format:', response);
-            this.error = 'Invalid response format from server';
-            this.subjects = [];
-            this.totalItems = 0;
-            this.totalPages = 0;
           }
+          
+          this.filteredSubjects = this.subjects;
         } else {
+          this.error = 'Invalid response format';
           this.subjects = [];
-          this.totalItems = 0;
-          this.totalPages = 0;
+          this.filteredSubjects = [];
         }
-        
-        this.applyFilters(); // Apply client-side filtering for any additional filtering
       },
-      error: (err: any) => {
-        console.error('Error loading subjects:', err);
+      error: (err) => {
         this.isLoading = false;
         this.error = err.error?.message || 'Failed to load subjects';
-        
-        // Fallback to mock data in case of error during development
-        this.loadMockSubjects();
+        console.error('Error loading subjects:', err);
       }
     });
-  }
-  
-  loadMockSubjects(): void {
-    this.subjects = [
-      {
-        id: '1',
-        name: 'Mathematics',
-        description: 'Study of numbers, quantities, and shapes',
-        code: 'MATH-101',
-        credits: 4,
-        isActive: true,
-        createdAt: '2024-01-15T10:30:00Z',
-        updatedAt: '2024-01-15T10:30:00Z'
-      },
-      {
-        id: '2',
-        name: 'Science',
-        description: 'Study of the natural world',
-        code: 'SCI-101',
-        credits: 3,
-        isActive: true,
-        createdAt: '2024-01-20T14:45:00Z',
-        updatedAt: '2024-01-20T14:45:00Z'
-      },
-      {
-        id: '3',
-        name: 'English',
-        description: 'Study of language and literature',
-        code: 'ENG-101',
-        credits: 3,
-        isActive: true,
-        createdAt: '2024-01-25T09:15:00Z',
-        updatedAt: '2024-01-25T09:15:00Z'
-      },
-      {
-        id: '4',
-        name: 'History',
-        description: 'Study of past events',
-        code: 'HIST-101',
-        credits: 3,
-        isActive: false,
-        createdAt: '2024-02-01T11:20:00Z',
-        updatedAt: '2024-02-01T11:20:00Z'
-      },
-      {
-        id: '5',
-        name: 'Geography',
-        description: 'Study of places and the relationships between people and their environments',
-        code: 'GEO-101',
-        credits: 3,
-        isActive: true,
-        createdAt: '2024-02-05T13:40:00Z',
-        updatedAt: '2024-02-05T13:40:00Z'
-      }
-    ];
-    
-    this.applyFilters();
   }
   
   applyFilters(): void {
     this.filteredSubjects = this.subjects.filter(subject => {
-      // Filter by search term
-      const matchesSearch = !this.searchTerm || 
-        subject.name.toLowerCase().includes(this.searchTerm.toLowerCase()) || 
-        subject.description.toLowerCase().includes(this.searchTerm.toLowerCase());
+      // Status filter
+      if (this.selectedStatus === 'Active' && !subject.isActive) {
+        return false;
+      }
+      if (this.selectedStatus === 'Inactive' && subject.isActive) {
+        return false;
+      }
       
-      // Filter by status
-      const matchesStatus = this.selectedStatus === 'All Statuses' || 
-        (this.selectedStatus === 'Active' && subject.isActive) || 
-        (this.selectedStatus === 'Inactive' && !subject.isActive);
+      // Search term filter (already handled by API in most cases)
+      if (this.searchTerm && !this.searchTermContains(subject)) {
+        return false;
+      }
       
-      return matchesSearch && matchesStatus;
+      return true;
     });
+    
+    // Update pagination info based on filtered results
+    this.totalItems = this.filteredSubjects.length;
+    this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+  }
+  
+  // Helper method to check if subject matches search term
+  private searchTermContains(subject: Subject): boolean {
+    const term = this.searchTerm.toLowerCase();
+    return subject.name.toLowerCase().includes(term) ||
+           subject.description.toLowerCase().includes(term) ||
+           (subject.code?.toLowerCase().includes(term) ?? false);
   }
   
   onSearchInput(event: Event): void {
@@ -405,61 +242,6 @@ export class SubjectsComponent implements OnInit, OnDestroy {
     }
     
     return pages;
-  }
-  
-  // Cache-related methods
-  private createCacheKey(): string {
-    return `page=${this.currentPage}_size=${this.pageSize}_search=${this.searchTerm}_status=${this.selectedStatus}`;
-  }
-  
-  private isCacheValid(cacheEntry: CacheEntry): boolean {
-    return Date.now() - cacheEntry.timestamp < this.cacheExpiration;
-  }
-  
-  private processCachedData(cacheEntry: CacheEntry): void {
-    this.subjects = cacheEntry.data;
-    this.filteredSubjects = cacheEntry.data;
-    this.totalItems = cacheEntry.pagination.total;
-    this.totalPages = cacheEntry.pagination.totalPages;
-    this.currentPage = cacheEntry.pagination.page;
-  }
-  
-  private cacheData(key: string, data: CacheEntry): void {
-    this.cache[key] = data;
-    
-    // Store in sessionStorage for persistence
-    try {
-      sessionStorage.setItem('subjectsCache', JSON.stringify(this.cache));
-    } catch (e) {
-      console.error('Error saving cache to sessionStorage', e);
-      // If we hit storage limits, clear and try again
-      sessionStorage.removeItem('subjectsCache');
-      this.cleanExpiredCache();
-      try {
-        sessionStorage.setItem('subjectsCache', JSON.stringify(this.cache));
-      } catch (e) {
-        console.error('Still cannot save cache, abandoning persistence', e);
-      }
-    }
-  }
-  
-  private cleanExpiredCache(): void {
-    const now = Date.now();
-    const newCache: { [key: string]: CacheEntry } = {};
-    
-    Object.keys(this.cache).forEach(key => {
-      if (now - this.cache[key].timestamp < this.cacheExpiration) {
-        newCache[key] = this.cache[key];
-      }
-    });
-    
-    this.cache = newCache;
-  }
-  
-  // Clear cache (call after actions that modify data)
-  clearCache(): void {
-    this.cache = {};
-    sessionStorage.removeItem('subjectsCache');
   }
   
   onSearch(): void {
@@ -593,12 +375,11 @@ export class SubjectsComponent implements OnInit, OnDestroy {
     this.showAddSubjectModal = true;
   }
   
-  closeAddSubjectModal(refresh?: boolean): void {
+  closeAddSubjectModal(refresh: boolean = false): void {
     this.showAddSubjectModal = false;
     
     // If refresh is true, reload the subjects list
     if (refresh) {
-      this.clearCache(); // Clear cache for fresh data
       this.loadSubjects();
     }
   }
@@ -608,14 +389,38 @@ export class SubjectsComponent implements OnInit, OnDestroy {
     this.selectedSubject = null;
   }
   
-  closeEditSubjectModal(refresh?: boolean): void {
+  closeEditSubjectModal(refresh: boolean = false): void {
     this.showEditSubjectModal = false;
     this.selectedSubject = null;
     
     // If refresh is true, reload the subjects list
     if (refresh) {
-      this.clearCache(); // Clear cache for fresh data
       this.loadSubjects();
     }
+  }
+
+  refreshSubjects(): void {
+    this.loadSubjects();
+  }
+
+  deleteSubject(id: string): void {
+    this.confirmationModalService.confirm({
+      title: 'Delete Subject',
+      message: 'Are you sure you want to delete this subject? This action cannot be undone.'
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.isLoading = true;
+        this.subjectService.deleteSubject(id).subscribe({
+          next: () => {
+            this.toastService.showSuccess('Subject deleted successfully');
+            this.loadSubjects();
+          },
+          error: (err) => {
+            this.isLoading = false;
+            this.toastService.showError(err.error?.message || 'Failed to delete subject');
+          }
+        });
+      }
+    });
   }
 } 

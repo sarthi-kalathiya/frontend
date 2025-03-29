@@ -56,12 +56,29 @@ export class ProfileComponent implements OnInit {
     this.isLoading = true;
     this.apiError = null;
     
-    // First try to load from server
+    // First check if we already have complete user data in AuthService
+    this.authService.user$.subscribe((userData: UserData | null) => {
+      if (userData && userData.firstName && userData.lastName && userData.email) {
+        // We have complete data in the auth service already, use it
+        this.isLoading = false;
+        this.currentUser = userData;
+        this.updateFormWithUserData();
+      } else {
+        // Data is incomplete or missing, fetch from API
+        this.loadFromServer();
+      }
+    }).unsubscribe(); // Important: unsubscribe to avoid memory leaks
+  }
+
+  // Load user profile from server
+  private loadFromServer(): void {
     this.userService.getUserProfile().subscribe({
       next: (response) => {
         this.isLoading = false;
         if (response && response.data) {
           this.currentUser = response.data;
+          // Update auth service with the complete data to avoid future API calls
+          this.authService.updateUserData(response.data);
           // Update form with server data
           this.updateFormWithUserData();
         }
@@ -134,12 +151,16 @@ export class ProfileComponent implements OnInit {
           // Update local user data if server returns the updated user
           if (response.data) {
             this.currentUser = response.data;
+            // Update auth service with the complete data
+            this.authService.updateUserData(response.data);
           } else if (this.currentUser) {
             // Otherwise update from form values
             this.currentUser = {
               ...this.currentUser,
               ...profileData
             };
+            // Update auth service with locally updated user data
+            this.authService.updateUserData(this.currentUser);
           }
         } else {
           this.toastService.showError('Profile update response was invalid');
