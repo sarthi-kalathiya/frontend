@@ -1,0 +1,211 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <h1>Profile</h1>
+    <p>Manage your account details and password</p>
+  </div>
+
+  <div class="profile-content">
+    <!-- Profile Information Section -->
+    <div class="profile-section">
+      <div class="section-header">
+        <h2>Profile Information</h2>
+        <p>Update your account details</p>
+      </div>
+      
+      <div class="section-content">
+        <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" (keydown.enter)="$event.preventDefault(); updateProfile()" novalidate>
+          <!-- API Error Message -->
+          <div class="api-error-message" *ngIf="apiError">
+            <p>{{ apiError }}</p>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input 
+                type="text" 
+                id="firstName" 
+                formControlName="firstName" 
+                placeholder="Enter your first name"
+                [ngClass]="{'invalid': formSubmitted && profileForm.get('firstName')?.errors}"
+              >
+              <div 
+                class="error-message" 
+                *ngIf="formSubmitted && profileForm.get('firstName')?.errors?.['required']"
+              >
+                First name is required
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input 
+                type="text" 
+                id="lastName" 
+                formControlName="lastName" 
+                placeholder="Enter your last name"
+                [ngClass]="{'invalid': formSubmitted && profileForm.get('lastName')?.errors}"
+              >
+              <div 
+                class="error-message" 
+                *ngIf="formSubmitted && profileForm.get('lastName')?.errors?.['required']"
+              >
+                Last name is required
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input 
+              type="email" 
+              id="email" 
+              formControlName="email" 
+              placeholder="Enter your email address"
+              [class.invalid]="formSubmitted && profileForm.get('email')?.errors"
+              class="disabled-field"
+              readonly
+              [attr.disabled]="true"
+              title="Email address cannot be changed"
+            >
+            <div 
+              class="error-message" 
+              *ngIf="formSubmitted && profileForm.get('email')?.errors?.['required']"
+            >
+              Email is required
+            </div>
+            <div 
+              class="error-message" 
+              *ngIf="formSubmitted && profileForm.get('email')?.errors?.['email']"
+            >
+              Please enter a valid email address
+            </div>
+            <small class="field-note">Email address cannot be changed</small>
+          </div>
+          
+          <div class="form-group">
+            <label for="contactNumber">Contact Number</label>
+            <input 
+              type="tel" 
+              id="contactNumber" 
+              formControlName="contactNumber" 
+              placeholder="Enter your contact number"
+              [ngClass]="{'invalid': formSubmitted && profileForm.get('contactNumber')?.errors}"
+            >
+            <div 
+              class="error-message" 
+              *ngIf="formSubmitted && profileForm.get('contactNumber')?.errors?.['required']"
+            >
+              Contact number is required
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" [disabled]="isLoading">
+              <span *ngIf="isLoading">Updating...</span>
+              <span *ngIf="!isLoading">Update Profile</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Password Section -->
+    <div class="profile-section">
+      <div class="section-header">
+        <h2>Change Password</h2>
+        <p>Update your password for added security</p>
+      </div>
+      
+      <div class="section-content">
+        <div *ngIf="!showPasswordForm" class="password-toggle">
+          <button class="btn-secondary" (click)="togglePasswordForm()">Change Password</button>
+        </div>
+        
+        <form 
+          *ngIf="showPasswordForm" 
+          [formGroup]="passwordForm" 
+          (ngSubmit)="changePassword()" 
+          (keydown.enter)="$event.preventDefault(); passwordForm.valid && changePassword()"
+          novalidate
+        >
+          <!-- API Error Message -->
+          <div class="api-error-message" *ngIf="passwordApiError">
+            <p>{{ passwordApiError }}</p>
+          </div>
+
+          <div class="form-group">
+            <label for="currentPassword">Current Password</label>
+            <input 
+              type="password" 
+              id="currentPassword" 
+              formControlName="currentPassword" 
+              placeholder="Enter your current password"
+              [ngClass]="{'invalid': passwordFormSubmitted && passwordForm.get('currentPassword')?.errors}"
+            >
+            <div 
+              class="error-message" 
+              *ngIf="passwordFormSubmitted && passwordForm.get('currentPassword')?.errors?.['required']"
+            >
+              Current password is required
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input 
+              type="password" 
+              id="newPassword" 
+              formControlName="newPassword" 
+              placeholder="Enter your new password"
+              [ngClass]="{'invalid': passwordFormSubmitted && passwordForm.get('newPassword')?.errors}"
+            >
+            <div 
+              class="error-message" 
+              *ngIf="passwordFormSubmitted && passwordForm.get('newPassword')?.errors?.['required']"
+            >
+              New password is required
+            </div>
+            <div 
+              class="error-message" 
+              *ngIf="passwordFormSubmitted && passwordForm.get('newPassword')?.errors?.['minlength']"
+            >
+              Password must be at least 6 characters
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="confirmPassword">Confirm New Password</label>
+            <input 
+              type="password" 
+              id="confirmPassword" 
+              formControlName="confirmPassword" 
+              placeholder="Confirm your new password"
+              [ngClass]="{'invalid': passwordFormSubmitted && (passwordForm.get('confirmPassword')?.errors || passwordForm.errors?.['mismatch'])}"
+            >
+            <div 
+              class="error-message" 
+              *ngIf="passwordFormSubmitted && passwordForm.get('confirmPassword')?.errors?.['required']"
+            >
+              Confirm password is required
+            </div>
+            <div 
+              class="error-message" 
+              *ngIf="passwordFormSubmitted && passwordForm.errors?.['mismatch']"
+            >
+              Passwords do not match
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="togglePasswordForm()">Cancel</button>
+            <button type="submit" class="btn-primary" [disabled]="isLoading">
+              <span *ngIf="isLoading">Updating...</span>
+              <span *ngIf="!isLoading">Change Password</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div> 

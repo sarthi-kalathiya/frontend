@@ -45,6 +45,8 @@ export class LayoutComponent implements OnInit {
       this.activeTab = 'users';
     } else if (currentUrl.includes('/admin/subjects')) {
       this.activeTab = 'subjects';
+    } else if (currentUrl.includes('/admin/profile')) {
+      this.activeTab = 'profile';
     }
   }
   

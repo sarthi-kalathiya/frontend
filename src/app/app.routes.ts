@@ -5,6 +5,7 @@ import { LayoutComponent } from './modules/shared/components/layout/layout.compo
 import { LoginComponent } from './modules/auth/components/login/login.component';
 import { SignupComponent } from './modules/auth/components/signup/signup.component';
 import { AdminDashboardComponent } from './modules/admin/components/dashboard/dashboard.component';
+import { ProfileComponent } from './modules/admin/components/profile/profile.component';
 
 export const routes: Routes = [
   // Auth routes - simplify to a single login and admin signup
@@ -28,6 +29,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: AdminDashboardComponent },
       { path: 'users', loadComponent: () => import('./modules/admin/components/users/users.component').then(c => c.UsersComponent) },
       { path: 'subjects', loadComponent: () => import('./modules/admin/components/subjects/subjects.component').then(c => c.SubjectsComponent) },
+      { path: 'profile', component: ProfileComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: '**', redirectTo: 'dashboard' }
     ]

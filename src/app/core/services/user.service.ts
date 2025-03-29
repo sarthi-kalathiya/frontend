@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { UserData } from '../models/auth.models';
 
 // Define response types
 export interface PaginatedResponse<T> {
@@ -76,5 +77,20 @@ export class UserService {
   // Delete user
   deleteUser(userId: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/user/admin/users/${userId}`);
+  }
+
+  // Get current user profile
+  getUserProfile(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/user/profile`);
+  }
+
+  // Update current user profile
+  updateUserProfile(profileData: Partial<UserData>): Observable<any> {
+    return this.http.put(`${this.apiUrl}/user/profile`, profileData);
+  }
+
+  // Change current user password
+  changePassword(passwordData: { currentPassword: string; newPassword: string }): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/user/password`, passwordData);
   }
 } 
