@@ -378,8 +378,23 @@ export class UsersComponent implements OnInit, OnDestroy {
     }).subscribe((confirmed: boolean) => {
       if (confirmed) {
         this.userService.updateUserStatus(userId, newStatus).subscribe({
-          next: () => {
+          next: (response) => {
+            // Update the local user data first for immediate UI update
+            const userIndex = this.users.findIndex(u => u.id === userId);
+            if (userIndex !== -1) {
+              this.users[userIndex].isActive = newStatus;
+              
+              // Also update in filteredUsers if it exists
+              const filteredIndex = this.filteredUsers.findIndex(u => u.id === userId);
+              if (filteredIndex !== -1) {
+                this.filteredUsers[filteredIndex].isActive = newStatus;
+              }
+            }
+            
             this.toastService.showSuccess(`User ${actionName}d successfully`);
+            
+            // Clear cache and load users from server to ensure data consistency
+            this.clearCache();
             this.loadUsers();
           },
           error: (error) => {

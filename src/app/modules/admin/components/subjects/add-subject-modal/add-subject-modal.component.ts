@@ -25,7 +25,7 @@ export class AddSubjectModalComponent implements OnInit {
   subject: SubjectForm = {
     name: '',
     code: '',
-    credits: 3,
+    credits: 0,
     description: '',
     isActive: true
   };
