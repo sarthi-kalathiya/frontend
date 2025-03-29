@@ -16,9 +16,7 @@ interface SubjectFilter {
 export class SubjectService {
   private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {
-    console.log('SubjectService initialized with apiUrl:', this.apiUrl);
-  }
+  constructor(private http: HttpClient) {}
 
   // Get all subjects with optional filtering
   getAllSubjects(filters: SubjectFilter = {}): Observable<any> {
@@ -31,24 +29,12 @@ export class SubjectService {
       params = params.append('includeInactive', filters.includeInactive.toString());
     }
 
-    // Ensure the URL ends with /subjects
-    let url = `${this.apiUrl}`;
-    if (!url.endsWith('/subjects')) {
-      url = `${url}/subjects`;
-    }
-    
-    console.log('Making API call to:', url, 'with params:', params.toString());
-    return this.http.get<any>(url, { params });
+    return this.http.get<any>(`${this.apiUrl}/subjects`, { params });
   }
 
   // Get subject by ID
   getSubjectById(subjectId: string): Observable<any> {
-    // Ensure the URL ends with /subjects
-    let url = `${this.apiUrl}`;
-    if (!url.endsWith('/subjects')) {
-      url = `${url}/subjects`;
-    }
-    return this.http.get<any>(`${url}/${subjectId}`);
+    return this.http.get<any>(`${this.apiUrl}/subjects/${subjectId}`);
   }
 
   // Create subject
@@ -58,12 +44,7 @@ export class SubjectService {
       subjectData.credits = Number(subjectData.credits);
     }
     
-    // Ensure the URL ends with /subjects
-    let url = `${this.apiUrl}`;
-    if (!url.endsWith('/subjects')) {
-      url = `${url}/subjects`;
-    }
-    return this.http.post<any>(`${url}/admin/subjects`, subjectData);
+    return this.http.post<any>(`${this.apiUrl}/subjects/admin/subjects`, subjectData);
   }
 
   // Update subject
@@ -73,61 +54,31 @@ export class SubjectService {
       subjectData.credits = Number(subjectData.credits);
     }
     
-    // Ensure the URL ends with /subjects
-    let url = `${this.apiUrl}`;
-    if (!url.endsWith('/subjects')) {
-      url = `${url}/subjects`;
-    }
-    return this.http.put<any>(`${url}/admin/subjects/${subjectId}`, subjectData);
+    return this.http.put<any>(`${this.apiUrl}/subjects/admin/subjects/${subjectId}`, subjectData);
   }
 
   // Update subject status
   updateSubjectStatus(subjectId: string, isActive: boolean): Observable<any> {
-    // Ensure the URL ends with /subjects
-    let url = `${this.apiUrl}`;
-    if (!url.endsWith('/subjects')) {
-      url = `${url}/subjects`;
-    }
-    return this.http.patch<any>(`${url}/admin/subjects/${subjectId}/status`, { isActive });
+    return this.http.patch<any>(`${this.apiUrl}/subjects/admin/subjects/${subjectId}/status`, { isActive });
   }
 
   // Delete subject
   deleteSubject(subjectId: string): Observable<any> {
-    // Ensure the URL ends with /subjects
-    let url = `${this.apiUrl}`;
-    if (!url.endsWith('/subjects')) {
-      url = `${url}/subjects`;
-    }
-    return this.http.delete<any>(`${url}/admin/subjects/${subjectId}`);
+    return this.http.delete<any>(`${this.apiUrl}/subjects/admin/subjects/${subjectId}`);
   }
 
   // Get subjects assigned to a user
   getUserSubjects(userId: string): Observable<any> {
-    // Ensure the URL ends with /subjects
-    let url = `${this.apiUrl}`;
-    if (!url.endsWith('/subjects')) {
-      url = `${url}/subjects`;
-    }
-    return this.http.get<any>(`${url}/admin/users/${userId}/subjects`);
+    return this.http.get<any>(`${this.apiUrl}/subjects/admin/users/${userId}/subjects`);
   }
 
   // Assign multiple subjects to a user
   assignSubjectsToUser(userId: string, subjectIds: string[]): Observable<any> {
-    // Ensure the URL ends with /subjects
-    let url = `${this.apiUrl}`;
-    if (!url.endsWith('/subjects')) {
-      url = `${url}/subjects`;
-    }
-    return this.http.post<any>(`${url}/admin/users/${userId}/subjects`, { subjectIds });
+    return this.http.post<any>(`${this.apiUrl}/subjects/admin/users/${userId}/subjects`, { subjectIds });
   }
 
   // Assign a single subject to a user
   assignSubjectToUser(userId: string, subjectId: string): Observable<any> {
-    // Ensure the URL ends with /subjects
-    let url = `${this.apiUrl}`;
-    if (!url.endsWith('/subjects')) {
-      url = `${url}/subjects`;
-    }
-    return this.http.post<any>(`${url}/admin/users/${userId}/subjects/${subjectId}`, {});
+    return this.http.post<any>(`${this.apiUrl}/subjects/admin/users/${userId}/subjects/${subjectId}`, {});
   }
 } 

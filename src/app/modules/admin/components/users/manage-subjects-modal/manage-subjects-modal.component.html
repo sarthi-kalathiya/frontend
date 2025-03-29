@@ -18,8 +18,12 @@
     
     <!-- Error state -->
     <div *ngIf="!isLoading && error" class="error-container">
-      <div class="alert alert-danger">{{ error }}</div>
-      <button class="btn btn-primary" (click)="loadData()">Try Again</button>
+      <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle"></i> {{ error }}
+      </div>
+      <button class="btn btn-primary" (click)="loadData()">
+        <i class="fas fa-sync-alt"></i> Try Again
+      </button>
     </div>
     
     <!-- Content when loaded -->
@@ -34,10 +38,18 @@
         </p>
       </div>
       
+      <div class="info-message">
+        <i class="fas fa-info-circle"></i>
+        <div>
+          <p>Newly added subjects appear in yellow and can be removed with the <i class="fas fa-minus"></i> button.</p>
+          <p>Original subject assignments (in green) cannot be removed in this session.</p>
+        </div>
+      </div>
+      
       <div class="subjects-management">
         <!-- Available subjects column -->
         <div class="subjects-column available-subjects">
-          <h3>Available Subjects</h3>
+          <h3>Available Subjects <span class="count-badge">{{ filteredAvailableSubjects.length }}</span></h3>
           
           <!-- Search box -->
           <div class="search-box">
@@ -46,6 +58,7 @@
               placeholder="Search subjects..." 
               [(ngModel)]="searchTerm"
               (input)="onSearch()"
+              aria-label="Search available subjects"
             >
             <button class="btn-search" title="Search" (click)="onSearch()">
               <i class="fas fa-search"></i>
@@ -55,17 +68,20 @@
           <!-- Available subjects list -->
           <div class="subjects-list">
             <div *ngIf="filteredAvailableSubjects.length === 0" class="empty-list">
-              <p>No available subjects found.</p>
+              <p *ngIf="searchTerm">No subjects matching "{{ searchTerm }}" found.</p>
+              <p *ngIf="!searchTerm">No available subjects found. All subjects may be assigned already.</p>
             </div>
             
             <div *ngFor="let subject of filteredAvailableSubjects" class="subject-item">
               <div class="subject-info">
-                <div class="subject-name">{{ subject.name }}</div>
-                <div class="subject-code">{{ subject.code }} • {{ subject.credits }} credits</div>
+                <div class="subject-name" [title]="subject.name">{{ subject.name }}</div>
+                <div class="subject-code" [title]="subject.code + ' - ' + subject.credits + ' credits'">
+                  {{ subject.code }} • {{ subject.credits }} credits
+                </div>
               </div>
               <button 
                 class="btn-add" 
-                title="Assign subject" 
+                title="Assign subject to {{ userName }}" 
                 (click)="assignSubject(subject)"
               >
                 <i class="fas fa-plus"></i>
@@ -76,20 +92,24 @@
         
         <!-- Assigned subjects column -->
         <div class="subjects-column assigned-subjects">
-          <h3>Assigned Subjects</h3>
+          <h3>Assigned Subjects <span class="count-badge">{{ assignedSubjects.length }}</span></h3>
           
           <!-- Assigned subjects list -->
           <div class="subjects-list">
             <div *ngIf="assignedSubjects.length === 0" class="empty-list">
               <p>No subjects assigned yet.</p>
+              <p class="hint">Use the <i class="fas fa-plus"></i> button from the available subjects list to assign subjects.</p>
             </div>
             
-            <div *ngFor="let subject of assignedSubjects" class="subject-item">
+            <div *ngFor="let subject of assignedSubjects" class="subject-item" [ngClass]="{'newly-added': isNewlyAdded(subject.id)}">
               <div class="subject-info">
-                <div class="subject-name">{{ subject.name }}</div>
-                <div class="subject-code">{{ subject.code }} • {{ subject.credits }} credits</div>
+                <div class="subject-name" [title]="subject.name">{{ subject.name }}</div>
+                <div class="subject-code" [title]="subject.code + ' - ' + subject.credits + ' credits'">
+                  {{ subject.code }} • {{ subject.credits }} credits
+                </div>
               </div>
               <button 
+                *ngIf="isNewlyAdded(subject.id)"
                 class="btn-remove" 
                 title="Remove subject" 
                 (click)="removeSubject(subject.id)"
