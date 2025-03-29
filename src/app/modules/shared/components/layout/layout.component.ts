@@ -16,17 +16,9 @@ import { FormsModule } from '@angular/forms';
 export class LayoutComponent implements OnInit {
   currentUser: UserData | null = null;
   searchQuery: string = '';
-  showNotifications: boolean = false;
   showUserMenu: boolean = false;
   activeTab: string = 'dashboard';
   
-  notifications = [
-    { title: 'New User Registered', time: '2 minutes ago', read: false },
-    { title: 'Server Error Alert', time: '1 hour ago', read: false },
-    { title: 'Database Backup Complete', time: '3 hours ago', read: true },
-    { title: 'New Payment Received', time: '6 hours ago', read: true }
-  ];
-
   private router = inject(Router);
   private authService = inject(AuthService);
 
@@ -50,18 +42,8 @@ export class LayoutComponent implements OnInit {
     }
   }
   
-  toggleNotifications(): void {
-    this.showNotifications = !this.showNotifications;
-    if (this.showNotifications) {
-      this.showUserMenu = false;
-    }
-  }
-  
   toggleUserMenu(): void {
     this.showUserMenu = !this.showUserMenu;
-    if (this.showUserMenu) {
-      this.showNotifications = false;
-    }
   }
   
   logout(): void {
@@ -72,17 +54,10 @@ export class LayoutComponent implements OnInit {
   navigateTo(route: string): void {
     this.router.navigateByUrl(route);
     this.activeTab = route.split('/').pop() || 'dashboard';
-  }
-  
-  markAllAsRead(): void {
-    this.notifications = this.notifications.map(notification => ({
-      ...notification,
-      read: true
-    }));
+    this.closeAllDropdowns();
   }
   
   closeAllDropdowns(): void {
-    this.showNotifications = false;
     this.showUserMenu = false;
   }
   
@@ -91,23 +66,19 @@ export class LayoutComponent implements OnInit {
     console.log('Searching for:', this.searchQuery);
     this.searchQuery = '';
   }
-
-  hasUnreadNotifications(): boolean {
-    return this.notifications.some(notification => !notification.read);
-  }
-  
-  handleNotificationClick(event: MouseEvent): void {
-    event.stopPropagation();
-    this.toggleNotifications();
-  }
-  
-  handleMarkAllRead(event: MouseEvent): void {
-    event.stopPropagation();
-    this.markAllAsRead();
-  }
   
   handleUserMenuClick(event: MouseEvent): void {
     event.stopPropagation();
     this.toggleUserMenu();
+  }
+  
+  // Helper method to get user initials for avatar
+  getUserInitials(): string {
+    if (!this.currentUser) return '';
+    
+    const firstInitial = this.currentUser.firstName ? this.currentUser.firstName.charAt(0) : '';
+    const lastInitial = this.currentUser.lastName ? this.currentUser.lastName.charAt(0) : '';
+    
+    return (firstInitial + lastInitial).toUpperCase();
   }
 } 

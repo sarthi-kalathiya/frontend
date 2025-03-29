@@ -16,7 +16,6 @@ export class LoginComponent implements OnInit {
   isLoading = false;
   error = '';
   returnUrl: string = '/';
-  adminMode = false;
   showPassword = false;
 
   constructor(

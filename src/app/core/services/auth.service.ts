@@ -28,24 +28,39 @@ export class AuthService {
     try {
       const token = this.getToken();
       if (token) {
-        // Just decode the token and set basic user info
-        // Don't make API calls during initialization to prevent circular dependencies
+        // First decode the token and set basic user info
         const decodedToken = this.jwtHelper.decodeToken(token);
         if (decodedToken) {
-          // Create a minimal user object from the token
-          const user: Partial<UserData> = {
+          // Create a minimal user object from the token for initial state
+          const minimalUser: Partial<UserData> = {
             id: decodedToken.sub || '',
             email: decodedToken.email || '',
             role: decodedToken.role as UserData['role'],
             name: decodedToken.name || '',
-            isActive: true,
             // Add default values for required properties
+            firstName: decodedToken.firstName || '',
+            lastName: decodedToken.lastName || '',
             contactNumber: '',
+            isActive: true,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           };
           
-          this.userSubject.next(user as UserData);
+          // Set the minimal user data first to avoid empty state
+          this.userSubject.next(minimalUser as UserData);
+          
+          // Then fetch the complete user profile to get full data
+          this.fetchCurrentUser().subscribe({
+            next: (userData) => {
+              if (userData && userData.data) {
+                this.userSubject.next(userData.data);
+              }
+            },
+            error: (error) => {
+              console.error('Error fetching complete user data:', error);
+              // Continue with minimal user data if fetch fails, no need to logout
+            }
+          });
         } else {
           this.clearTokens();
           this.userSubject.next(null);
@@ -58,6 +73,16 @@ export class AuthService {
       this.clearTokens();
       this.userSubject.next(null);
     }
+  }
+
+  // Fetch current user's complete profile data
+  private fetchCurrentUser(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/user/profile`).pipe(
+      catchError(error => {
+        console.error('Failed to fetch user profile:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   unifiedLogin(loginData: LoginRequest): Observable<AuthResponse> {
@@ -159,6 +184,11 @@ export class AuthService {
         return throwError(() => error);
       })
     );
+  }
+
+  // Update the current user data (used after profile updates)
+  updateUserData(userData: UserData): void {
+    this.userSubject.next(userData);
   }
 
   getUserRole(): string | null {
