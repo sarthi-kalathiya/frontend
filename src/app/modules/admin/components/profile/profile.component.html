@@ -1,24 +1,65 @@
-<div class="profile-container">
-  <div class="profile-header">
-    <h1>Profile</h1>
-    <p>Manage your account details and password</p>
+<!-- Back button for navigation -->
+<div class="my-profile-container">
+  <div class="back-navigation">
+    <button class="back-btn" (click)="goBack()">
+      <i class="fa fa-arrow-left"></i> Back
+    </button>
   </div>
 
-  <div class="profile-content">
-    <!-- Profile Information Section -->
-    <div class="profile-section">
-      <div class="section-header">
-        <h2>Profile Information</h2>
-        <p>Update your account details</p>
-      </div>
-      
-      <div class="section-content">
-        <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" (keydown.enter)="$event.preventDefault(); updateProfile()" novalidate>
-          <!-- API Error Message -->
-          <div class="api-error-message" *ngIf="apiError">
-            <p>{{ apiError }}</p>
-          </div>
+  <div class="profile-header">
+    <h1>My Profile</h1>
+  </div>
 
+  <div class="profile-cards-container">
+    <!-- Profile Picture Card -->
+    <div class="profile-card picture-card">
+      <h3>Profile Picture</h3>
+      <div class="profile-image-container">
+        <div class="profile-avatar">
+          <i class="fa fa-user-circle avatar-icon"></i>
+        </div>
+        <div class="profile-name">
+          <h2>{{ currentUser?.firstName }} {{ currentUser?.lastName }}</h2>
+          <p class="role">{{ currentUser?.role || 'TEACHER' }}</p>
+        </div>
+      </div>
+      <button class="change-picture-btn">
+        <i class="fa fa-camera"></i> Change Picture
+      </button>
+
+      <div class="user-info">
+        <div class="info-item">
+          <label>Email</label>
+          <p>{{ currentUser?.email }}</p>
+        </div>
+        <div class="info-item">
+          <label>Role</label>
+          <p>{{ currentUser?.role || 'TEACHER' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Member Since</label>
+          <p>{{ formatDate(currentUser?.createdAt) }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal Information Card -->
+    <div class="profile-card info-card">
+      <div class="card-header">
+        <h3>Personal Information</h3>
+        <p>Update your personal information</p>
+        <button class="edit-btn" *ngIf="!editMode" (click)="toggleEditMode()">
+          <i class="fa fa-edit"></i> Edit
+        </button>
+      </div>
+
+      <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+        <!-- API Error Message -->
+        <div class="api-error-message" *ngIf="apiError">
+          <p>{{ apiError }}</p>
+        </div>
+
+        <div class="info-form">
           <div class="form-row">
             <div class="form-group">
               <label for="firstName">First Name</label>
@@ -26,8 +67,8 @@
                 type="text" 
                 id="firstName" 
                 formControlName="firstName" 
-                placeholder="Enter your first name"
-                [ngClass]="{'invalid': formSubmitted && profileForm.get('firstName')?.errors}"
+                [readonly]="!editMode"
+                [ngClass]="{'readonly': !editMode, 'invalid': formSubmitted && profileForm.get('firstName')?.errors}"
               >
               <div 
                 class="error-message" 
@@ -43,8 +84,8 @@
                 type="text" 
                 id="lastName" 
                 formControlName="lastName" 
-                placeholder="Enter your last name"
-                [ngClass]="{'invalid': formSubmitted && profileForm.get('lastName')?.errors}"
+                [readonly]="!editMode"
+                [ngClass]="{'readonly': !editMode, 'invalid': formSubmitted && profileForm.get('lastName')?.errors}"
               >
               <div 
                 class="error-message" 
@@ -55,85 +96,74 @@
             </div>
           </div>
           
-          <div class="form-group">
-            <label for="email">Email Address</label>
-            <input 
-              type="email" 
-              id="email" 
-              formControlName="email" 
-              placeholder="Enter your email address"
-              [class.invalid]="formSubmitted && profileForm.get('email')?.errors"
-              class="disabled-field"
-              readonly
-              [attr.disabled]="true"
-              title="Email address cannot be changed"
-            >
-            <div 
-              class="error-message" 
-              *ngIf="formSubmitted && profileForm.get('email')?.errors?.['required']"
-            >
-              Email is required
+          <div class="form-row">
+            <div class="form-group">
+              <label for="contactNumber">Contact Number</label>
+              <input 
+                type="tel" 
+                id="contactNumber" 
+                formControlName="contactNumber" 
+                [readonly]="!editMode"
+                [ngClass]="{'readonly': !editMode, 'invalid': formSubmitted && profileForm.get('contactNumber')?.errors}"
+              >
+              <div 
+                class="error-message" 
+                *ngIf="formSubmitted && profileForm.get('contactNumber')?.errors?.['required']"
+              >
+                Contact number is required
+              </div>
             </div>
-            <div 
-              class="error-message" 
-              *ngIf="formSubmitted && profileForm.get('email')?.errors?.['email']"
-            >
-              Please enter a valid email address
-            </div>
-            <small class="field-note">Email address cannot be changed</small>
-          </div>
-          
-          <div class="form-group">
-            <label for="contactNumber">Contact Number</label>
-            <input 
-              type="tel" 
-              id="contactNumber" 
-              formControlName="contactNumber" 
-              placeholder="Enter your contact number"
-              [ngClass]="{'invalid': formSubmitted && profileForm.get('contactNumber')?.errors}"
-            >
-            <div 
-              class="error-message" 
-              *ngIf="formSubmitted && profileForm.get('contactNumber')?.errors?.['required']"
-            >
-              Contact number is required
+            
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input 
+                type="email" 
+                id="email" 
+                formControlName="email" 
+                readonly
+                class="readonly"
+                title="Email address cannot be changed"
+              >
+              <small class="field-note">Email address cannot be changed</small>
             </div>
           </div>
           
-          <div class="form-actions">
+          <div class="form-actions" *ngIf="editMode">
+            <button type="button" class="btn-cancel" (click)="cancelEdit()">Cancel</button>
             <button type="submit" class="btn-primary" [disabled]="isLoading">
               <span *ngIf="isLoading">Updating...</span>
-              <span *ngIf="!isLoading">Update Profile</span>
+              <span *ngIf="!isLoading">Save Changes</span>
             </button>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Password Card -->
+  <div class="profile-card password-card">
+    <div class="card-header">
+      <h3>Security Settings</h3>
+      <p>Manage your password</p>
     </div>
     
-    <!-- Password Section -->
-    <div class="profile-section">
-      <div class="section-header">
-        <h2>Change Password</h2>
-        <p>Update your password for added security</p>
+    <div *ngIf="!showPasswordForm" class="password-toggle">
+      <button class="btn-secondary" (click)="togglePasswordForm()">Change Password</button>
+    </div>
+    
+    <form 
+      *ngIf="showPasswordForm" 
+      [formGroup]="passwordForm" 
+      (ngSubmit)="changePassword()"
+      novalidate
+    >
+      <!-- API Error Message -->
+      <div class="api-error-message" *ngIf="passwordApiError">
+        <p>{{ passwordApiError }}</p>
       </div>
-      
-      <div class="section-content">
-        <div *ngIf="!showPasswordForm" class="password-toggle">
-          <button class="btn-secondary" (click)="togglePasswordForm()">Change Password</button>
-        </div>
-        
-        <form 
-          *ngIf="showPasswordForm" 
-          [formGroup]="passwordForm" 
-          (ngSubmit)="changePassword()" 
-          (keydown.enter)="$event.preventDefault(); passwordForm.valid && changePassword()"
-          novalidate
-        >
-          <!-- API Error Message -->
-          <div class="api-error-message" *ngIf="passwordApiError">
-            <p>{{ passwordApiError }}</p>
-          </div>
 
+      <div class="password-form">
+        <div class="form-row">
           <div class="form-group">
             <label for="currentPassword">Current Password</label>
             <input 
@@ -150,7 +180,9 @@
               Current password is required
             </div>
           </div>
-          
+        </div>
+        
+        <div class="form-row">
           <div class="form-group">
             <label for="newPassword">New Password</label>
             <input 
@@ -196,16 +228,16 @@
               Passwords do not match
             </div>
           </div>
-          
-          <div class="form-actions">
-            <button type="button" class="btn-cancel" (click)="togglePasswordForm()">Cancel</button>
-            <button type="submit" class="btn-primary" [disabled]="isLoading">
-              <span *ngIf="isLoading">Updating...</span>
-              <span *ngIf="!isLoading">Change Password</span>
-            </button>
-          </div>
-        </form>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="togglePasswordForm()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="isLoading">
+            <span *ngIf="isLoading">Updating...</span>
+            <span *ngIf="!isLoading">Change Password</span>
+          </button>
+        </div>
       </div>
-    </div>
+    </form>
   </div>
-</div> 
+</div>

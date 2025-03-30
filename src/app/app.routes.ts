@@ -19,6 +19,13 @@ export const routes: Routes = [
     ]
   },
   
+  // Standalone Profile route (outside of layout)
+  {
+    path: 'profile',
+    component: ProfileComponent,
+    canActivate: [AuthGuard]
+  },
+  
   // Admin routes
   {
     path: 'admin',
@@ -29,7 +36,6 @@ export const routes: Routes = [
       { path: 'dashboard', component: AdminDashboardComponent },
       { path: 'users', loadComponent: () => import('./modules/admin/components/users/users.component').then(c => c.UsersComponent) },
       { path: 'subjects', loadComponent: () => import('./modules/admin/components/subjects/subjects.component').then(c => c.SubjectsComponent) },
-      { path: 'profile', component: ProfileComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: '**', redirectTo: 'dashboard' }
     ]

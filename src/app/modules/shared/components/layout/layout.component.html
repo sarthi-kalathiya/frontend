@@ -47,7 +47,7 @@
           </div>
           
           <div class="menu-items">
-            <a href="javascript:void(0)" class="menu-item" (click)="navigateTo('/admin/profile')">
+            <a href="javascript:void(0)" class="menu-item" (click)="navigateTo('/profile')">
               <i class="fas fa-user"></i> Profile
             </a>
             <!-- Settings menu item removed -->
@@ -88,15 +88,6 @@
         title="Go to Subjects"
       >
         Subjects
-      </button>
-      
-      <button 
-        class="tab-item" 
-        [ngClass]="{'active': activeTab === 'profile'}"
-        (click)="navigateTo('/admin/profile')"
-        title="Go to Profile"
-      >
-        Profile
       </button>
     </div>
   </nav>

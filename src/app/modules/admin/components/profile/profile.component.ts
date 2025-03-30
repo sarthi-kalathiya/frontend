@@ -5,6 +5,8 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { UserService } from '../../../../core/services/user.service';
 import { UserData } from '../../../../core/models/auth.models';
 import { ToastService } from '../../../../core/services/toast.service';
+import { Location } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin-profile',
@@ -23,12 +25,15 @@ export class ProfileComponent implements OnInit {
   passwordFormSubmitted = false;
   apiError: string | null = null;
   passwordApiError: string | null = null;
+  editMode = false;
 
   // Services
   private authService = inject(AuthService);
   private userService = inject(UserService);
   private formBuilder = inject(FormBuilder);
   private toastService = inject(ToastService);
+  private location = inject(Location);
+  private router = inject(Router);
 
   constructor() {
     // Initialize forms
@@ -144,6 +149,7 @@ export class ProfileComponent implements OnInit {
       next: (response) => {
         this.isLoading = false;
         this.formSubmitted = false; // Reset form submitted state to hide validation errors
+        this.editMode = false; // Exit edit mode after successful update
         
         if (response && response.status === 'success') {
           this.toastService.showSuccess('Profile updated successfully');
@@ -225,4 +231,40 @@ export class ProfileComponent implements OnInit {
     
     return newPassword === confirmPassword ? null : { mismatch: true };
   }
-} 
+
+  // New methods for the redesigned UI
+  toggleEditMode(): void {
+    this.editMode = true;
+  }
+
+  cancelEdit(): void {
+    this.editMode = false;
+    this.formSubmitted = false;
+    this.apiError = null;
+    
+    // Reset form to original values
+    this.updateFormWithUserData();
+  }
+
+  goBack(): void {
+    this.location.back();
+  }
+
+  formatDate(dateString?: string): string {
+    if (!dateString) return 'N/A';
+    
+    const date = new Date(dateString);
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return 'N/A';
+    }
+    
+    // Format: Month DD, YYYY (e.g., March 29, 2025)
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+}

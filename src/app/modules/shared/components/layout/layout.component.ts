@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, NgIf, NgFor, NgClass]
+  imports: [CommonModule, RouterModule, FormsModule, NgIf, NgClass]
 })
 export class LayoutComponent implements OnInit {
   currentUser: UserData | null = null;
@@ -37,8 +37,6 @@ export class LayoutComponent implements OnInit {
       this.activeTab = 'users';
     } else if (currentUrl.includes('/admin/subjects')) {
       this.activeTab = 'subjects';
-    } else if (currentUrl.includes('/admin/profile')) {
-      this.activeTab = 'profile';
     }
   }
   
