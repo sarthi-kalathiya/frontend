@@ -1,73 +1,64 @@
-import { Component } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
+import { UserData } from '../../../../core/models/auth.models';
 
 @Component({
   selector: 'app-teacher-dashboard',
+  templateUrl: './teacher-dashboard.component.html',
+  styleUrls: ['./teacher-dashboard.component.scss'],
   standalone: true,
-  imports: [CommonModule],
-  template: `
-    <div class="dashboard-container">
-      <div class="dashboard-header">
-        <h1>Teacher Dashboard</h1>
-        <p class="current-date">{{ currentDate | date:'fullDate' }}</p>
-      </div>
-
-      <div class="content-section">
-        <div class="welcome-card">
-          <h2>Hello, Teacher!</h2>
-          <p>Welcome to the Teacher Dashboard. This is a placeholder page to verify that routing works correctly.</p>
-          <p>Here you'll be able to manage your classes, create exams, and view student progress.</p>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .dashboard-container {
-      background-color: white;
-      border-radius: 4px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      padding: 24px;
-    }
-    
-    .dashboard-header {
-      margin-bottom: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .dashboard-header h1 {
-      font-size: 24px;
-      font-weight: 600;
-      margin: 0;
-    }
-    
-    .current-date {
-      color: #666;
-      margin: 0;
-    }
-    
-    .welcome-card {
-      background-color: #f8f8f8;
-      border-radius: 4px;
-      padding: 24px;
-      margin-bottom: 24px;
-    }
-    
-    .welcome-card h2 {
-      font-size: 20px;
-      font-weight: 600;
-      margin-top: 0;
-      margin-bottom: 16px;
-    }
-    
-    .welcome-card p {
-      color: #333;
-      line-height: 1.5;
-      margin-bottom: 12px;
-    }
-  `]
+  imports: [CommonModule, RouterLink]
 })
-export class TeacherDashboardComponent {
+export class TeacherDashboardComponent implements OnInit {
+  currentUser: UserData | null = null;
   currentDate = new Date();
+  
+  // Statistics data
+  totalExams = 12;
+  activeExams = 3;
+  totalStudents = 87;
+  avgScore = 76;
+  
+  // Exam analytics data
+  completionRateData = {
+    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    completedValues: [40, 30, 45, 27, 38, 23],
+    incompleteValues: [24, 13, 8, 10, 5, 12]
+  };
+  
+  // Upcoming exams data
+  upcomingExams = [
+    {
+      title: 'Midterm Exam',
+      subject: 'Discrete Mathematics',
+      date: new Date(2025, 3, 15, 10, 0) // Apr 15, 2025 at 10:00 AM
+    },
+    {
+      title: 'Final Quiz',
+      subject: 'Data Structures',
+      date: new Date(2025, 3, 22, 14, 0) // Apr 22, 2025 at 2:00 PM
+    },
+    {
+      title: 'Practical Test',
+      subject: 'Algorithms',
+      date: new Date(2025, 4, 5, 9, 0) // May 5, 2025 at 9:00 AM
+    }
+  ];
+  
+  activeTab = 'completion-rate';
+  
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    // Subscribe to current user
+    this.authService.user$.subscribe((user: UserData | null) => {
+      this.currentUser = user;
+    });
+  }
+  
+  switchTab(tab: string): void {
+    this.activeTab = tab;
+  }
 } 
