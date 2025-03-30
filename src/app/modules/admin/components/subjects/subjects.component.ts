@@ -101,13 +101,15 @@ export class SubjectsComponent implements OnInit, OnDestroy {
       filters.searchTerm = this.searchTerm;
     }
     
-    // Set includeInactive based on selected status
+    // Set filtering based on selected status
     if (this.selectedStatus === 'All Statuses') {
+      // Show all subjects
       filters.includeInactive = true;
     } else if (this.selectedStatus === 'Inactive') {
-      filters.includeInactive = true;
+      // Filter to show only inactive subjects
       filters.isActive = false;
-    } else {
+    } else if (this.selectedStatus === 'Active') {
+      // Filter to show only active subjects
       filters.isActive = true;
     }
     

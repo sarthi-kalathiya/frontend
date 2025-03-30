@@ -35,6 +35,9 @@ export class SubjectService {
     if (filters.includeInactive !== undefined) {
       params = params.append('includeInactive', filters.includeInactive.toString());
     }
+    if (filters.isActive !== undefined) {
+      params = params.append('isActive', filters.isActive.toString());
+    }
 
     // Generate cache key based on the request parameters
     const cacheKey = this.cachePrefix + 'subjects_' + this.objectToQueryString(filters);
