@@ -138,19 +138,17 @@ export class UserService {
 
   // Get current user profile
   getUserProfile(): Observable<any> {
-    const cacheKey = this.cachePrefix + 'profile';
-    
-    // Check cache first
-    const cachedData = this.cacheService.get<any>(cacheKey);
-    if (cachedData) {
-      return of(cachedData);
-    }
+    // Clear the profile cache to force a fresh request
+    this.cacheService.remove(this.cachePrefix + 'profile');
     
     return this.http.get(`${this.apiUrl}/user/profile`)
       .pipe(
         tap(response => {
-          // Save the response to cache
-          this.cacheService.set(cacheKey, response);
+          // Log the response to check what's being returned
+          console.log('User profile API response:', response);
+          
+          // Don't cache the profile data for now while debugging
+          // this.cacheService.set(cacheKey, response);
         })
       );
   }

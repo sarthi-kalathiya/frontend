@@ -30,6 +30,7 @@ export interface UserData {
   role: 'ADMIN' | 'TEACHER' | 'STUDENT';
   contactNumber: string;
   isActive: boolean;
+  profileCompleted: boolean;
   createdAt: string;
   updatedAt: string;
   hasCompletedProfile?: boolean;
@@ -66,4 +67,4 @@ export interface JwtPayload {
   role: string;
   iat: number;
   exp: number;
-} 
+}

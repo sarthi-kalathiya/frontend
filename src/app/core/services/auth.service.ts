@@ -194,6 +194,17 @@ export class AuthService {
     return token !== null && !this.jwtHelper.isTokenExpired(token);
   }
 
+  // Check if user profile is complete
+  isProfileComplete(): boolean {
+    const currentUser = this.userSubject.value;
+    return currentUser ? !!currentUser.profileCompleted : false;
+  }
+
+  // Check profile status from the API
+  checkProfileStatus(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/user/profile-status`);
+  }
+
   refreshToken(): Observable<AuthResponse> {
     const refreshToken = localStorage.getItem('refreshToken');
     if (!refreshToken) {
@@ -250,6 +261,29 @@ export class AuthService {
     return userRole === role;
   }
 
+  // Check if the logged-in user needs to complete their profile
+  redirectToProfileCompletionIfNeeded(): Observable<boolean> {
+    return this.checkProfileStatus().pipe(
+      map(response => {
+        if (response && response.data && response.data.requiresAdditionalSetup) {
+          // User needs to complete profile
+          const userRole = this.getUserRole();
+          if (userRole === 'TEACHER') {
+            this.router.navigate(['/profile/teacher/complete']);
+          } else if (userRole === 'STUDENT') {
+            this.router.navigate(['/profile/student/complete']);
+          }
+          return true;
+        }
+        return false;
+      }),
+      catchError(error => {
+        console.error('Error checking profile status:', error);
+        return of(false);
+      })
+    );
+  }
+
   private getToken(): string | null {
     return localStorage.getItem('accessToken');
   }
@@ -258,4 +292,4 @@ export class AuthService {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
   }
-} 
+}

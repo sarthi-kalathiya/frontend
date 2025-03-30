@@ -9,7 +9,7 @@ import { UserData } from '../../../../core/models/auth.models';
   templateUrl: './teacher-dashboard.component.html',
   styleUrls: ['./teacher-dashboard.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterLink]
+  imports: [CommonModule]
 })
 export class TeacherDashboardComponent implements OnInit {
   currentUser: UserData | null = null;
