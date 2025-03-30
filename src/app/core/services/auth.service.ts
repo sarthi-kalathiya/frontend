@@ -224,6 +224,22 @@ export class AuthService {
     this.storeUserData(userData);
   }
 
+  // Refresh the current user data from the server
+  refreshCurrentUser(): void {
+    this.fetchCurrentUser().subscribe({
+      next: (response) => {
+        if (response && response.data) {
+          // Store the updated user data
+          this.storeUserData(response.data);
+          this.userSubject.next(response.data);
+        }
+      },
+      error: (error) => {
+        console.error('Error refreshing user data:', error);
+      }
+    });
+  }
+
   getUserRole(): string | null {
     const currentUser = this.userSubject.value;
     return currentUser ? currentUser.role : null;

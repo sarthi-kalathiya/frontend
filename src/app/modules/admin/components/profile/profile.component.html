@@ -60,6 +60,7 @@
         </div>
 
         <div class="info-form">
+          <!-- Basic Information - All Roles -->
           <div class="form-row">
             <div class="form-group">
               <label for="firstName">First Name</label>
@@ -127,6 +128,107 @@
               <small class="field-note">Email address cannot be changed</small>
             </div>
           </div>
+          
+          <!-- Teacher-specific fields -->
+          <ng-container *ngIf="currentUser?.role === 'TEACHER'">
+            <div class="section-divider">
+              <h4>Teacher Information</h4>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="qualification">Qualification</label>
+                <input 
+                  type="text" 
+                  id="qualification" 
+                  formControlName="qualification" 
+                  [readonly]="!editMode"
+                  [ngClass]="{'readonly': !editMode}"
+                >
+              </div>
+              
+              <div class="form-group">
+                <label for="expertise">Expertise</label>
+                <input 
+                  type="text" 
+                  id="expertise" 
+                  formControlName="expertise" 
+                  [readonly]="!editMode"
+                  [ngClass]="{'readonly': !editMode}"
+                >
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="experience">Years of Experience</label>
+                <input 
+                  type="number" 
+                  id="experience" 
+                  formControlName="experience" 
+                  [readonly]="!editMode"
+                  [ngClass]="{'readonly': !editMode}"
+                >
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group full-width">
+                <label for="bio">Bio</label>
+                <textarea 
+                  id="bio" 
+                  formControlName="bio" 
+                  [readonly]="!editMode"
+                  [ngClass]="{'readonly': !editMode}"
+                  rows="4"
+                ></textarea>
+              </div>
+            </div>
+          </ng-container>
+          
+          <!-- Student-specific fields -->
+          <ng-container *ngIf="currentUser?.role === 'STUDENT'">
+            <div class="section-divider">
+              <h4>Student Information</h4>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="rollNumber">Roll Number</label>
+                <input 
+                  type="text" 
+                  id="rollNumber" 
+                  formControlName="rollNumber" 
+                  [readonly]="!editMode"
+                  [ngClass]="{'readonly': !editMode}"
+                >
+              </div>
+              
+              <div class="form-group">
+                <label for="grade">Grade</label>
+                <input 
+                  type="text" 
+                  id="grade" 
+                  formControlName="grade" 
+                  [readonly]="!editMode"
+                  [ngClass]="{'readonly': !editMode}"
+                >
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="parentContactNumber">Parent Contact Number</label>
+                <input 
+                  type="tel" 
+                  id="parentContactNumber" 
+                  formControlName="parentContactNumber" 
+                  [readonly]="!editMode"
+                  [ngClass]="{'readonly': !editMode}"
+                >
+              </div>
+            </div>
+          </ng-container>
           
           <div class="form-actions" *ngIf="editMode">
             <button type="button" class="btn-cancel" (click)="cancelEdit()">Cancel</button>

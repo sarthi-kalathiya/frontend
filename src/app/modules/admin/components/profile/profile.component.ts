@@ -1,249 +1,209 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { UserService } from '../../../../core/services/user.service';
-import { UserData } from '../../../../core/models/auth.models';
 import { ToastService } from '../../../../core/services/toast.service';
-import { Location } from '@angular/common';
-import { Router } from '@angular/router';
+import { UserData } from '../../../../core/models/auth.models';
 
 @Component({
-  selector: 'app-admin-profile',
+  selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule]
+  imports: [CommonModule, ReactiveFormsModule, RouterModule]
 })
 export class ProfileComponent implements OnInit {
   currentUser: UserData | null = null;
   profileForm: FormGroup;
   passwordForm: FormGroup;
-  isLoading = false;
+  editMode = false;
   showPasswordForm = false;
+  isLoading = false;
   formSubmitted = false;
   passwordFormSubmitted = false;
-  apiError: string | null = null;
-  passwordApiError: string | null = null;
-  editMode = false;
+  apiError = '';
+  passwordApiError = '';
 
-  // Services
-  private authService = inject(AuthService);
-  private userService = inject(UserService);
-  private formBuilder = inject(FormBuilder);
-  private toastService = inject(ToastService);
-  private location = inject(Location);
-  private router = inject(Router);
-
-  constructor() {
+  constructor(
+    private authService: AuthService,
+    private userService: UserService,
+    private fb: FormBuilder,
+    private location: Location,
+    private toastService: ToastService
+  ) {
     // Initialize forms
-    this.profileForm = this.formBuilder.group({
-      firstName: ['', [Validators.required]],
-      lastName: ['', [Validators.required]],
-      email: [{value: '', disabled: true}, [Validators.required, Validators.email]],
-      contactNumber: ['', [Validators.required]]
+    this.profileForm = this.fb.group({
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      email: [{ value: '', disabled: true }],
+      contactNumber: ['', Validators.required],
+      // Teacher-specific fields
+      qualification: [''],
+      expertise: [''],
+      experience: [0],
+      bio: [''],
+      // Student-specific fields
+      rollNumber: [''],
+      grade: [''],
+      parentContactNumber: ['']
     });
 
-    this.passwordForm = this.formBuilder.group({
-      currentPassword: ['', [Validators.required, Validators.minLength(6)]],
+    this.passwordForm = this.fb.group({
+      currentPassword: ['', Validators.required],
       newPassword: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required]]
-    }, {
-      validator: this.passwordMatchValidator
-    });
+      confirmPassword: ['', Validators.required]
+    }, { validators: this.passwordMatchValidator });
   }
 
   ngOnInit(): void {
-    this.loadUserProfile();
-  }
-
-  loadUserProfile(): void {
-    this.isLoading = true;
-    this.apiError = null;
-    
-    // First check if we already have complete user data in AuthService
-    this.authService.user$.subscribe((userData: UserData | null) => {
-      if (userData && userData.firstName && userData.lastName && userData.email) {
-        // We have complete data in the auth service already, use it
-        this.isLoading = false;
-        this.currentUser = userData;
+    this.authService.user$.subscribe((user) => {
+      if (user) {
+        this.currentUser = user;
         this.updateFormWithUserData();
-      } else {
-        // Data is incomplete or missing, fetch from API
-        this.loadFromServer();
       }
-    }).unsubscribe(); // Important: unsubscribe to avoid memory leaks
+    });
   }
 
-  // Load user profile from server
-  private loadFromServer(): void {
+  private updateFormWithUserData(): void {
+    // Get full user profile with role-specific data
     this.userService.getUserProfile().subscribe({
       next: (response) => {
-        this.isLoading = false;
-        if (response && response.data) {
-          this.currentUser = response.data;
-          // Update auth service with the complete data to avoid future API calls
-          this.authService.updateUserData(response.data);
-          // Update form with server data
-          this.updateFormWithUserData();
+        // Extract user data from response
+        const userData = response.data;
+        
+        // Update base user fields
+        this.profileForm.patchValue({
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          email: userData.email,
+          contactNumber: userData.contactNumber || ''
+        });
+
+        // Update role-specific fields if they exist
+        if (userData.role === 'TEACHER' && userData.teacher) {
+          this.profileForm.patchValue({
+            qualification: userData.teacher.qualification || '',
+            expertise: userData.teacher.expertise || '',
+            experience: userData.teacher.experience || 0,
+            bio: userData.teacher.bio || ''
+          });
+        } else if (userData.role === 'STUDENT' && userData.student) {
+          this.profileForm.patchValue({
+            rollNumber: userData.student.rollNumber || '',
+            grade: userData.student.grade || '',
+            parentContactNumber: userData.student.parentContactNumber || ''
+          });
         }
       },
-      error: (error) => {
-        console.error('Error loading profile from server:', error);
-        this.isLoading = false;
-        this.apiError = error.error?.message || 'Failed to load profile data from server';
-        
-        // Fallback to locally stored user data
-        this.loadFromLocalData();
+      error: (err) => {
+        console.error('Error loading user profile:', err);
+        this.apiError = 'Unable to load profile data';
       }
     });
   }
 
-  // Fallback method to load from local auth state if server request fails
-  loadFromLocalData(): void {
-    this.authService.user$.subscribe((user: UserData | null) => {
-      this.currentUser = user;
-      if (user) {
-        this.updateFormWithUserData();
-      }
-    });
+  toggleEditMode(): void {
+    this.editMode = !this.editMode;
+    this.formSubmitted = false;
+    this.apiError = '';
   }
 
-  // Helper method to update the form with current user data
-  private updateFormWithUserData(): void {
-    if (this.currentUser) {
-      this.profileForm.patchValue({
-        firstName: this.currentUser.firstName || '',
-        lastName: this.currentUser.lastName || '',
-        email: this.currentUser.email || '',
-        contactNumber: this.currentUser.contactNumber || ''
-      });
-    }
+  cancelEdit(): void {
+    this.editMode = false;
+    this.formSubmitted = false;
+    this.apiError = '';
+    this.updateFormWithUserData();
   }
 
   updateProfile(): void {
     this.formSubmitted = true;
-    this.apiError = null;
     
-    // Only validate active controls (firstName, lastName, contactNumber)
-    const firstNameControl = this.profileForm.get('firstName');
-    const lastNameControl = this.profileForm.get('lastName');
-    const contactNumberControl = this.profileForm.get('contactNumber');
-    
-    if ((firstNameControl && firstNameControl.invalid) || 
-        (lastNameControl && lastNameControl.invalid) || 
-        (contactNumberControl && contactNumberControl.invalid)) {
+    if (this.profileForm.invalid) {
       return;
     }
-
-    this.isLoading = true;
     
-    // Create profile data without email
-    const profileData = {
-      firstName: firstNameControl?.value,
-      lastName: lastNameControl?.value,
-      contactNumber: contactNumberControl?.value
+    this.isLoading = true;
+    this.apiError = '';
+    
+    const profileData: any = {
+      firstName: this.profileForm.value.firstName,
+      lastName: this.profileForm.value.lastName,
+      contactNumber: this.profileForm.value.contactNumber
     };
+    
+    // Add role-specific data if user has that role
+    if (this.currentUser?.role === 'TEACHER') {
+      profileData.teacherProfile = {
+        qualification: this.profileForm.value.qualification,
+        expertise: this.profileForm.value.expertise,
+        experience: parseInt(this.profileForm.value.experience, 10) || 0,
+        bio: this.profileForm.value.bio
+      };
+    } else if (this.currentUser?.role === 'STUDENT') {
+      profileData.studentProfile = {
+        rollNumber: this.profileForm.value.rollNumber,
+        grade: this.profileForm.value.grade,
+        parentContactNumber: this.profileForm.value.parentContactNumber
+      };
+    }
     
     this.userService.updateUserProfile(profileData).subscribe({
       next: (response) => {
         this.isLoading = false;
-        this.formSubmitted = false; // Reset form submitted state to hide validation errors
-        this.editMode = false; // Exit edit mode after successful update
+        this.editMode = false;
+        this.toastService.showSuccess('Profile updated successfully');
         
-        if (response && response.status === 'success') {
-          this.toastService.showSuccess('Profile updated successfully');
-          
-          // Update local user data if server returns the updated user
-          if (response.data) {
-            this.currentUser = response.data;
-            // Update auth service with the complete data
-            this.authService.updateUserData(response.data);
-          } else if (this.currentUser) {
-            // Otherwise update from form values
-            this.currentUser = {
-              ...this.currentUser,
-              ...profileData
-            };
-            // Update auth service with locally updated user data
-            this.authService.updateUserData(this.currentUser);
-          }
-        } else {
-          this.toastService.showError('Profile update response was invalid');
-        }
+        // Update current user in auth service
+        this.authService.refreshCurrentUser();
       },
-      error: (error) => {
+      error: (err) => {
         this.isLoading = false;
-        const errorMsg = error.error?.message || 'Failed to update profile';
-        this.apiError = errorMsg;
-        this.toastService.showError(errorMsg);
-        console.error('Profile update error:', error);
-      }
-    });
-  }
-
-  changePassword(): void {
-    this.passwordFormSubmitted = true;
-    this.passwordApiError = null;
-    
-    if (this.passwordForm.invalid) {
-      return;
-    }
-
-    const { currentPassword, newPassword } = this.passwordForm.value;
-    this.isLoading = true;
-
-    this.userService.changePassword({ currentPassword, newPassword }).subscribe({
-      next: (response) => {
-        this.isLoading = false;
-        
-        if (response && response.status === 'success') {
-          this.passwordFormSubmitted = false; // Reset form submission state
-          this.passwordForm.reset();
-          this.showPasswordForm = false;
-          this.toastService.showSuccess('Password changed successfully');
-        } else {
-          this.toastService.showError('Unexpected response while changing password');
-        }
-      },
-      error: (error) => {
-        this.isLoading = false;
-        const errorMsg = error.error?.message || 'Failed to change password';
-        this.passwordApiError = errorMsg;
-        this.toastService.showError(errorMsg);
-        console.error('Password change error:', error);
+        this.apiError = err.error?.message || 'Failed to update profile';
+        console.error('Error updating profile:', err);
       }
     });
   }
 
   togglePasswordForm(): void {
     this.showPasswordForm = !this.showPasswordForm;
+    this.passwordFormSubmitted = false;
+    this.passwordApiError = '';
+    
     if (!this.showPasswordForm) {
       this.passwordForm.reset();
-      this.passwordFormSubmitted = false;
-      this.passwordApiError = null;
     }
   }
 
-  private passwordMatchValidator(formGroup: FormGroup): { mismatch: boolean } | null {
-    const newPassword = formGroup.get('newPassword')?.value;
-    const confirmPassword = formGroup.get('confirmPassword')?.value;
+  changePassword(): void {
+    this.passwordFormSubmitted = true;
     
-    return newPassword === confirmPassword ? null : { mismatch: true };
-  }
-
-  // New methods for the redesigned UI
-  toggleEditMode(): void {
-    this.editMode = true;
-  }
-
-  cancelEdit(): void {
-    this.editMode = false;
-    this.formSubmitted = false;
-    this.apiError = null;
+    if (this.passwordForm.invalid) {
+      return;
+    }
     
-    // Reset form to original values
-    this.updateFormWithUserData();
+    this.isLoading = true;
+    this.passwordApiError = '';
+    
+    const passwordData = {
+      currentPassword: this.passwordForm.value.currentPassword,
+      newPassword: this.passwordForm.value.newPassword
+    };
+    
+    this.userService.changePassword(passwordData).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.showPasswordForm = false;
+        this.passwordForm.reset();
+        this.toastService.showSuccess('Password changed successfully');
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.passwordApiError = err.error?.message || 'Failed to change password';
+        console.error('Error changing password:', err);
+      }
+    });
   }
 
   goBack(): void {
@@ -254,17 +214,17 @@ export class ProfileComponent implements OnInit {
     if (!dateString) return 'N/A';
     
     const date = new Date(dateString);
-    
-    // Check if date is valid
-    if (isNaN(date.getTime())) {
-      return 'N/A';
-    }
-    
-    // Format: Month DD, YYYY (e.g., March 29, 2025)
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
   }
+
+  passwordMatchValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
+    const newPassword = group.get('newPassword')?.value;
+    const confirmPassword = group.get('confirmPassword')?.value;
+    
+    return newPassword === confirmPassword ? null : { mismatch: true };
+  };
 }

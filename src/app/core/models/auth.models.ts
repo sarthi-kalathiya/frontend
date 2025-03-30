@@ -34,6 +34,31 @@ export interface UserData {
   updatedAt: string;
   hasCompletedProfile?: boolean;
   profilePicture?: string;
+  teacher?: TeacherData;
+  student?: StudentData;
+}
+
+export interface TeacherData {
+  id: string;
+  userId: string;
+  qualification: string;
+  expertise: string;
+  experience: number;
+  bio: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StudentData {
+  id: string;
+  userId: string;
+  rollNumber: string;
+  grade: string;
+  parentContactNumber: string;
+  joiningDate: string;
+  completedExams: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface JwtPayload {
