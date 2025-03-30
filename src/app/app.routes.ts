@@ -1,11 +1,15 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { NoAuthGuard } from './core/guards/no-auth.guard';
-import { LayoutComponent } from './modules/shared/components/layout/layout.component';
 import { LoginComponent } from './modules/auth/components/login/login.component';
 import { SignupComponent } from './modules/auth/components/signup/signup.component';
 import { AdminDashboardComponent } from './modules/admin/components/dashboard/dashboard.component';
 import { ProfileComponent } from './modules/admin/components/profile/profile.component';
+
+// Import new role-specific layout components
+import { AdminLayoutComponent } from './shared/components/admin-layout/admin-layout.component';
+import { TeacherLayoutComponent } from './shared/components/teacher-layout/teacher-layout.component';
+import { StudentLayoutComponent } from './shared/components/student-layout/student-layout.component';
 
 export const routes: Routes = [
   // Auth routes - simplify to a single login and admin signup
@@ -29,7 +33,7 @@ export const routes: Routes = [
   // Admin routes
   {
     path: 'admin',
-    component: LayoutComponent,
+    component: AdminLayoutComponent,
     canActivate: [AuthGuard],
     data: { roles: ['ADMIN'] },
     children: [
@@ -44,11 +48,14 @@ export const routes: Routes = [
   // Teacher routes
   {
     path: 'teacher',
-    component: LayoutComponent,
+    component: TeacherLayoutComponent,
     canActivate: [AuthGuard],
     data: { roles: ['TEACHER'] },
     children: [
       { path: 'dashboard', loadComponent: () => import('./modules/teacher/components/dashboard/teacher-dashboard.component').then(c => c.TeacherDashboardComponent) },
+      { path: 'exams', loadComponent: () => import('./modules/teacher/components/exams/exams.component').then(c => c.ExamsComponent) },
+      { path: 'assignments', loadComponent: () => import('./modules/teacher/components/assignments/assignments.component').then(c => c.AssignmentsComponent) },
+      { path: 'students', loadComponent: () => import('./modules/teacher/components/students/students.component').then(c => c.StudentsComponent) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: '**', redirectTo: 'dashboard' }
     ]
@@ -57,11 +64,14 @@ export const routes: Routes = [
   // Student routes
   {
     path: 'student',
-    component: LayoutComponent,
+    component: StudentLayoutComponent,
     canActivate: [AuthGuard],
     data: { roles: ['STUDENT'] },
     children: [
       { path: 'dashboard', loadComponent: () => import('./modules/student/components/dashboard/student-dashboard.component').then(c => c.StudentDashboardComponent) },
+      { path: 'courses', loadComponent: () => import('./modules/student/components/courses/courses.component').then(c => c.CoursesComponent) },
+      { path: 'exams', loadComponent: () => import('./modules/student/components/exams/exams.component').then(c => c.ExamsComponent) },
+      { path: 'results', loadComponent: () => import('./modules/student/components/results/results.component').then(c => c.ResultsComponent) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: '**', redirectTo: 'dashboard' }
     ]

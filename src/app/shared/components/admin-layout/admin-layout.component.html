@@ -22,7 +22,7 @@
     </div>
     
     <div class="navbar-actions">
-      <!-- Profile Dropdown - Notifications removed -->
+      <!-- Profile Dropdown -->
       <div class="profile-dropdown">
         <button 
           class="profile-btn" 
@@ -50,7 +50,6 @@
             <a href="javascript:void(0)" class="menu-item" (click)="navigateTo('/profile')">
               <i class="fas fa-user"></i> Profile
             </a>
-            <!-- Settings menu item removed -->
             <a href="javascript:void(0)" class="menu-item" (click)="logout()">
               <i class="fas fa-sign-out-alt"></i> Logout
             </a>
@@ -60,7 +59,7 @@
     </div>
   </header>
   
-  <!-- Tab Navigation - Updated to match screenshots -->
+  <!-- Admin-specific Tab Navigation -->
   <nav class="tab-navigation">
     <div class="nav-tabs">
       <button 
@@ -69,7 +68,8 @@
         (click)="navigateTo('/admin/dashboard')"
         title="Go to Dashboard"
       >
-        Dashboard
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
       </button>
       
       <button 
@@ -78,7 +78,8 @@
         (click)="navigateTo('/admin/users')"
         title="Go to Users"
       >
-        Users
+        <i class="fas fa-users"></i>
+        <span>Users</span>
       </button>
       
       <button 
@@ -87,7 +88,8 @@
         (click)="navigateTo('/admin/subjects')"
         title="Go to Subjects"
       >
-        Subjects
+        <i class="fas fa-book"></i>
+        <span>Subjects</span>
       </button>
     </div>
   </nav>
