@@ -48,39 +48,53 @@ export interface PaginatedResponse<T> {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ExamService {
   constructor(private http: HttpClient) {}
 
-  getTeacherExams(page: number = 1, limit: number = 10): Observable<PaginatedResponse<Exam>> {
+  getTeacherExams(
+    page: number = 1,
+    limit: number = 10
+  ): Observable<PaginatedResponse<Exam>> {
     return this.http.get<PaginatedResponse<Exam>>(`${API_URL}/teacher/exams`, {
-      params: { page: page.toString(), limit: limit.toString() }
+      params: { page: page.toString(), limit: limit.toString() },
     });
   }
 
   getExamById(id: string): Observable<Exam> {
-    return this.http.get<{ status: string; message: string; data: Exam }>(`${API_URL}/exams/${id}`).pipe(
-      map(response => response.data)
-    );
+    return this.http
+      .get<{ status: string; message: string; data: Exam }>(
+        `${API_URL}/exams/${id}`
+      )
+      .pipe(map((response) => response.data));
   }
 
   createExam(data: Partial<Exam>): Observable<Exam> {
-    return this.http.post<{ status: string; message: string; data: Exam }>(`${API_URL}/exams`, data).pipe(
-      map(response => response.data)
-    );
+    return this.http
+      .post<{ status: string; message: string; data: Exam }>(
+        `${API_URL}/exams`,
+        data
+      )
+      .pipe(map((response) => response.data));
   }
 
   updateExam(id: string, data: Partial<Exam>): Observable<Exam> {
-    return this.http.put<{ status: string; message: string; data: Exam }>(`${API_URL}/exams/${id}`, data).pipe(
-      map(response => response.data)
-    );
+    return this.http
+      .put<{ status: string; message: string; data: Exam }>(
+        `${API_URL}/exams/${id}`,
+        data
+      )
+      .pipe(map((response) => response.data));
   }
 
   updateExamStatus(id: string, isActive: boolean): Observable<Exam> {
-    return this.http.patch<{ status: string; message: string; data: Exam }>(`${API_URL}/exams/${id}/status`, { isActive }).pipe(
-      map(response => response.data)
-    );
+    return this.http
+      .patch<{ status: string; message: string; data: Exam }>(
+        `${API_URL}/exams/${id}/status`,
+        { isActive }
+      )
+      .pipe(map((response) => response.data));
   }
 
   deleteExam(id: string): Observable<void> {

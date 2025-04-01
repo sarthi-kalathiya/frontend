@@ -4,70 +4,104 @@
       <h2>Exam Management</h2>
       <p>Create and manage exams for your subjects.</p>
     </div>
-    
+
     <div class="filter-bar">
       <div class="search-box">
-        <input type="text" placeholder="Search exams..." 
-               [ngModel]="searchTerm" 
-               (input)="onSearchInput($event)">
+        <input
+          type="text"
+          placeholder="Search exams..."
+          [ngModel]="searchTerm"
+          (input)="onSearchInput($event)"
+        />
         <button class="btn-search" title="Search">
           <i class="fas fa-search"></i>
         </button>
       </div>
-      
+
       <div class="filter-actions">
         <div class="filter-selects">
           <div class="custom-select">
-            <button class="form-select" (click)="$event.stopPropagation(); toggleStatusDropdown()">
+            <button
+              class="form-select"
+              (click)="$event.stopPropagation(); toggleStatusDropdown()"
+            >
               {{ selectedStatus }}
             </button>
             <div class="dropdown-menu" *ngIf="showStatusDropdown">
-              <button class="dropdown-item" [ngClass]="{'active': selectedStatus === 'All Statuses'}" (click)="selectStatus('All Statuses')">
+              <button
+                class="dropdown-item"
+                [ngClass]="{ active: selectedStatus === 'All Statuses' }"
+                (click)="selectStatus('All Statuses')"
+              >
                 All Statuses
               </button>
-              <button class="dropdown-item" [ngClass]="{'active': selectedStatus === 'Active'}" (click)="selectStatus('Active')">
+              <button
+                class="dropdown-item"
+                [ngClass]="{ active: selectedStatus === 'Active' }"
+                (click)="selectStatus('Active')"
+              >
                 Active
               </button>
-              <button class="dropdown-item" [ngClass]="{'active': selectedStatus === 'Draft'}" (click)="selectStatus('Draft')">
+              <button
+                class="dropdown-item"
+                [ngClass]="{ active: selectedStatus === 'Draft' }"
+                (click)="selectStatus('Draft')"
+              >
                 Draft
               </button>
-              <button class="dropdown-item" [ngClass]="{'active': selectedStatus === 'Upcoming'}" (click)="selectStatus('Upcoming')">
+              <button
+                class="dropdown-item"
+                [ngClass]="{ active: selectedStatus === 'Upcoming' }"
+                (click)="selectStatus('Upcoming')"
+              >
                 Upcoming
               </button>
-              <button class="dropdown-item" [ngClass]="{'active': selectedStatus === 'Completed'}" (click)="selectStatus('Completed')">
+              <button
+                class="dropdown-item"
+                [ngClass]="{ active: selectedStatus === 'Completed' }"
+                (click)="selectStatus('Completed')"
+              >
                 Completed
               </button>
             </div>
           </div>
         </div>
-        
+
         <button class="btn btn-primary add-btn" (click)="openAddExamModal()">
           <i class="fas fa-plus"></i>
           Create Exam
         </button>
       </div>
     </div>
-    
+
     <div class="data-table">
       <!-- Loading and error states -->
       <div *ngIf="isLoading" class="loading-state">
         <div class="spinner"></div>
         <p>Loading exams...</p>
       </div>
-      
+
       <div *ngIf="!isLoading && error" class="error-state">
         <p class="error-message">{{ error }}</p>
         <button class="btn-retry" (click)="loadExams()">Try Again</button>
       </div>
-      
+
       <!-- Empty state -->
-      <div *ngIf="!isLoading && !error && filteredExams.length === 0" class="empty-state">
+      <div
+        *ngIf="!isLoading && !error && filteredExams.length === 0"
+        class="empty-state"
+      >
         <p>No exams found matching your filters.</p>
-        <button class="btn-reset" (click)="selectStatus('All Statuses'); searchTerm = ''; applyFilters();">
+        <button
+          class="btn-reset"
+          (click)="
+            selectStatus('All Statuses'); searchTerm = ''; applyFilters()
+          "
+        >
           Reset Filters
         </button>
       </div>
-      
+
       <!-- Exam table -->
       <table *ngIf="!isLoading && !error && filteredExams.length > 0">
         <thead>
@@ -93,11 +127,14 @@
             <td>
               <div class="questions-info">
                 {{ exam.currentQuestionCount }} / {{ exam.numQuestions }}
-                <small>{{ exam.currentTotalMarks }} / {{ exam.totalMarks }} marks</small>
+                <small
+                  >{{ exam.currentTotalMarks }} /
+                  {{ exam.totalMarks }} marks</small
+                >
               </div>
             </td>
             <td>{{ exam.duration }} hr</td>
-            <td>{{ exam.startDate | date:'MMM d, y, h:mm a' }}</td>
+            <td>{{ exam.startDate | date : "MMM d, y, h:mm a" }}</td>
             <td>
               <span class="badge" [ngClass]="getStatusBadgeClass(exam)">
                 {{ getStatusText(exam) }}
@@ -113,31 +150,36 @@
           </tr>
         </tbody>
       </table>
-      
+
       <!-- Pagination controls -->
-      <div class="pagination-controls" *ngIf="!isLoading && !error && totalPages > 1">
+      <div
+        class="pagination-controls"
+        *ngIf="!isLoading && !error && totalPages > 1"
+      >
         <div class="pagination-info">
-          Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalItems) }} of {{ totalItems }} exams
+          Showing {{ (currentPage - 1) * pageSize + 1 }} to
+          {{ Math.min(currentPage * pageSize, totalItems) }} of
+          {{ totalItems }} exams
         </div>
-        
+
         <div class="pagination-buttons">
-          <button 
-            class="page-btn" 
-            [disabled]="currentPage === 1" 
-            (click)="onPageChange(currentPage - 1)" 
+          <button
+            class="page-btn"
+            [disabled]="currentPage === 1"
+            (click)="onPageChange(currentPage - 1)"
             title="Previous page"
           >
             <i class="fas fa-chevron-left"></i>
           </button>
-          
+
           <ng-container *ngFor="let page of getPageNumbers()">
             <!-- Render ellipsis -->
             <span *ngIf="page === '...'" class="page-ellipsis">...</span>
-            
+
             <!-- Render normal page button -->
-            <button 
+            <button
               *ngIf="page !== '...'"
-              class="page-btn" 
+              class="page-btn"
               [class.active]="page === currentPage"
               (click)="onPageChange(page)"
               title="Go to page {{ page }}"
@@ -145,10 +187,10 @@
               {{ page }}
             </button>
           </ng-container>
-          
-          <button 
-            class="page-btn" 
-            [disabled]="currentPage === totalPages" 
+
+          <button
+            class="page-btn"
+            [disabled]="currentPage === totalPages"
             (click)="onPageChange(currentPage + 1)"
             title="Next page"
           >
@@ -161,8 +203,8 @@
 </div>
 
 <!-- Add Exam Modal -->
-<app-add-exam-modal 
-  *ngIf="showAddExamModal" 
+<app-add-exam-modal
+  *ngIf="showAddExamModal"
   (close)="closeAddExamModal($event)"
 ></app-add-exam-modal>
 
@@ -178,4 +220,4 @@
   *ngIf="showEditExamModal"
   [examId]="selectedExamId!"
   (close)="closeEditExamModal($event)"
-></app-edit-exam-modal> 
+></app-edit-exam-modal>

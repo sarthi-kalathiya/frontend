@@ -7,139 +7,123 @@
         <i class="fas fa-times"></i>
       </button>
     </div>
-    
+
     <form [formGroup]="subjectForm" (ngSubmit)="onSubmit()">
       <div class="modal-body">
         <!-- Subject Name -->
         <div class="form-group">
           <label for="name">Subject Name *</label>
-          <input 
-            type="text" 
-            id="name" 
-            formControlName="name" 
+          <input
+            type="text"
+            id="name"
+            formControlName="name"
             [class.is-invalid]="name?.invalid && name?.touched"
           />
           @if (name?.invalid && name?.touched) {
-            <div class="invalid-feedback">
-              @if (name?.errors?.['required']) {
-                Subject name is required
-              }
-              @if (name?.errors?.['minlength']) {
-                Subject name must be at least 2 characters
-              }
-              @if (name?.errors?.['maxlength']) {
-                Subject name must be at most 100 characters
-              }
-            </div>
+          <div class="invalid-feedback">
+            @if (name?.errors?.['required']) { Subject name is required } @if
+            (name?.errors?.['minlength']) { Subject name must be at least 2
+            characters } @if (name?.errors?.['maxlength']) { Subject name must
+            be at most 100 characters }
+          </div>
           }
         </div>
-        
+
         <!-- Subject Code -->
         <div class="form-group">
           <label for="code">Subject Code *</label>
-          <input 
-            type="text" 
-            id="code" 
-            formControlName="code" 
-            placeholder="e.g. ABC-123" 
+          <input
+            type="text"
+            id="code"
+            formControlName="code"
+            placeholder="e.g. ABC-123"
             [class.is-invalid]="code?.invalid && code?.touched"
           />
           @if (code?.invalid && code?.touched) {
-            <div class="invalid-feedback">
-              @if (code?.errors?.['required']) {
-                Subject code is required
-              }
-              @if (code?.errors?.['minlength']) {
-                Subject code must be at least 2 characters
-              }
-              @if (code?.errors?.['maxlength']) {
-                Subject code must be at most 20 characters
-              }
-              @if (code?.errors?.['pattern']) {
-                Subject code must follow the pattern: ABC-123 (3 uppercase letters, hyphen, 3 digits)
-              }
-            </div>
+          <div class="invalid-feedback">
+            @if (code?.errors?.['required']) { Subject code is required } @if
+            (code?.errors?.['minlength']) { Subject code must be at least 2
+            characters } @if (code?.errors?.['maxlength']) { Subject code must
+            be at most 20 characters } @if (code?.errors?.['pattern']) { Subject
+            code must follow the pattern: ABC-123 (3 uppercase letters, hyphen,
+            3 digits) }
+          </div>
           }
         </div>
-        
+
         <!-- Row with Credits and Status -->
         <div class="form-row">
           <!-- Credits -->
           <div class="form-group">
             <label for="credits">Credits *</label>
-            <input 
-              type="number" 
-              id="credits" 
-              formControlName="credits" 
-              min="1" 
-              max="10" 
+            <input
+              type="number"
+              id="credits"
+              formControlName="credits"
+              min="1"
+              max="10"
               [class.is-invalid]="credits?.invalid && credits?.touched"
             />
             @if (credits?.invalid && credits?.touched) {
-              <div class="invalid-feedback">
-                @if (credits?.errors?.['required']) {
-                  Credits are required
-                }
-                @if (credits?.errors?.['min']) {
-                  Credits must be at least 1
-                }
-                @if (credits?.errors?.['max']) {
-                  Credits must be at most 10
-                }
-              </div>
+            <div class="invalid-feedback">
+              @if (credits?.errors?.['required']) { Credits are required } @if
+              (credits?.errors?.['min']) { Credits must be at least 1 } @if
+              (credits?.errors?.['max']) { Credits must be at most 10 }
+            </div>
             }
           </div>
-          
+
           <!-- Status -->
           <div class="form-group">
             <label for="isActive">Status</label>
-            <select 
-              id="isActive" 
-              formControlName="isActive"
-            >
+            <select id="isActive" formControlName="isActive">
               <option [ngValue]="true">Active</option>
               <option [ngValue]="false">Inactive</option>
             </select>
           </div>
         </div>
-        
+
         <!-- Description -->
         <div class="form-group">
           <label for="description">Description</label>
-          <textarea 
-            id="description" 
-            formControlName="description" 
-            rows="4" 
+          <textarea
+            id="description"
+            formControlName="description"
+            rows="4"
             [class.is-invalid]="description?.invalid && description?.touched"
           ></textarea>
           @if (description?.invalid && description?.touched) {
-            <div class="invalid-feedback">
-              @if (description?.errors?.['maxlength']) {
-                Description must be at most 500 characters
-              }
-            </div>
+          <div class="invalid-feedback">
+            @if (description?.errors?.['maxlength']) { Description must be at
+            most 500 characters }
+          </div>
           }
         </div>
       </div>
-      
+
       <div class="modal-footer">
-        <button 
-          type="button" 
-          class="btn btn-secondary" 
+        <button
+          type="button"
+          class="btn btn-secondary"
           (click)="closeModal()"
           [disabled]="isSubmitting"
         >
           Cancel
         </button>
-        <button 
-          type="submit" 
-          class="btn btn-primary" 
+        <button
+          type="submit"
+          class="btn btn-primary"
           [disabled]="isSubmitting || subjectForm.invalid"
         >
-          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-          {{ isSubmitting ? 'Creating...' : 'Create Subject' }}
+          <span
+            *ngIf="isSubmitting"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          {{ isSubmitting ? "Creating..." : "Create Subject" }}
         </button>
       </div>
     </form>
   </div>
-</div> 
+</div>

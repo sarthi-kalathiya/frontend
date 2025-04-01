@@ -1,12 +1,17 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
+import {
+  CanActivate,
+  ActivatedRouteSnapshot,
+  RouterStateSnapshot,
+  Router,
+} from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 import { ProfileService } from '../services/profile.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProfileCompletionGuard implements CanActivate {
   constructor(
@@ -27,7 +32,7 @@ export class ProfileCompletionGuard implements CanActivate {
 
     // Get user's profile status
     return this.profileService.getProfileStatus().pipe(
-      map(response => {
+      map((response) => {
         if (response.data && response.data.requiresAdditionalSetup) {
           // If profile not complete, redirect to appropriate profile completion page
           const userRole = this.authService.getUserRole();
@@ -41,7 +46,7 @@ export class ProfileCompletionGuard implements CanActivate {
         // Profile is complete, allow access
         return true;
       }),
-      catchError(error => {
+      catchError((error) => {
         console.error('Error checking profile completion status:', error);
         // On error, allow access to prevent blocking the user
         return of(true);

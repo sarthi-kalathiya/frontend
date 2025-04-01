@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
+import {
+  CanActivate,
+  ActivatedRouteSnapshot,
+  RouterStateSnapshot,
+  Router,
+} from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NoAuthGuard implements CanActivate {
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(
     route: ActivatedRouteSnapshot,
@@ -17,11 +19,13 @@ export class NoAuthGuard implements CanActivate {
   ): boolean {
     // If user is already logged in, redirect to appropriate dashboard
     if (this.authService.isLoggedIn()) {
-      console.log('NoAuthGuard: User is already logged in, redirecting to dashboard');
+      console.log(
+        'NoAuthGuard: User is already logged in, redirecting to dashboard'
+      );
       this.navigateBasedOnRole();
       return false;
     }
-    
+
     // User is not logged in, allow access to auth pages
     return true;
   }
@@ -29,8 +33,8 @@ export class NoAuthGuard implements CanActivate {
   private navigateBasedOnRole(): void {
     const role = this.authService.getUserRole();
     console.log('Navigating based on role:', role);
-    
-    switch(role) {
+
+    switch (role) {
       case 'ADMIN':
         this.router.navigate(['/admin/dashboard']);
         break;
@@ -44,4 +48,4 @@ export class NoAuthGuard implements CanActivate {
         this.router.navigate(['/auth/login']);
     }
   }
-} 
+}

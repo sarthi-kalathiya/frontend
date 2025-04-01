@@ -1,15 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormGroup,
+  FormBuilder,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss'], 
+  styleUrls: ['./login.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule]
+  imports: [CommonModule, ReactiveFormsModule],
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
@@ -28,14 +33,14 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]]
+      password: ['', [Validators.required]],
     });
 
     // Get return URL from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-    
+
     console.log('Login Component: Return URL:', this.returnUrl);
-    
+
     // Check if user is already logged in
     if (this.authService.isLoggedIn()) {
       this.handlePostLoginNavigation();
@@ -46,8 +51,12 @@ export class LoginComponent implements OnInit {
     this.showPassword = !this.showPassword;
   }
 
-  get email() { return this.loginForm.get('email'); }
-  get password() { return this.loginForm.get('password'); }
+  get email() {
+    return this.loginForm.get('email');
+  }
+  get password() {
+    return this.loginForm.get('password');
+  }
 
   onSubmit(): void {
     if (this.loginForm.invalid) {
@@ -67,8 +76,10 @@ export class LoginComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
-        this.error = err.error?.message || 'Failed to login. Please check your credentials.';
-      }
+        this.error =
+          err.error?.message ||
+          'Failed to login. Please check your credentials.';
+      },
     });
   }
 
@@ -76,10 +87,14 @@ export class LoginComponent implements OnInit {
     // Check if user needs to complete their profile first
     this.authService.checkProfileStatus().subscribe({
       next: (response) => {
-        if (response && response.data && response.data.requiresAdditionalSetup) {
+        if (
+          response &&
+          response.data &&
+          response.data.requiresAdditionalSetup
+        ) {
           // User needs to complete profile first
           const userRole = this.authService.getUserRole();
-          
+
           if (userRole === 'TEACHER') {
             this.router.navigate(['/profile/teacher/complete']);
           } else if (userRole === 'STUDENT') {
@@ -97,20 +112,20 @@ export class LoginComponent implements OnInit {
         console.error('Error checking profile status:', error);
         // On error, fall back to standard routing
         this.redirectBasedOnRole();
-      }
+      },
     });
   }
 
   private redirectBasedOnRole(): void {
     // Get user role and redirect accordingly
     const role = this.authService.getUserRole();
-    
+
     // Use return URL if it's not the default, otherwise route based on role
     if (this.returnUrl !== '/') {
       this.router.navigate([this.returnUrl]);
       return;
     }
-    
+
     switch (role) {
       case 'ADMIN':
         this.router.navigate(['/admin/dashboard']);
@@ -126,4 +141,4 @@ export class LoginComponent implements OnInit {
         break;
     }
   }
-} 
+}

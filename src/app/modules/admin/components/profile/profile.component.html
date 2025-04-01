@@ -20,7 +20,7 @@
         </div>
         <div class="profile-name">
           <h2>{{ currentUser?.firstName }} {{ currentUser?.lastName }}</h2>
-          <p class="role">{{ currentUser?.role || 'TEACHER' }}</p>
+          <p class="role">{{ currentUser?.role || "TEACHER" }}</p>
         </div>
       </div>
       <button class="change-picture-btn">
@@ -34,7 +34,7 @@
         </div>
         <div class="info-item">
           <label>Role</label>
-          <p>{{ currentUser?.role || 'TEACHER' }}</p>
+          <p>{{ currentUser?.role || "TEACHER" }}</p>
         </div>
         <div class="info-item">
           <label>Member Since</label>
@@ -64,174 +64,186 @@
           <div class="form-row">
             <div class="form-group">
               <label for="firstName">First Name</label>
-              <input 
-                type="text" 
-                id="firstName" 
-                formControlName="firstName" 
+              <input
+                type="text"
+                id="firstName"
+                formControlName="firstName"
                 [readonly]="!editMode"
-                [ngClass]="{'readonly': !editMode, 'invalid': formSubmitted && profileForm.get('firstName')?.errors}"
-              >
-              <div 
-                class="error-message" 
+                [ngClass]="{
+                  readonly: !editMode,
+                  invalid: formSubmitted && profileForm.get('firstName')?.errors
+                }"
+              />
+              <div
+                class="error-message"
                 *ngIf="formSubmitted && profileForm.get('firstName')?.errors?.['required']"
               >
                 First name is required
               </div>
             </div>
-            
+
             <div class="form-group">
               <label for="lastName">Last Name</label>
-              <input 
-                type="text" 
-                id="lastName" 
-                formControlName="lastName" 
+              <input
+                type="text"
+                id="lastName"
+                formControlName="lastName"
                 [readonly]="!editMode"
-                [ngClass]="{'readonly': !editMode, 'invalid': formSubmitted && profileForm.get('lastName')?.errors}"
-              >
-              <div 
-                class="error-message" 
+                [ngClass]="{
+                  readonly: !editMode,
+                  invalid: formSubmitted && profileForm.get('lastName')?.errors
+                }"
+              />
+              <div
+                class="error-message"
                 *ngIf="formSubmitted && profileForm.get('lastName')?.errors?.['required']"
               >
                 Last name is required
               </div>
             </div>
           </div>
-          
+
           <div class="form-row">
             <div class="form-group">
               <label for="contactNumber">Contact Number</label>
-              <input 
-                type="tel" 
-                id="contactNumber" 
-                formControlName="contactNumber" 
+              <input
+                type="tel"
+                id="contactNumber"
+                formControlName="contactNumber"
                 [readonly]="!editMode"
-                [ngClass]="{'readonly': !editMode, 'invalid': formSubmitted && profileForm.get('contactNumber')?.errors}"
-              >
-              <div 
-                class="error-message" 
+                [ngClass]="{
+                  readonly: !editMode,
+                  invalid:
+                    formSubmitted && profileForm.get('contactNumber')?.errors
+                }"
+              />
+              <div
+                class="error-message"
                 *ngIf="formSubmitted && profileForm.get('contactNumber')?.errors?.['required']"
               >
                 Contact number is required
               </div>
             </div>
-            
+
             <div class="form-group">
               <label for="email">Email Address</label>
-              <input 
-                type="email" 
-                id="email" 
-                formControlName="email" 
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
                 readonly
                 class="readonly"
                 title="Email address cannot be changed"
-              >
+              />
               <small class="field-note">Email address cannot be changed</small>
             </div>
           </div>
-          
+
           <!-- Teacher-specific fields -->
           <ng-container *ngIf="currentUser?.role === 'TEACHER'">
             <div class="section-divider">
               <h4>Teacher Information</h4>
             </div>
-            
+
             <div class="form-row">
               <div class="form-group">
                 <label for="qualification">Qualification</label>
-                <input 
-                  type="text" 
-                  id="qualification" 
-                  formControlName="qualification" 
+                <input
+                  type="text"
+                  id="qualification"
+                  formControlName="qualification"
                   [readonly]="!editMode"
-                  [ngClass]="{'readonly': !editMode}"
-                >
+                  [ngClass]="{ readonly: !editMode }"
+                />
               </div>
-              
+
               <div class="form-group">
                 <label for="expertise">Expertise</label>
-                <input 
-                  type="text" 
-                  id="expertise" 
-                  formControlName="expertise" 
+                <input
+                  type="text"
+                  id="expertise"
+                  formControlName="expertise"
                   [readonly]="!editMode"
-                  [ngClass]="{'readonly': !editMode}"
-                >
+                  [ngClass]="{ readonly: !editMode }"
+                />
               </div>
             </div>
-            
+
             <div class="form-row">
               <div class="form-group">
                 <label for="experience">Years of Experience</label>
-                <input 
-                  type="number" 
-                  id="experience" 
-                  formControlName="experience" 
+                <input
+                  type="number"
+                  id="experience"
+                  formControlName="experience"
                   [readonly]="!editMode"
-                  [ngClass]="{'readonly': !editMode}"
-                >
+                  [ngClass]="{ readonly: !editMode }"
+                />
               </div>
             </div>
-            
+
             <div class="form-row">
               <div class="form-group full-width">
                 <label for="bio">Bio</label>
-                <textarea 
-                  id="bio" 
-                  formControlName="bio" 
+                <textarea
+                  id="bio"
+                  formControlName="bio"
                   [readonly]="!editMode"
-                  [ngClass]="{'readonly': !editMode}"
+                  [ngClass]="{ readonly: !editMode }"
                   rows="4"
                 ></textarea>
               </div>
             </div>
           </ng-container>
-          
+
           <!-- Student-specific fields -->
           <ng-container *ngIf="currentUser?.role === 'STUDENT'">
             <div class="section-divider">
               <h4>Student Information</h4>
             </div>
-            
+
             <div class="form-row">
               <div class="form-group">
                 <label for="rollNumber">Roll Number</label>
-                <input 
-                  type="text" 
-                  id="rollNumber" 
-                  formControlName="rollNumber" 
+                <input
+                  type="text"
+                  id="rollNumber"
+                  formControlName="rollNumber"
                   [readonly]="!editMode"
-                  [ngClass]="{'readonly': !editMode}"
-                >
+                  [ngClass]="{ readonly: !editMode }"
+                />
               </div>
-              
+
               <div class="form-group">
                 <label for="grade">Grade</label>
-                <input 
-                  type="text" 
-                  id="grade" 
-                  formControlName="grade" 
+                <input
+                  type="text"
+                  id="grade"
+                  formControlName="grade"
                   [readonly]="!editMode"
-                  [ngClass]="{'readonly': !editMode}"
-                >
+                  [ngClass]="{ readonly: !editMode }"
+                />
               </div>
             </div>
-            
+
             <div class="form-row">
               <div class="form-group">
                 <label for="parentContactNumber">Parent Contact Number</label>
-                <input 
-                  type="tel" 
-                  id="parentContactNumber" 
-                  formControlName="parentContactNumber" 
+                <input
+                  type="tel"
+                  id="parentContactNumber"
+                  formControlName="parentContactNumber"
                   [readonly]="!editMode"
-                  [ngClass]="{'readonly': !editMode}"
-                >
+                  [ngClass]="{ readonly: !editMode }"
+                />
               </div>
             </div>
           </ng-container>
-          
+
           <div class="form-actions" *ngIf="editMode">
-            <button type="button" class="btn-cancel" (click)="cancelEdit()">Cancel</button>
+            <button type="button" class="btn-cancel" (click)="cancelEdit()">
+              Cancel
+            </button>
             <button type="submit" class="btn-primary" [disabled]="isLoading">
               <span *ngIf="isLoading">Updating...</span>
               <span *ngIf="!isLoading">Save Changes</span>
@@ -248,14 +260,16 @@
       <h3>Security Settings</h3>
       <p>Manage your password</p>
     </div>
-    
+
     <div *ngIf="!showPasswordForm" class="password-toggle">
-      <button class="btn-secondary" (click)="togglePasswordForm()">Change Password</button>
+      <button class="btn-secondary" (click)="togglePasswordForm()">
+        Change Password
+      </button>
     </div>
-    
-    <form 
-      *ngIf="showPasswordForm" 
-      [formGroup]="passwordForm" 
+
+    <form
+      *ngIf="showPasswordForm"
+      [formGroup]="passwordForm"
       (ngSubmit)="changePassword()"
       novalidate
     >
@@ -268,72 +282,86 @@
         <div class="form-row">
           <div class="form-group">
             <label for="currentPassword">Current Password</label>
-            <input 
-              type="password" 
-              id="currentPassword" 
-              formControlName="currentPassword" 
+            <input
+              type="password"
+              id="currentPassword"
+              formControlName="currentPassword"
               placeholder="Enter your current password"
-              [ngClass]="{'invalid': passwordFormSubmitted && passwordForm.get('currentPassword')?.errors}"
-            >
-            <div 
-              class="error-message" 
+              [ngClass]="{
+                invalid:
+                  passwordFormSubmitted &&
+                  passwordForm.get('currentPassword')?.errors
+              }"
+            />
+            <div
+              class="error-message"
               *ngIf="passwordFormSubmitted && passwordForm.get('currentPassword')?.errors?.['required']"
             >
               Current password is required
             </div>
           </div>
         </div>
-        
+
         <div class="form-row">
           <div class="form-group">
             <label for="newPassword">New Password</label>
-            <input 
-              type="password" 
-              id="newPassword" 
-              formControlName="newPassword" 
+            <input
+              type="password"
+              id="newPassword"
+              formControlName="newPassword"
               placeholder="Enter your new password"
-              [ngClass]="{'invalid': passwordFormSubmitted && passwordForm.get('newPassword')?.errors}"
-            >
-            <div 
-              class="error-message" 
+              [ngClass]="{
+                invalid:
+                  passwordFormSubmitted &&
+                  passwordForm.get('newPassword')?.errors
+              }"
+            />
+            <div
+              class="error-message"
               *ngIf="passwordFormSubmitted && passwordForm.get('newPassword')?.errors?.['required']"
             >
               New password is required
             </div>
-            <div 
-              class="error-message" 
+            <div
+              class="error-message"
               *ngIf="passwordFormSubmitted && passwordForm.get('newPassword')?.errors?.['minlength']"
             >
               Password must be at least 6 characters
             </div>
           </div>
-          
+
           <div class="form-group">
             <label for="confirmPassword">Confirm New Password</label>
-            <input 
-              type="password" 
-              id="confirmPassword" 
-              formControlName="confirmPassword" 
+            <input
+              type="password"
+              id="confirmPassword"
+              formControlName="confirmPassword"
               placeholder="Confirm your new password"
               [ngClass]="{'invalid': passwordFormSubmitted && (passwordForm.get('confirmPassword')?.errors || passwordForm.errors?.['mismatch'])}"
-            >
-            <div 
-              class="error-message" 
+            />
+            <div
+              class="error-message"
               *ngIf="passwordFormSubmitted && passwordForm.get('confirmPassword')?.errors?.['required']"
             >
               Confirm password is required
             </div>
-            <div 
-              class="error-message" 
+            <div
+              class="error-message"
               *ngIf="passwordFormSubmitted && passwordForm.errors?.['mismatch']"
             >
               Passwords do not match
             </div>
           </div>
         </div>
-        
+
         <div class="form-actions">
-          <button type="button" class="btn-cancel" (click)="togglePasswordForm()">Cancel</button>
+          <button
+            type="button"
+            class="btn-cancel"
+            (click)="togglePasswordForm()"
+          >
+            Cancel
+          </button>
           <button type="submit" class="btn-primary" [disabled]="isLoading">
             <span *ngIf="isLoading">Updating...</span>
             <span *ngIf="!isLoading">Change Password</span>

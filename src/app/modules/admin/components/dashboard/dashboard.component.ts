@@ -9,12 +9,12 @@ import { UserData } from '../../../../core/models/auth.models';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterModule, DatePipe]
+  imports: [CommonModule, RouterModule, DatePipe],
 })
 export class AdminDashboardComponent implements OnInit {
   currentUser: UserData | null = null;
   currentDate: Date = new Date();
-  
+
   private authService = inject(AuthService);
 
   constructor() {}
@@ -25,4 +25,4 @@ export class AdminDashboardComponent implements OnInit {
       this.currentUser = user;
     });
   }
-} 
+}

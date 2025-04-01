@@ -1,14 +1,17 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { ConfirmationModalService, ConfirmationModalOptions } from '../../../core/services/confirmation-modal.service';
+import {
+  ConfirmationModalService,
+  ConfirmationModalOptions,
+} from '../../../core/services/confirmation-modal.service';
 
 @Component({
   selector: 'app-confirmation-modal',
   templateUrl: './confirmation-modal.component.html',
   styleUrls: ['./confirmation-modal.component.scss'],
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule],
 })
 export class ConfirmationModalComponent implements OnInit, OnDestroy {
   options: ConfirmationModalOptions | null = null;
@@ -16,26 +19,28 @@ export class ConfirmationModalComponent implements OnInit, OnDestroy {
   visible = false;
   closing = false;
 
-  constructor(private confirmationModalService: ConfirmationModalService) { }
+  constructor(private confirmationModalService: ConfirmationModalService) {}
 
   ngOnInit(): void {
-    this.subscription = this.confirmationModalService.getModalOptions().subscribe(options => {
-      if (options) {
-        this.options = options;
-        this.visible = true;
-        this.closing = false;
-      } else {
-        // Handle modal closing with animation
-        if (this.visible) {
-          this.closing = true;
-          setTimeout(() => {
-            this.visible = false;
-            this.closing = false;
-            this.options = null;
-          }, 300); // Match this with CSS transition duration
+    this.subscription = this.confirmationModalService
+      .getModalOptions()
+      .subscribe((options) => {
+        if (options) {
+          this.options = options;
+          this.visible = true;
+          this.closing = false;
+        } else {
+          // Handle modal closing with animation
+          if (this.visible) {
+            this.closing = true;
+            setTimeout(() => {
+              this.visible = false;
+              this.closing = false;
+              this.options = null;
+            }, 300); // Match this with CSS transition duration
+          }
         }
-      }
-    });
+      });
   }
 
   ngOnDestroy(): void {
@@ -80,4 +85,4 @@ export class ConfirmationModalComponent implements OnInit, OnDestroy {
   getColorClass(): string {
     return `modal-${this.options?.type || 'warning'}`;
   }
-} 
+}

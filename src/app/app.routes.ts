@@ -23,32 +23,35 @@ export const routes: Routes = [
     children: [
       { path: 'login', component: LoginComponent },
       { path: 'admin/signup', component: SignupComponent },
-      { path: '**', redirectTo: 'login' }
-    ]
+      { path: '**', redirectTo: 'login' },
+    ],
   },
-  
+
   // Profile routes
   {
     path: 'profile',
     children: [
-      { 
-        path: '', 
-        component: ProfileComponent, 
-        canActivate: [AuthGuard] 
+      {
+        path: '',
+        component: ProfileComponent,
+        canActivate: [AuthGuard],
       },
       {
         path: 'teacher/complete',
         component: TeacherProfileCompletionComponent,
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard],
       },
       {
         path: 'student/complete',
-        loadComponent: () => import('./modules/profile/components/student-profile-completion/student-profile-completion.component').then(c => c.StudentProfileCompletionComponent),
-        canActivate: [AuthGuard]
-      }
-    ]
+        loadComponent: () =>
+          import(
+            './modules/profile/components/student-profile-completion/student-profile-completion.component'
+          ).then((c) => c.StudentProfileCompletionComponent),
+        canActivate: [AuthGuard],
+      },
+    ],
   },
-  
+
   // Admin routes
   {
     path: 'admin',
@@ -57,13 +60,25 @@ export const routes: Routes = [
     data: { roles: ['ADMIN'] },
     children: [
       { path: 'dashboard', component: AdminDashboardComponent },
-      { path: 'users', loadComponent: () => import('./modules/admin/components/users/users.component').then(c => c.UsersComponent) },
-      { path: 'subjects', loadComponent: () => import('./modules/admin/components/subjects/subjects.component').then(c => c.SubjectsComponent) },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./modules/admin/components/users/users.component').then(
+            (c) => c.UsersComponent
+          ),
+      },
+      {
+        path: 'subjects',
+        loadComponent: () =>
+          import('./modules/admin/components/subjects/subjects.component').then(
+            (c) => c.SubjectsComponent
+          ),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: '**', redirectTo: 'dashboard' }
-    ]
+      { path: '**', redirectTo: 'dashboard' },
+    ],
   },
-  
+
   // Teacher routes
   {
     path: 'teacher',
@@ -71,15 +86,39 @@ export const routes: Routes = [
     canActivate: [AuthGuard, ProfileCompletionGuard],
     data: { roles: ['TEACHER'] },
     children: [
-      { path: 'dashboard', loadComponent: () => import('./modules/teacher/components/dashboard/teacher-dashboard.component').then(c => c.TeacherDashboardComponent) },
-      { path: 'exams', loadComponent: () => import('./modules/teacher/components/exams/exams.component').then(c => c.ExamsComponent) },
-      { path: 'assignments', loadComponent: () => import('./modules/teacher/components/assignments/assignments.component').then(c => c.AssignmentsComponent) },
-      { path: 'students', loadComponent: () => import('./modules/teacher/components/students/students.component').then(c => c.StudentsComponent) },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import(
+            './modules/teacher/components/dashboard/teacher-dashboard.component'
+          ).then((c) => c.TeacherDashboardComponent),
+      },
+      {
+        path: 'exams',
+        loadComponent: () =>
+          import('./modules/teacher/components/exams/exams.component').then(
+            (c) => c.ExamsComponent
+          ),
+      },
+      {
+        path: 'assignments',
+        loadComponent: () =>
+          import(
+            './modules/teacher/components/assignments/assignments.component'
+          ).then((c) => c.AssignmentsComponent),
+      },
+      {
+        path: 'students',
+        loadComponent: () =>
+          import(
+            './modules/teacher/components/students/students.component'
+          ).then((c) => c.StudentsComponent),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: '**', redirectTo: 'dashboard' }
-    ]
+      { path: '**', redirectTo: 'dashboard' },
+    ],
   },
-  
+
   // Student routes
   {
     path: 'student',
@@ -87,16 +126,40 @@ export const routes: Routes = [
     canActivate: [AuthGuard, ProfileCompletionGuard],
     data: { roles: ['STUDENT'] },
     children: [
-      { path: 'dashboard', loadComponent: () => import('./modules/student/components/dashboard/student-dashboard.component').then(c => c.StudentDashboardComponent) },
-      { path: 'courses', loadComponent: () => import('./modules/student/components/courses/courses.component').then(c => c.CoursesComponent) },
-      { path: 'exams', loadComponent: () => import('./modules/student/components/exams/exams.component').then(c => c.ExamsComponent) },
-      { path: 'results', loadComponent: () => import('./modules/student/components/results/results.component').then(c => c.ResultsComponent) },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import(
+            './modules/student/components/dashboard/student-dashboard.component'
+          ).then((c) => c.StudentDashboardComponent),
+      },
+      {
+        path: 'courses',
+        loadComponent: () =>
+          import('./modules/student/components/courses/courses.component').then(
+            (c) => c.CoursesComponent
+          ),
+      },
+      {
+        path: 'exams',
+        loadComponent: () =>
+          import('./modules/student/components/exams/exams.component').then(
+            (c) => c.ExamsComponent
+          ),
+      },
+      {
+        path: 'results',
+        loadComponent: () =>
+          import('./modules/student/components/results/results.component').then(
+            (c) => c.ResultsComponent
+          ),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: '**', redirectTo: 'dashboard' }
-    ]
+      { path: '**', redirectTo: 'dashboard' },
+    ],
   },
-  
+
   // Default routes
   { path: '', redirectTo: '/auth/login', pathMatch: 'full' },
-  { path: '**', redirectTo: '/auth/login' }
+  { path: '**', redirectTo: '/auth/login' },
 ];

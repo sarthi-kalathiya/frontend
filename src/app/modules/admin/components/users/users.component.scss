@@ -1,4 +1,4 @@
-@use 'sass:color';
+@use "sass:color";
 
 // Variables
 $primary-color: #000000;
@@ -15,24 +15,24 @@ $info-color: #2196f3;
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   padding: 24px;
-  
+
   .section-header {
     margin-bottom: 24px;
-    
+
     h2 {
       font-size: 20px;
       font-weight: 600;
       color: $primary-color;
       margin: 0 0 8px 0;
     }
-    
+
     p {
       font-size: 14px;
       color: #666;
       margin: 0;
     }
   }
-  
+
   .filter-bar {
     display: flex;
     align-items: center;
@@ -40,24 +40,24 @@ $info-color: #2196f3;
     margin-bottom: 24px;
     flex-wrap: wrap;
     gap: 16px;
-    
+
     .search-box {
       position: relative;
       min-width: 250px;
-      
+
       input {
         width: 100%;
         padding: 10px 38px 10px 14px;
         border: 1px solid $border-color;
         border-radius: 4px;
         font-size: 14px;
-        
+
         &:focus {
           outline: none;
           border-color: $secondary-color;
         }
       }
-      
+
       .btn-search {
         position: absolute;
         right: 12px;
@@ -69,21 +69,21 @@ $info-color: #2196f3;
         cursor: pointer;
       }
     }
-    
+
     .filter-actions {
       display: flex;
       align-items: center;
       gap: 16px;
     }
-    
+
     .filter-selects {
       display: flex;
       gap: 12px;
-      
+
       .custom-select {
         position: relative;
       }
-      
+
       .form-select {
         padding: 10px 14px;
         border: 1px solid $border-color;
@@ -100,19 +100,19 @@ $info-color: #2196f3;
         background-position: right 12px top 50%;
         background-size: 10px auto;
         transition: all 0.2s ease;
-        
+
         &:focus {
           outline: none;
           border-color: $secondary-color;
           box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
         }
-        
+
         &:hover {
           border-color: color.adjust($border-color, $lightness: -10%);
         }
       }
     }
-    
+
     .add-btn {
       display: flex;
       align-items: center;
@@ -126,57 +126,58 @@ $info-color: #2196f3;
       font-weight: 500;
       cursor: pointer;
       transition: background-color 0.2s;
-      
+
       &:hover {
         background-color: color.adjust($primary-color, $lightness: -10%);
       }
     }
   }
-  
+
   .data-table {
     overflow-x: auto;
-    
+
     table {
       width: 100%;
       border-collapse: collapse;
-      
-      th, td {
+
+      th,
+      td {
         padding: 14px 16px;
         text-align: left;
         border-bottom: 1px solid $border-color;
       }
-      
+
       th {
         font-weight: 600;
         color: $secondary-color;
         font-size: 14px;
         background-color: $light-gray;
       }
-      
+
       td {
         font-size: 14px;
         color: $text-color;
       }
-      
+
       tbody tr {
         &:hover {
           background-color: $light-gray;
         }
-        
+
         &:last-child td {
           border-bottom: none;
         }
       }
-      
+
       .user-name {
         display: flex;
         align-items: center;
         gap: 12px;
-        
+
         .user-avatar {
           width: 36px;
           height: 36px;
-          
+
           .avatar-placeholder {
             width: 100%;
             height: 100%;
@@ -191,29 +192,29 @@ $info-color: #2196f3;
           }
         }
       }
-      
+
       .badge {
         padding: 4px 8px;
         border-radius: 4px;
         font-size: 12px;
         font-weight: 500;
         display: inline-block;
-        
+
         &.badge-primary {
           background-color: rgba($primary-color, 0.1);
           color: $primary-color;
         }
-        
+
         &.badge-success {
           background-color: rgba($success-color, 0.1);
           color: $success-color;
         }
-        
+
         &.badge-danger {
           background-color: rgba($danger-color, 0.1);
           color: $danger-color;
         }
-        
+
         &.badge-info {
           background-color: rgba($info-color, 0.1);
           color: $info-color;
@@ -226,34 +227,34 @@ $info-color: #2196f3;
 @media (max-width: 768px) {
   .user-management {
     padding: 16px;
-    
+
     .section-header {
       margin-bottom: 16px;
     }
   }
-  
+
   .filter-bar {
     flex-direction: column;
     align-items: stretch !important;
-    
+
     .search-box {
       width: 100%;
     }
-    
+
     .filter-actions {
       flex-direction: column;
       gap: 12px;
       width: 100%;
     }
-    
+
     .filter-selects {
       width: 100%;
-      
+
       .form-select {
         flex: 1;
       }
     }
-    
+
     .add-btn {
       width: 100%;
       justify-content: center;
@@ -272,7 +273,7 @@ $info-color: #2196f3;
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 4px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-  
+
   .dropdown-item {
     display: flex;
     align-items: center;
@@ -286,18 +287,19 @@ $info-color: #2196f3;
     border: 0;
     cursor: pointer;
     width: 100%;
-    
-    &:hover, &:focus {
+
+    &:hover,
+    &:focus {
       color: color.adjust($text-color, $lightness: -10%);
       text-decoration: none;
       background-color: $light-gray;
     }
-    
+
     &.active {
       color: $primary-color;
       background-color: rgba($primary-color, 0.05);
       font-weight: 500;
-      
+
       &::before {
         content: "✓";
         margin-right: 8px;
@@ -314,7 +316,7 @@ $info-color: #2196f3;
   align-items: center;
   justify-content: center;
   padding: 40px 0;
-  
+
   .spinner {
     width: 40px;
     height: 40px;
@@ -324,7 +326,7 @@ $info-color: #2196f3;
     animation: spin 1s linear infinite;
     margin-bottom: 16px;
   }
-  
+
   p {
     color: $secondary-color;
     font-size: 14px;
@@ -332,7 +334,9 @@ $info-color: #2196f3;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 // Error state
@@ -342,13 +346,13 @@ $info-color: #2196f3;
   align-items: center;
   justify-content: center;
   padding: 40px 0;
-  
+
   .error-message {
     color: $danger-color;
     margin-bottom: 16px;
     font-size: 14px;
   }
-  
+
   .btn-retry {
     padding: 8px 16px;
     background-color: $primary-color;
@@ -357,7 +361,7 @@ $info-color: #2196f3;
     border-radius: 4px;
     font-size: 14px;
     cursor: pointer;
-    
+
     &:hover {
       background-color: color.adjust($primary-color, $lightness: -10%);
     }
@@ -371,13 +375,13 @@ $info-color: #2196f3;
   align-items: center;
   justify-content: center;
   padding: 40px 0;
-  
+
   p {
     color: $secondary-color;
     margin-bottom: 16px;
     font-size: 14px;
   }
-  
+
   .btn-reset {
     padding: 8px 16px;
     background-color: transparent;
@@ -386,7 +390,7 @@ $info-color: #2196f3;
     border-radius: 4px;
     font-size: 14px;
     cursor: pointer;
-    
+
     &:hover {
       background-color: $light-gray;
     }
@@ -401,17 +405,17 @@ $info-color: #2196f3;
   padding: 16px 0;
   margin-top: 16px;
   border-top: 1px solid $border-color;
-  
+
   .pagination-info {
     color: $secondary-color;
     font-size: 14px;
   }
-  
+
   .pagination-buttons {
     display: flex;
     align-items: center;
     gap: 4px;
-    
+
     .page-ellipsis {
       width: 36px;
       height: 36px;
@@ -421,7 +425,7 @@ $info-color: #2196f3;
       color: $secondary-color;
       font-size: 14px;
     }
-    
+
     .page-btn {
       width: 36px;
       height: 36px;
@@ -434,17 +438,17 @@ $info-color: #2196f3;
       color: $secondary-color;
       font-size: 14px;
       cursor: pointer;
-      
+
       &:hover:not(:disabled) {
         background-color: $light-gray;
       }
-      
+
       &.active {
         background-color: $primary-color;
         color: white;
         border-color: $primary-color;
       }
-      
+
       &:disabled {
         opacity: 0.5;
         cursor: not-allowed;
@@ -458,9 +462,9 @@ $info-color: #2196f3;
   .pagination-controls {
     flex-direction: column;
     gap: 12px;
-    
+
     .pagination-info {
       text-align: center;
     }
   }
-} 
+}

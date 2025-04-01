@@ -7,13 +7,12 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './results.component.html',
-  styleUrls: ['./results.component.scss']
+  styleUrls: ['./results.component.scss'],
 })
 export class ResultsComponent implements OnInit {
-  
-  constructor() { }
+  constructor() {}
 
   ngOnInit(): void {
     // Initialize component
   }
-} 
+}

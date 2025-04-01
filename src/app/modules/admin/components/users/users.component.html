@@ -3,84 +3,132 @@
     <h2>User Management</h2>
     <p>Add, edit, and manage users in the system.</p>
   </div>
-  
+
   <div class="filter-bar">
     <div class="search-box">
-      <input type="text" placeholder="Search users..." 
-             [ngModel]="searchTerm" 
-             (input)="onSearchInput($event)">
+      <input
+        type="text"
+        placeholder="Search users..."
+        [ngModel]="searchTerm"
+        (input)="onSearchInput($event)"
+      />
       <button class="btn-search" title="Search">
         <i class="fas fa-search"></i>
       </button>
     </div>
-    
+
     <div class="filter-actions">
       <div class="filter-selects">
         <div class="custom-select">
-          <button class="form-select" (click)="$event.stopPropagation(); toggleRoleDropdown()">
+          <button
+            class="form-select"
+            (click)="$event.stopPropagation(); toggleRoleDropdown()"
+          >
             {{ selectedRole }}
           </button>
           <div class="dropdown-menu" *ngIf="showRoleDropdown">
-            <button class="dropdown-item" [ngClass]="{'active': selectedRole === 'All Roles'}" (click)="selectRole('All Roles')">
+            <button
+              class="dropdown-item"
+              [ngClass]="{ active: selectedRole === 'All Roles' }"
+              (click)="selectRole('All Roles')"
+            >
               All Roles
             </button>
-            <button class="dropdown-item" [ngClass]="{'active': selectedRole === 'ADMIN'}" (click)="selectRole('ADMIN')">
+            <button
+              class="dropdown-item"
+              [ngClass]="{ active: selectedRole === 'ADMIN' }"
+              (click)="selectRole('ADMIN')"
+            >
               ADMIN
             </button>
-            <button class="dropdown-item" [ngClass]="{'active': selectedRole === 'TEACHER'}" (click)="selectRole('TEACHER')">
+            <button
+              class="dropdown-item"
+              [ngClass]="{ active: selectedRole === 'TEACHER' }"
+              (click)="selectRole('TEACHER')"
+            >
               TEACHER
             </button>
-            <button class="dropdown-item" [ngClass]="{'active': selectedRole === 'STUDENT'}" (click)="selectRole('STUDENT')">
+            <button
+              class="dropdown-item"
+              [ngClass]="{ active: selectedRole === 'STUDENT' }"
+              (click)="selectRole('STUDENT')"
+            >
               STUDENT
             </button>
           </div>
         </div>
-        
+
         <div class="custom-select">
-          <button class="form-select" (click)="$event.stopPropagation(); toggleStatusDropdown()">
+          <button
+            class="form-select"
+            (click)="$event.stopPropagation(); toggleStatusDropdown()"
+          >
             {{ selectedStatus }}
           </button>
           <div class="dropdown-menu" *ngIf="showStatusDropdown">
-            <button class="dropdown-item" [ngClass]="{'active': selectedStatus === 'All Statuses'}" (click)="selectStatus('All Statuses')">
+            <button
+              class="dropdown-item"
+              [ngClass]="{ active: selectedStatus === 'All Statuses' }"
+              (click)="selectStatus('All Statuses')"
+            >
               All Statuses
             </button>
-            <button class="dropdown-item" [ngClass]="{'active': selectedStatus === 'Active'}" (click)="selectStatus('Active')">
+            <button
+              class="dropdown-item"
+              [ngClass]="{ active: selectedStatus === 'Active' }"
+              (click)="selectStatus('Active')"
+            >
               Active
             </button>
-            <button class="dropdown-item" [ngClass]="{'active': selectedStatus === 'Inactive'}" (click)="selectStatus('Inactive')">
+            <button
+              class="dropdown-item"
+              [ngClass]="{ active: selectedStatus === 'Inactive' }"
+              (click)="selectStatus('Inactive')"
+            >
               Inactive
             </button>
           </div>
         </div>
       </div>
-      
+
       <button class="btn btn-primary add-btn" (click)="openAddUserModal()">
         <i class="fas fa-user-plus"></i>
         Add User
       </button>
     </div>
   </div>
-  
+
   <div class="data-table">
     <!-- Loading and error states -->
     <div *ngIf="isLoading" class="loading-state">
       <div class="spinner"></div>
       <p>Loading users...</p>
     </div>
-    
+
     <div *ngIf="!isLoading && error" class="error-state">
       <p class="error-message">{{ error }}</p>
       <button class="btn-retry" (click)="loadUsers()">Try Again</button>
     </div>
-    
+
     <!-- Empty state -->
-    <div *ngIf="!isLoading && !error && filteredUsers.length === 0" class="empty-state">
+    <div
+      *ngIf="!isLoading && !error && filteredUsers.length === 0"
+      class="empty-state"
+    >
       <p>No users found matching your filters.</p>
-      <button class="btn-reset" (click)="selectRole('All Roles'); selectStatus('All Statuses'); searchTerm = ''; onSearch();">
+      <button
+        class="btn-reset"
+        (click)="
+          selectRole('All Roles');
+          selectStatus('All Statuses');
+          searchTerm = '';
+          onSearch()
+        "
+      >
         Reset Filters
       </button>
     </div>
-    
+
     <!-- User table -->
     <table *ngIf="!isLoading && !error && filteredUsers.length > 0">
       <thead>
@@ -96,17 +144,28 @@
         <tr *ngFor="let user of filteredUsers">
           <td class="user-name">
             <div class="user-avatar">
-              <div class="avatar-placeholder">{{ user.firstName.charAt(0) || user.lastName.charAt(0) || '' }}</div>
+              <div class="avatar-placeholder">
+                {{ user.firstName.charAt(0) || user.lastName.charAt(0) || "" }}
+              </div>
             </div>
-            <span>{{ user.firstName && user.lastName ? user.firstName + ' ' + user.lastName : user.name }}</span>
+            <span>{{
+              user.firstName && user.lastName
+                ? user.firstName + " " + user.lastName
+                : user.name
+            }}</span>
           </td>
           <td>{{ user.email }}</td>
           <td>
-            <span class="badge" [ngClass]="getRoleBadgeClass(user.role)">{{ user.role }}</span>
+            <span class="badge" [ngClass]="getRoleBadgeClass(user.role)">{{
+              user.role
+            }}</span>
           </td>
           <td>
-            <span class="badge" [ngClass]="user.isActive ? 'badge-success' : 'badge-danger'">
-              {{ user.isActive ? 'Active' : 'Inactive' }}
+            <span
+              class="badge"
+              [ngClass]="user.isActive ? 'badge-success' : 'badge-danger'"
+            >
+              {{ user.isActive ? "Active" : "Inactive" }}
             </span>
           </td>
           <td>
@@ -119,31 +178,36 @@
         </tr>
       </tbody>
     </table>
-    
+
     <!-- Pagination controls -->
-    <div class="pagination-controls" *ngIf="!isLoading && !error && totalPages > 1">
+    <div
+      class="pagination-controls"
+      *ngIf="!isLoading && !error && totalPages > 1"
+    >
       <div class="pagination-info">
-        Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalItems) }} of {{ totalItems }} users
+        Showing {{ (currentPage - 1) * pageSize + 1 }} to
+        {{ Math.min(currentPage * pageSize, totalItems) }} of
+        {{ totalItems }} users
       </div>
-      
+
       <div class="pagination-buttons">
-        <button 
-          class="page-btn" 
-          [disabled]="currentPage === 1" 
-          (click)="onPageChange(currentPage - 1)" 
+        <button
+          class="page-btn"
+          [disabled]="currentPage === 1"
+          (click)="onPageChange(currentPage - 1)"
           title="Previous page"
         >
           <i class="fas fa-chevron-left"></i>
         </button>
-        
+
         <ng-container *ngFor="let page of getPageNumbers()">
           <!-- Render ellipsis for -1 value -->
           <span *ngIf="page === -1" class="page-ellipsis">...</span>
-          
+
           <!-- Render normal page button for actual page numbers -->
-          <button 
+          <button
             *ngIf="page !== -1"
-            class="page-btn" 
+            class="page-btn"
             [class.active]="page === currentPage"
             (click)="onPageChange(page)"
             title="Go to page {{ page }}"
@@ -151,10 +215,10 @@
             {{ page }}
           </button>
         </ng-container>
-        
-        <button 
-          class="page-btn" 
-          [disabled]="currentPage === totalPages" 
+
+        <button
+          class="page-btn"
+          [disabled]="currentPage === totalPages"
           (click)="onPageChange(currentPage + 1)"
           title="Next page"
         >
@@ -166,8 +230,8 @@
 </div>
 
 <!-- Add User Modal -->
-<app-add-user-modal 
-  *ngIf="showAddUserModal" 
+<app-add-user-modal
+  *ngIf="showAddUserModal"
   (close)="closeAddUserModal($event)"
 ></app-add-user-modal>
 
@@ -192,4 +256,4 @@
   [userName]="selectedUserName"
   [userRole]="selectedUserRole"
   (close)="closeManageSubjectsModal($event)"
-></app-manage-subjects-modal> 
+></app-manage-subjects-modal>

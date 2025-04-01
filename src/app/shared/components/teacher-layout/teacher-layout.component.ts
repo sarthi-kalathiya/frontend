@@ -11,14 +11,14 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './teacher-layout.component.html',
   styleUrls: ['./teacher-layout.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule]
+  imports: [CommonModule, RouterModule, FormsModule],
 })
 export class TeacherLayoutComponent implements OnInit {
   currentUser: UserData | null = null;
   searchQuery: string = '';
   showUserMenu: boolean = false;
   activeTab: string = 'dashboard';
-  
+
   private router = inject(Router);
   private authService = inject(AuthService);
 
@@ -28,7 +28,7 @@ export class TeacherLayoutComponent implements OnInit {
     this.authService.user$.subscribe((user: UserData | null) => {
       this.currentUser = user;
     });
-    
+
     // Set active tab based on current route
     const currentUrl = this.router.url;
     if (currentUrl.includes('/teacher/dashboard')) {
@@ -39,43 +39,47 @@ export class TeacherLayoutComponent implements OnInit {
       this.activeTab = 'assignments';
     }
   }
-  
+
   toggleUserMenu(): void {
     this.showUserMenu = !this.showUserMenu;
   }
-  
+
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
   }
-  
+
   navigateTo(route: string): void {
     this.router.navigateByUrl(route);
     this.activeTab = route.split('/').pop() || 'dashboard';
     this.closeAllDropdowns();
   }
-  
+
   closeAllDropdowns(): void {
     this.showUserMenu = false;
   }
-  
+
   handleUserMenuClick(event: MouseEvent): void {
     event.stopPropagation();
     this.toggleUserMenu();
   }
-  
+
   searchSubmit(): void {
     // Implement search functionality
     console.log('Search query:', this.searchQuery);
   }
-  
+
   // Helper method to get user initials for avatar
   getUserInitials(): string {
     if (!this.currentUser) return '';
-    
-    const firstInitial = this.currentUser.firstName ? this.currentUser.firstName.charAt(0) : '';
-    const lastInitial = this.currentUser.lastName ? this.currentUser.lastName.charAt(0) : '';
-    
+
+    const firstInitial = this.currentUser.firstName
+      ? this.currentUser.firstName.charAt(0)
+      : '';
+    const lastInitial = this.currentUser.lastName
+      ? this.currentUser.lastName.charAt(0)
+      : '';
+
     return (firstInitial + lastInitial).toUpperCase();
   }
-} 
+}

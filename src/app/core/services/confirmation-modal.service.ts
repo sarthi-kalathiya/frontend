@@ -10,13 +10,16 @@ export interface ConfirmationModalOptions {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ConfirmationModalService {
-  private confirmationSubject = new Subject<{ options: ConfirmationModalOptions, confirmed: boolean }>();
+  private confirmationSubject = new Subject<{
+    options: ConfirmationModalOptions;
+    confirmed: boolean;
+  }>();
   private optionsSubject = new Subject<ConfirmationModalOptions | null>();
 
-  constructor() { }
+  constructor() {}
 
   /**
    * Show a confirmation modal with the provided options
@@ -29,15 +32,15 @@ export class ConfirmationModalService {
       ...options,
       confirmButtonText: options.confirmButtonText || 'Confirm',
       cancelButtonText: options.cancelButtonText || 'Cancel',
-      type: options.type || 'warning'
+      type: options.type || 'warning',
     };
 
     // Show the modal with these options
     this.optionsSubject.next(modalOptions);
 
     // Return an observable that will emit once when the user makes a decision
-    return new Observable<boolean>(observer => {
-      const subscription = this.confirmationSubject.subscribe(result => {
+    return new Observable<boolean>((observer) => {
+      const subscription = this.confirmationSubject.subscribe((result) => {
         if (result.options === modalOptions) {
           observer.next(result.confirmed);
           observer.complete();
@@ -61,4 +64,4 @@ export class ConfirmationModalService {
     this.confirmationSubject.next({ options, confirmed });
     this.optionsSubject.next(null); // Close the modal
   }
-} 
+}

@@ -1,4 +1,9 @@
-<div class="modal-backdrop" *ngIf="visible" [class.closing]="closing" (click)="onBackdropClick($event)">
+<div
+  class="modal-backdrop"
+  *ngIf="visible"
+  [class.closing]="closing"
+  (click)="onBackdropClick($event)"
+>
   <div class="modal-container" [class.closing]="closing">
     <div class="modal-content" [class]="getColorClass()">
       <div class="modal-header">
@@ -10,19 +15,23 @@
           <i class="fas fa-times"></i>
         </button>
       </div>
-      
+
       <div class="modal-body">
         <p class="modal-message">{{ options?.message }}</p>
       </div>
-      
+
       <div class="modal-footer">
         <button class="btn btn-secondary" (click)="onCancel()">
-          {{ options?.cancelButtonText || 'Cancel' }}
+          {{ options?.cancelButtonText || "Cancel" }}
         </button>
-        <button class="btn btn-primary" [class]="'btn-' + (options?.type || 'warning')" (click)="onConfirm()">
-          {{ options?.confirmButtonText || 'Confirm' }}
+        <button
+          class="btn btn-primary"
+          [class]="'btn-' + (options?.type || 'warning')"
+          (click)="onConfirm()"
+        >
+          {{ options?.confirmButtonText || "Confirm" }}
         </button>
       </div>
     </div>
   </div>
-</div> 
+</div>

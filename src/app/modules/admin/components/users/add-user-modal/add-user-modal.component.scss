@@ -1,4 +1,4 @@
-@use 'sass:color';
+@use "sass:color";
 
 // Variables
 $primary-color: #000000;
@@ -46,14 +46,14 @@ $danger-color: #f44336;
   align-items: center;
   padding: 16px 24px;
   border-bottom: 1px solid $border-color;
-  
+
   h2 {
     margin: 0;
     font-size: 20px;
     font-weight: 600;
     color: $primary-color;
   }
-  
+
   .close-btn {
     background: none;
     border: none;
@@ -66,7 +66,7 @@ $danger-color: #f44336;
     align-items: center;
     justify-content: center;
     border-radius: 4px;
-    
+
     &:hover {
       background-color: $light-gray;
     }
@@ -78,44 +78,44 @@ $danger-color: #f44336;
   padding: 24px;
   max-height: 60vh;
   overflow-y: auto;
-  
+
   // Alert messages
   .alert {
     padding: 12px 16px;
     border-radius: 4px;
     margin-bottom: 20px;
-    
+
     &.alert-danger {
       background-color: rgba($danger-color, 0.1);
       color: $danger-color;
       border: 1px solid rgba($danger-color, 0.2);
     }
-    
+
     &.alert-success {
       background-color: rgba($success-color, 0.1);
       color: $success-color;
       border: 1px solid rgba($success-color, 0.2);
     }
   }
-  
+
   // Form layout
   .form-row {
     display: flex;
     gap: 16px;
     margin-bottom: 16px;
-    
+
     .form-group {
       flex: 1;
     }
   }
-  
+
   .form-group {
     margin-bottom: 16px;
-    
+
     &:last-child {
       margin-bottom: 0;
     }
-    
+
     label {
       display: block;
       margin-bottom: 6px;
@@ -123,24 +123,25 @@ $danger-color: #f44336;
       font-weight: 500;
       color: $secondary-color;
     }
-    
-    input, select {
+
+    input,
+    select {
       width: 100%;
       padding: 10px 12px;
       border: 1px solid $border-color;
       border-radius: 4px;
       font-size: 14px;
-      
+
       &:focus {
         outline: none;
         border-color: $secondary-color;
       }
-      
+
       &.is-invalid {
         border-color: $danger-color;
       }
     }
-    
+
     .invalid-feedback {
       display: block;
       color: $danger-color;
@@ -157,7 +158,7 @@ $danger-color: #f44336;
   gap: 12px;
   padding: 16px 24px;
   border-top: 1px solid $border-color;
-  
+
   .btn {
     padding: 10px 16px;
     border-radius: 4px;
@@ -168,32 +169,32 @@ $danger-color: #f44336;
     align-items: center;
     justify-content: center;
     min-width: 100px;
-    
+
     &.btn-primary {
       background-color: $primary-color;
       color: white;
       border: none;
-      
+
       &:hover:not(:disabled) {
         background-color: color.adjust($primary-color, $lightness: 10%);
       }
-      
+
       &:disabled {
         opacity: 0.7;
         cursor: not-allowed;
       }
     }
-    
+
     &.btn-secondary {
       background-color: white;
       color: $secondary-color;
       border: 1px solid $border-color;
-      
+
       &:hover {
         background-color: $light-gray;
       }
     }
-    
+
     .spinner-border {
       width: 14px;
       height: 14px;
@@ -204,7 +205,9 @@ $danger-color: #f44336;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .spinner-border {
@@ -222,9 +225,9 @@ $danger-color: #f44336;
   .modal-body {
     padding: 16px;
   }
-  
+
   .form-row {
     flex-direction: column;
     gap: 0;
   }
-} 
+}

@@ -7,7 +7,7 @@
         <i class="fas fa-times"></i>
       </button>
     </div>
-    
+
     <!-- Loading state -->
     <div *ngIf="isLoading" class="loading-container">
       <div class="spinner-border" role="status">
@@ -15,7 +15,7 @@
       </div>
       <p>Loading subject data...</p>
     </div>
-    
+
     <!-- Error state -->
     <div *ngIf="!isLoading && error" class="error-container">
       <div class="alert alert-danger">
@@ -25,57 +25,79 @@
         <i class="fas fa-sync-alt"></i> Try Again
       </button>
     </div>
-    
+
     <!-- Content when loaded -->
     <div *ngIf="!isLoading && !error" class="modal-body">
       <div class="user-info">
         <p>
-          Managing subjects for 
+          Managing subjects for
           <strong>{{ userName }}</strong>
-          <span class="badge" [ngClass]="userRole === 'TEACHER' ? 'badge-info' : 'badge-success'">
+          <span
+            class="badge"
+            [ngClass]="userRole === 'TEACHER' ? 'badge-info' : 'badge-success'"
+          >
             {{ userRole }}
           </span>
         </p>
       </div>
-      
-  
-      
+
       <div class="subjects-management">
         <!-- Available subjects column -->
         <div class="subjects-column available-subjects">
-          <h3>Available Subjects <span class="count-badge">{{ filteredAvailableSubjects.length }}</span></h3>
-          
+          <h3>
+            Available Subjects
+            <span class="count-badge">{{
+              filteredAvailableSubjects.length
+            }}</span>
+          </h3>
+
           <!-- Search box -->
           <div class="search-box">
-            <input 
-              type="text" 
-              placeholder="Search subjects..." 
+            <input
+              type="text"
+              placeholder="Search subjects..."
               [(ngModel)]="searchTerm"
               (input)="onSearch()"
               aria-label="Search available subjects"
-            >
+            />
             <button class="btn-search" title="Search" (click)="onSearch()">
               <i class="fas fa-search"></i>
             </button>
           </div>
-          
+
           <!-- Available subjects list -->
           <div class="subjects-list">
-            <div *ngIf="filteredAvailableSubjects.length === 0" class="empty-list">
-              <p *ngIf="searchTerm">No subjects matching "{{ searchTerm }}" found.</p>
-              <p *ngIf="!searchTerm">No available subjects found. All subjects may be assigned already.</p>
+            <div
+              *ngIf="filteredAvailableSubjects.length === 0"
+              class="empty-list"
+            >
+              <p *ngIf="searchTerm">
+                No subjects matching "{{ searchTerm }}" found.
+              </p>
+              <p *ngIf="!searchTerm">
+                No available subjects found. All subjects may be assigned
+                already.
+              </p>
             </div>
-            
-            <div *ngFor="let subject of filteredAvailableSubjects" class="subject-item">
+
+            <div
+              *ngFor="let subject of filteredAvailableSubjects"
+              class="subject-item"
+            >
               <div class="subject-info">
-                <div class="subject-name" [title]="subject.name">{{ subject.name }}</div>
-                <div class="subject-code" [title]="subject.code + ' - ' + subject.credits + ' credits'">
+                <div class="subject-name" [title]="subject.name">
+                  {{ subject.name }}
+                </div>
+                <div
+                  class="subject-code"
+                  [title]="subject.code + ' - ' + subject.credits + ' credits'"
+                >
                   {{ subject.code }} • {{ subject.credits }} credits
                 </div>
               </div>
-              <button 
-                class="btn-add" 
-                title="Assign subject to {{ userName }}" 
+              <button
+                class="btn-add"
+                title="Assign subject to {{ userName }}"
                 (click)="assignSubject(subject)"
               >
                 <i class="fas fa-plus"></i>
@@ -83,29 +105,44 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Assigned subjects column -->
         <div class="subjects-column assigned-subjects">
-          <h3>Assigned Subjects <span class="count-badge">{{ assignedSubjects.length }}</span></h3>
-          
+          <h3>
+            Assigned Subjects
+            <span class="count-badge">{{ assignedSubjects.length }}</span>
+          </h3>
+
           <!-- Assigned subjects list -->
           <div class="subjects-list">
             <div *ngIf="assignedSubjects.length === 0" class="empty-list">
               <p>No subjects assigned yet.</p>
-              <p class="hint">Use the <i class="fas fa-plus"></i> button from the available subjects list to assign subjects.</p>
+              <p class="hint">
+                Use the <i class="fas fa-plus"></i> button from the available
+                subjects list to assign subjects.
+              </p>
             </div>
-            
-            <div *ngFor="let subject of assignedSubjects" class="subject-item" [ngClass]="{'newly-added': isNewlyAdded(subject.id)}">
+
+            <div
+              *ngFor="let subject of assignedSubjects"
+              class="subject-item"
+              [ngClass]="{ 'newly-added': isNewlyAdded(subject.id) }"
+            >
               <div class="subject-info">
-                <div class="subject-name" [title]="subject.name">{{ subject.name }}</div>
-                <div class="subject-code" [title]="subject.code + ' - ' + subject.credits + ' credits'">
+                <div class="subject-name" [title]="subject.name">
+                  {{ subject.name }}
+                </div>
+                <div
+                  class="subject-code"
+                  [title]="subject.code + ' - ' + subject.credits + ' credits'"
+                >
                   {{ subject.code }} • {{ subject.credits }} credits
                 </div>
               </div>
-              <button 
+              <button
                 *ngIf="isNewlyAdded(subject.id)"
-                class="btn-remove" 
-                title="Remove subject" 
+                class="btn-remove"
+                title="Remove subject"
                 (click)="removeSubject(subject.id)"
               >
                 <i class="fas fa-minus"></i>
@@ -115,13 +152,30 @@
         </div>
       </div>
     </div>
-    
+
     <div class="modal-footer" *ngIf="!isLoading && !error">
-      <button type="button" class="btn btn-secondary" [disabled]="isSaving" (click)="closeModal()">Cancel</button>
-      <button type="button" class="btn btn-primary" [disabled]="isSaving" (click)="saveChanges()">
-        <span *ngIf="isSaving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        {{ isSaving ? 'Saving...' : 'Save Changes' }}
+      <button
+        type="button"
+        class="btn btn-secondary"
+        [disabled]="isSaving"
+        (click)="closeModal()"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary"
+        [disabled]="isSaving"
+        (click)="saveChanges()"
+      >
+        <span
+          *ngIf="isSaving"
+          class="spinner-border spinner-border-sm"
+          role="status"
+          aria-hidden="true"
+        ></span>
+        {{ isSaving ? "Saving..." : "Save Changes" }}
       </button>
     </div>
   </div>
-</div> 
+</div>

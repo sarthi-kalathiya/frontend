@@ -1,7 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActionMenuComponent, ActionMenuItem } from '@shared/components/action-menu/action-menu.component';
+import {
+  ActionMenuComponent,
+  ActionMenuItem,
+} from '@shared/components/action-menu/action-menu.component';
 import { ExamService, Exam } from '../../services/exam.service';
 import { HttpClientModule } from '@angular/common/http';
 import { Subject } from 'rxjs';
@@ -20,10 +23,10 @@ import { EditExamModalComponent } from './edit-exam-modal/edit-exam-modal.compon
     HttpClientModule,
     AddExamModalComponent,
     ViewExamModalComponent,
-    EditExamModalComponent
+    EditExamModalComponent,
   ],
   templateUrl: './exams.component.html',
-  styleUrls: ['./exams.component.scss']
+  styleUrls: ['./exams.component.scss'],
 })
 export class ExamsComponent implements OnInit, OnDestroy {
   // States
@@ -58,13 +61,11 @@ export class ExamsComponent implements OnInit, OnDestroy {
 
   constructor(private examService: ExamService) {
     // Setup search debounce
-    this.searchSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      takeUntil(this.destroy$)
-    ).subscribe(() => {
-      this.applyFilters();
-    });
+    this.searchSubject
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.applyFilters();
+      });
   }
 
   ngOnInit(): void {
@@ -82,7 +83,12 @@ export class ExamsComponent implements OnInit, OnDestroy {
 
     this.examService.getTeacherExams(page, this.pageSize).subscribe({
       next: (response) => {
-        if (!response || !response.data || !response.data.exams || !response.data.pagination) {
+        if (
+          !response ||
+          !response.data ||
+          !response.data.exams ||
+          !response.data.pagination
+        ) {
           this.error = 'Invalid response from server';
           return;
         }
@@ -99,7 +105,7 @@ export class ExamsComponent implements OnInit, OnDestroy {
       },
       complete: () => {
         this.isLoading = false;
-      }
+      },
     });
   }
 
@@ -126,23 +132,28 @@ export class ExamsComponent implements OnInit, OnDestroy {
     // Apply search filter
     if (this.searchTerm) {
       const searchLower = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(exam => 
-        exam.name.toLowerCase().includes(searchLower) ||
-        exam.subject.name.toLowerCase().includes(searchLower) ||
-        exam.subject.code.toLowerCase().includes(searchLower)
+      filtered = filtered.filter(
+        (exam) =>
+          exam.name.toLowerCase().includes(searchLower) ||
+          exam.subject.name.toLowerCase().includes(searchLower) ||
+          exam.subject.code.toLowerCase().includes(searchLower)
       );
     }
 
     // Apply status filter
     if (this.selectedStatus !== 'All Statuses') {
-      filtered = filtered.filter(exam => {
+      filtered = filtered.filter((exam) => {
         const currentDate = new Date();
         const startDate = new Date(exam.startDate);
         const endDate = new Date(exam.endDate);
 
         switch (this.selectedStatus) {
           case 'Active':
-            return exam.isActive && startDate <= currentDate && endDate >= currentDate;
+            return (
+              exam.isActive &&
+              startDate <= currentDate &&
+              endDate >= currentDate
+            );
           case 'Draft':
             return !exam.isActive;
           case 'Upcoming':
@@ -200,26 +211,26 @@ export class ExamsComponent implements OnInit, OnDestroy {
         id: exam.id,
         label: 'View Details',
         icon: 'fas fa-eye',
-        action: 'view'
+        action: 'view',
       },
       {
         id: exam.id,
         label: 'Edit',
         icon: 'fas fa-edit',
-        action: 'edit'
+        action: 'edit',
       },
       {
         id: exam.id,
         label: exam.isActive ? 'Deactivate' : 'Activate',
         icon: exam.isActive ? 'fas fa-ban' : 'fas fa-check',
-        action: 'toggle-status'
+        action: 'toggle-status',
       },
       {
         id: exam.id,
         label: 'Manage Questions',
         icon: 'fas fa-list',
-        action: 'manage-questions'
-      }
+        action: 'manage-questions',
+      },
     ];
   }
 
@@ -241,7 +252,7 @@ export class ExamsComponent implements OnInit, OnDestroy {
   }
 
   toggleExamStatus(examId: string): void {
-    const exam = this.exams.find(e => e.id === examId);
+    const exam = this.exams.find((e) => e.id === examId);
     if (!exam) return;
 
     this.examService.updateExamStatus(examId, !exam.isActive).subscribe({
@@ -250,7 +261,7 @@ export class ExamsComponent implements OnInit, OnDestroy {
       },
       error: (error: Error) => {
         console.error('Failed to update exam status:', error);
-      }
+      },
     });
   }
 
@@ -291,32 +302,32 @@ export class ExamsComponent implements OnInit, OnDestroy {
   getPageNumbers(): (number | '...')[] {
     const pages: (number | '...')[] = [];
     const maxVisiblePages = 5;
-    
+
     if (this.totalPages <= maxVisiblePages) {
       for (let i = 1; i <= this.totalPages; i++) {
         pages.push(i);
       }
     } else {
       pages.push(1);
-      
+
       if (this.currentPage > 3) {
         pages.push('...');
       }
-      
+
       const start = Math.max(2, this.currentPage - 1);
       const end = Math.min(this.totalPages - 1, this.currentPage + 1);
-      
+
       for (let i = start; i <= end; i++) {
         pages.push(i);
       }
-      
+
       if (this.currentPage < this.totalPages - 2) {
         pages.push('...');
       }
-      
+
       pages.push(this.totalPages);
     }
-    
+
     return pages;
   }
 }

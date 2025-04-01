@@ -1,7 +1,7 @@
 <div class="dashboard-container">
   <div class="dashboard-header">
     <h1>Dashboard</h1>
-    <p class="current-date">{{ currentDate | date:'fullDate' }}</p>
+    <p class="current-date">{{ currentDate | date : "fullDate" }}</p>
   </div>
 
   <!-- Stats Cards -->
@@ -9,33 +9,25 @@
     <div class="stat-card">
       <h3>Total Exams</h3>
       <p class="stat-value">{{ totalExams }}</p>
-      <p class="stat-change positive">
-        +2 from last month
-      </p>
+      <p class="stat-change positive">+2 from last month</p>
     </div>
-    
+
     <div class="stat-card">
       <h3>Active Exams</h3>
       <p class="stat-value">{{ activeExams }}</p>
-      <p class="stat-change positive">
-        +1 from last week
-      </p>
+      <p class="stat-change positive">+1 from last week</p>
     </div>
-    
+
     <div class="stat-card">
       <h3>Total Students</h3>
       <p class="stat-value">{{ totalStudents }}</p>
-      <p class="stat-change positive">
-        +5 from last month
-      </p>
+      <p class="stat-change positive">+5 from last month</p>
     </div>
-    
+
     <div class="stat-card">
       <h3>Avg. Score</h3>
       <p class="stat-value">{{ avgScore }}%</p>
-      <p class="stat-change positive">
-        +2% from last month
-      </p>
+      <p class="stat-change positive">+2% from last month</p>
     </div>
   </div>
 
@@ -49,38 +41,49 @@
           <p class="subtitle">Track exam completion and student performance</p>
         </div>
       </div>
-      
+
       <div class="card-body">
         <div class="chart-tabs">
-          <button 
-            class="tab-btn" 
-            [ngClass]="{'active': activeTab === 'completion-rate'}"
-            (click)="switchTab('completion-rate')">
+          <button
+            class="tab-btn"
+            [ngClass]="{ active: activeTab === 'completion-rate' }"
+            (click)="switchTab('completion-rate')"
+          >
             Completion Rate
           </button>
-          <button 
-            class="tab-btn" 
-            [ngClass]="{'active': activeTab === 'score-distribution'}"
-            (click)="switchTab('score-distribution')">
+          <button
+            class="tab-btn"
+            [ngClass]="{ active: activeTab === 'score-distribution' }"
+            (click)="switchTab('score-distribution')"
+          >
             Score Distribution
           </button>
         </div>
-        
+
         <div class="chart-container" *ngIf="activeTab === 'completion-rate'">
           <!-- Bar chart for completion rate -->
           <div class="bar-chart">
             <div class="chart-bars">
-              <div class="month-column" *ngFor="let month of completionRateData.months; let i = index">
+              <div
+                class="month-column"
+                *ngFor="let month of completionRateData.months; let i = index"
+              >
                 <div class="bar-container">
-                  <div class="completed-bar" [style.height.px]="completionRateData.completedValues[i]"></div>
-                  <div class="incomplete-bar" [style.height.px]="completionRateData.incompleteValues[i]"></div>
+                  <div
+                    class="completed-bar"
+                    [style.height.px]="completionRateData.completedValues[i]"
+                  ></div>
+                  <div
+                    class="incomplete-bar"
+                    [style.height.px]="completionRateData.incompleteValues[i]"
+                  ></div>
                 </div>
                 <div class="month-label">{{ month }}</div>
               </div>
             </div>
           </div>
         </div>
-        
+
         <div class="chart-container" *ngIf="activeTab === 'score-distribution'">
           <!-- Placeholder for score distribution chart -->
           <div class="placeholder-chart">
@@ -89,7 +92,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Upcoming Exams -->
     <div class="upcoming-exams-card">
       <div class="card-header">
@@ -98,7 +101,7 @@
           <p class="subtitle">Scheduled exams for the next 30 days</p>
         </div>
       </div>
-      
+
       <div class="card-body">
         <div class="exams-list">
           <div class="exam-item" *ngFor="let exam of upcomingExams">
@@ -109,7 +112,7 @@
               <h3>{{ exam.title }}</h3>
               <p class="exam-subject">{{ exam.subject }}</p>
               <p class="exam-date">
-                {{ exam.date | date:'MMM d, yyyy \'at\' h:mm a' }}
+                {{ exam.date | date : "MMM d, yyyy 'at' h:mm a" }}
               </p>
             </div>
           </div>
@@ -117,4 +120,4 @@
       </div>
     </div>
   </div>
-</div> 
+</div>

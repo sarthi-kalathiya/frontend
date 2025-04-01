@@ -23,7 +23,7 @@ $border-color: #e0e0e0;
   z-index: 1100;
   opacity: 1;
   transition: opacity 0.3s ease;
-  
+
   &.closing {
     opacity: 0;
   }
@@ -35,7 +35,7 @@ $border-color: #e0e0e0;
   max-width: 450px;
   transform: translateY(0);
   transition: transform 0.3s ease;
-  
+
   &.closing {
     transform: translateY(20px);
   }
@@ -47,26 +47,26 @@ $border-color: #e0e0e0;
   border-radius: 6px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  
+
   // Modal types
   &.modal-success {
     .modal-header .modal-icon i {
       color: $success-color;
     }
   }
-  
+
   &.modal-danger {
     .modal-header .modal-icon i {
       color: $danger-color;
     }
   }
-  
+
   &.modal-warning {
     .modal-header .modal-icon i {
       color: $warning-color;
     }
   }
-  
+
   &.modal-info {
     .modal-header .modal-icon i {
       color: $info-color;
@@ -80,15 +80,15 @@ $border-color: #e0e0e0;
   display: flex;
   align-items: center;
   border-bottom: 1px solid $border-color;
-  
+
   .modal-icon {
     margin-right: 14px;
-    
+
     i {
       font-size: 24px;
     }
   }
-  
+
   .modal-title {
     flex: 1;
     margin: 0;
@@ -96,7 +96,7 @@ $border-color: #e0e0e0;
     font-weight: 600;
     color: $text-color;
   }
-  
+
   .btn-close {
     background: none;
     border: none;
@@ -109,7 +109,7 @@ $border-color: #e0e0e0;
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s;
-    
+
     &:hover {
       background-color: $light-gray;
       color: $text-color;
@@ -120,7 +120,7 @@ $border-color: #e0e0e0;
 // Modal body
 .modal-body {
   padding: 24px;
-  
+
   .modal-message {
     margin: 0;
     font-size: 16px;
@@ -136,7 +136,7 @@ $border-color: #e0e0e0;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  
+
   button {
     padding: 10px 16px;
     border-radius: 4px;
@@ -145,47 +145,47 @@ $border-color: #e0e0e0;
     cursor: pointer;
     transition: background-color 0.2s;
     border: none;
-    
+
     &.btn-secondary {
       background-color: $secondary-color;
       color: white;
-      
+
       &:hover {
         background-color: lighten($secondary-color, 10%);
       }
     }
-    
+
     &.btn-success {
       background-color: $success-color;
       color: white;
-      
+
       &:hover {
         background-color: lighten($success-color, 10%);
       }
     }
-    
+
     &.btn-danger {
       background-color: $danger-color;
       color: white;
-      
+
       &:hover {
         background-color: lighten($danger-color, 10%);
       }
     }
-    
+
     &.btn-warning {
       background-color: $warning-color;
       color: white;
-      
+
       &:hover {
         background-color: lighten($warning-color, 10%);
       }
     }
-    
+
     &.btn-info {
       background-color: $info-color;
       color: white;
-      
+
       &:hover {
         background-color: lighten($info-color, 10%);
       }
@@ -198,12 +198,12 @@ $border-color: #e0e0e0;
   .modal-container {
     max-width: calc(100% - 30px);
   }
-  
+
   .modal-footer {
     flex-direction: column;
-    
+
     button {
       width: 100%;
     }
   }
-} 
+}

@@ -7,44 +7,51 @@
         <i class="fas fa-times"></i>
       </button>
     </div>
-    
+
     <!-- Modal Body -->
     <div class="modal-body" *ngIf="subject">
       <div class="subject-details">
         <div class="subject-header">
           <h3>{{ subject.name }}</h3>
-          <span class="badge" [ngClass]="subject.isActive ? 'badge-success' : 'badge-danger'">
-            {{ subject.isActive ? 'Active' : 'Inactive' }}
+          <span
+            class="badge"
+            [ngClass]="subject.isActive ? 'badge-success' : 'badge-danger'"
+          >
+            {{ subject.isActive ? "Active" : "Inactive" }}
           </span>
         </div>
-        
+
         <div class="detail-row">
           <div class="detail-label">Code:</div>
           <div class="detail-value">{{ subject.code }}</div>
         </div>
-        
+
         <div class="detail-row">
           <div class="detail-label">Credits:</div>
           <div class="detail-value">{{ subject.credits }}</div>
         </div>
-        
+
         <div class="detail-row">
           <div class="detail-label">Description:</div>
           <div class="detail-value description">{{ subject.description }}</div>
         </div>
-        
+
         <div class="detail-row">
           <div class="detail-label">Created:</div>
-          <div class="detail-value">{{ subject.createdAt | date:'MMM d, y' }}</div>
+          <div class="detail-value">
+            {{ subject.createdAt | date : "MMM d, y" }}
+          </div>
         </div>
-        
+
         <div class="detail-row">
           <div class="detail-label">Last Updated:</div>
-          <div class="detail-value">{{ subject.updatedAt | date:'MMM d, y' }}</div>
+          <div class="detail-value">
+            {{ subject.updatedAt | date : "MMM d, y" }}
+          </div>
         </div>
       </div>
     </div>
-    
+
     <!-- Modal Footer -->
     <div class="modal-footer">
       <button type="button" class="btn-secondary" (click)="closeModal()">
@@ -52,4 +59,4 @@
       </button>
     </div>
   </div>
-</div> 
+</div>

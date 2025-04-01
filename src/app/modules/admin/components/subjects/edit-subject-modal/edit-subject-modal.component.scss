@@ -1,4 +1,4 @@
-@use 'sass:color';
+@use "sass:color";
 
 // Variables
 $primary-color: #000000;
@@ -64,14 +64,14 @@ $danger-color: #f44336;
   justify-content: space-between;
   padding: 16px 24px;
   border-bottom: 1px solid $border-color;
-  
+
   h2 {
     margin: 0;
     font-size: 20px;
     font-weight: 600;
     color: $primary-color;
   }
-  
+
   .close-btn {
     background: none;
     border: none;
@@ -81,7 +81,7 @@ $danger-color: #f44336;
     padding: 4px;
     border-radius: 4px;
     transition: all 0.2s;
-    
+
     &:hover {
       color: $primary-color;
       background-color: rgba(0, 0, 0, 0.05);
@@ -92,18 +92,18 @@ $danger-color: #f44336;
 // Modal Body
 .modal-body {
   padding: 24px;
-  
+
   form {
     .form-group {
       margin-bottom: 16px;
-      
+
       label {
         display: block;
         margin-bottom: 8px;
         font-weight: 500;
         color: $secondary-color;
       }
-      
+
       input,
       select,
       textarea {
@@ -113,29 +113,29 @@ $danger-color: #f44336;
         border-radius: 4px;
         font-size: 14px;
         background-color: white;
-        
+
         &:focus {
           outline: none;
           border-color: $secondary-color;
           box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
         }
-        
+
         &.is-invalid {
           border-color: $danger-color;
         }
       }
-      
+
       .error-message {
         color: $danger-color;
         font-size: 12px;
         margin-top: 4px;
       }
     }
-    
+
     .form-row {
       display: flex;
       gap: 16px;
-      
+
       .form-group {
         flex: 1;
       }
@@ -150,7 +150,7 @@ $danger-color: #f44336;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  
+
   button {
     padding: 10px 20px;
     border-radius: 4px;
@@ -158,22 +158,22 @@ $danger-color: #f44336;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    
+
     &:disabled {
       opacity: 0.6;
       cursor: not-allowed;
     }
-    
+
     &.btn-secondary {
       background-color: white;
       border: 1px solid $border-color;
       color: $text-color;
-      
+
       &:hover:not(:disabled) {
         background-color: $light-gray;
       }
     }
-    
+
     &.btn-primary {
       background-color: $primary-color;
       border: none;
@@ -181,11 +181,11 @@ $danger-color: #f44336;
       display: flex;
       align-items: center;
       gap: 8px;
-      
+
       &:hover:not(:disabled) {
         background-color: color.adjust($primary-color, $lightness: 10%);
       }
-      
+
       .spinner {
         width: 16px;
         height: 16px;
@@ -194,9 +194,11 @@ $danger-color: #f44336;
         border-radius: 50%;
         animation: spinner-border 0.75s linear infinite;
       }
-      
+
       @keyframes spinner-border {
-        to { transform: rotate(360deg); }
+        to {
+          transform: rotate(360deg);
+        }
       }
     }
   }
@@ -207,30 +209,30 @@ $danger-color: #f44336;
   .modal-container {
     max-width: 95%;
   }
-  
+
   .modal-body {
     padding: 16px;
-    
+
     .form-row {
       flex-direction: column;
       gap: 16px;
     }
   }
-  
+
   .modal-footer {
     padding: 12px 16px;
     flex-direction: column;
-    
+
     button {
       width: 100%;
-      
+
       &.btn-secondary {
         order: 2;
       }
-      
+
       &.btn-primary {
         order: 1;
       }
     }
   }
-} 
+}

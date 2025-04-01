@@ -8,7 +8,7 @@ export interface Toast {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ToastService {
   private toasts: BehaviorSubject<Toast[]> = new BehaviorSubject<Toast[]>([]);
@@ -39,7 +39,7 @@ export class ToastService {
   // Remove a specific toast
   removeToast(id: number): void {
     const currentToasts = this.toasts.getValue();
-    this.toasts.next(currentToasts.filter(toast => toast.id !== id));
+    this.toasts.next(currentToasts.filter((toast) => toast.id !== id));
   }
 
   // Clear all toasts
@@ -48,17 +48,21 @@ export class ToastService {
   }
 
   // Internal method to show toast and handle auto-removal
-  private show(type: 'success' | 'error' | 'info', message: string, duration: number): void {
+  private show(
+    type: 'success' | 'error' | 'info',
+    message: string,
+    duration: number
+  ): void {
     const id = this.nextId++;
     const toast: Toast = { id, type, message };
-    
+
     // Add toast to array
     const currentToasts = this.toasts.getValue();
     this.toasts.next([...currentToasts, toast]);
-    
+
     // Auto-remove after duration
     setTimeout(() => {
       this.removeToast(id);
     }, duration);
   }
-} 
+}

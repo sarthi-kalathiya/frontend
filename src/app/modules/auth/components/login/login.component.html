@@ -2,13 +2,13 @@
   <div class="auth-card">
     <h1>Sign in</h1>
     <p class="subtitle">Enter your credentials to access your account</p>
-    
+
     @if (error) {
     <div class="alert alert-danger">
       {{ error }}
     </div>
     }
-    
+
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-group">
         <label for="email">Email <span class="required">*</span></label>
@@ -21,16 +21,12 @@
         />
         @if (email?.invalid && (email?.dirty || email?.touched)) {
         <div class="error-message">
-          @if (email?.errors?.['required']) {
-            Email is required
-          }
-          @if (email?.errors?.['email']) {
-            Please enter a valid email address
-          }
+          @if (email?.errors?.['required']) { Email is required } @if
+          (email?.errors?.['email']) { Please enter a valid email address }
         </div>
         }
       </div>
-      
+
       <div class="form-group">
         <label for="password">Password <span class="required">*</span></label>
         <div class="password-field">
@@ -41,26 +37,36 @@
             class="form-control"
             placeholder="••••••••"
           />
-          <button type="button" class="password-toggle" (click)="togglePasswordVisibility()" aria-label="Toggle password visibility">
-            <i class="fa" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility()"
+            aria-label="Toggle password visibility"
+          >
+            <i
+              class="fa"
+              [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"
+            ></i>
           </button>
         </div>
         @if (password?.invalid && (password?.dirty || password?.touched)) {
-        <div class="error-message">
-          Password is required
-        </div>
+        <div class="error-message">Password is required</div>
         }
       </div>
-      
-      <button type="submit" class="btn-submit" [disabled]="loginForm.invalid || isLoading">
+
+      <button
+        type="submit"
+        class="btn-submit"
+        [disabled]="loginForm.invalid || isLoading"
+      >
         @if (isLoading) {
-          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-          Signing in...
-        } @else {
-          Sign in
-        }
+        <span
+          class="spinner-border spinner-border-sm"
+          role="status"
+          aria-hidden="true"
+        ></span>
+        Signing in... } @else { Sign in }
       </button>
-    
     </form>
   </div>
-</div> 
+</div>

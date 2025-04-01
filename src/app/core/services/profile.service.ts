@@ -2,10 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { TeacherProfileData, StudentProfileData } from '../models/profile.models';
+import {
+  TeacherProfileData,
+  StudentProfileData,
+} from '../models/profile.models';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProfileService {
   private apiUrl = environment.apiUrl;

@@ -2,52 +2,64 @@
   <!-- Top Navbar -->
   <header class="top-navbar">
     <div class="site-brand">
-      <img src="assets/logo.svg" alt="Logo" class="logo-img">
+      <img src="assets/logo.svg" alt="Logo" class="logo-img" />
       <h1 class="site-title">Student Dashboard</h1>
     </div>
-    
+
     <div class="search-box">
       <form (submit)="searchSubmit()">
-        <input 
-          type="text" 
-          [(ngModel)]="searchQuery" 
-          name="searchQuery" 
-          placeholder="Search..." 
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          name="searchQuery"
+          placeholder="Search..."
           title="Search the portal"
-        >
+        />
         <button type="submit" title="Search">
           <i class="fas fa-search"></i>
         </button>
       </form>
     </div>
-    
+
     <div class="navbar-actions">
       <!-- Profile Dropdown -->
       <div class="profile-dropdown">
-        <button 
-          class="profile-btn" 
-          (click)="handleUserMenuClick($event)" 
+        <button
+          class="profile-btn"
+          (click)="handleUserMenuClick($event)"
           title="User profile"
         >
           <div class="user-avatar">
-            <img 
-              *ngIf="currentUser?.profilePicture" 
-              [src]="currentUser?.profilePicture" 
+            <img
+              *ngIf="currentUser?.profilePicture"
+              [src]="currentUser?.profilePicture"
               alt="Profile picture"
-            >
-            <span *ngIf="!currentUser?.profilePicture">{{ getUserInitials() }}</span>
+            />
+            <span *ngIf="!currentUser?.profilePicture">{{
+              getUserInitials()
+            }}</span>
           </div>
-          <span class="user-name">{{ currentUser?.firstName || '' }} {{ currentUser?.lastName || '' }}</span>
+          <span class="user-name"
+            >{{ currentUser?.firstName || "" }}
+            {{ currentUser?.lastName || "" }}</span
+          >
         </button>
-        
+
         <div class="dropdown-menu user-menu" *ngIf="showUserMenu">
           <div class="user-info">
-            <p class="user-fullname">{{ currentUser?.firstName || '' }} {{ currentUser?.lastName || '' }}</p>
-            <p class="user-email">{{ currentUser?.email || '' }}</p>
+            <p class="user-fullname">
+              {{ currentUser?.firstName || "" }}
+              {{ currentUser?.lastName || "" }}
+            </p>
+            <p class="user-email">{{ currentUser?.email || "" }}</p>
           </div>
-          
+
           <div class="menu-items">
-            <a href="javascript:void(0)" class="menu-item" (click)="navigateTo('/profile')">
+            <a
+              href="javascript:void(0)"
+              class="menu-item"
+              (click)="navigateTo('/profile')"
+            >
               <i class="fas fa-user"></i> Profile
             </a>
             <a href="javascript:void(0)" class="menu-item" (click)="logout()">
@@ -58,43 +70,43 @@
       </div>
     </div>
   </header>
-  
+
   <!-- Student-specific Tab Navigation -->
   <nav class="tab-navigation">
     <div class="nav-tabs">
-      <button 
-        class="tab-item" 
-        [ngClass]="{'active': activeTab === 'dashboard'}"
+      <button
+        class="tab-item"
+        [ngClass]="{ active: activeTab === 'dashboard' }"
         (click)="navigateTo('/student/dashboard')"
         title="Go to Dashboard"
       >
         <i class="fas fa-tachometer-alt"></i>
         <span>Dashboard</span>
       </button>
-      
-      <button 
-        class="tab-item" 
-        [ngClass]="{'active': activeTab === 'courses'}"
+
+      <button
+        class="tab-item"
+        [ngClass]="{ active: activeTab === 'courses' }"
         (click)="navigateTo('/student/courses')"
         title="Go to Courses"
       >
         <i class="fas fa-book"></i>
         <span>Courses</span>
       </button>
-      
-      <button 
-        class="tab-item" 
-        [ngClass]="{'active': activeTab === 'exams'}"
+
+      <button
+        class="tab-item"
+        [ngClass]="{ active: activeTab === 'exams' }"
         (click)="navigateTo('/student/exams')"
         title="Go to Exams"
       >
         <i class="fas fa-clipboard-list"></i>
         <span>Exams</span>
       </button>
-      
-      <button 
-        class="tab-item" 
-        [ngClass]="{'active': activeTab === 'results'}"
+
+      <button
+        class="tab-item"
+        [ngClass]="{ active: activeTab === 'results' }"
         (click)="navigateTo('/student/results')"
         title="Go to Results"
       >
@@ -103,9 +115,9 @@
       </button>
     </div>
   </nav>
-  
+
   <!-- Main Content -->
   <main class="main-content">
     <router-outlet></router-outlet>
   </main>
-</div> 
+</div>

@@ -7,7 +7,7 @@
         <i class="fas fa-times"></i>
       </button>
     </div>
-    
+
     <div class="modal-body">
       <!-- Loading state -->
       <div *ngIf="isLoading" class="loading-container">
@@ -16,13 +16,15 @@
         </div>
         <p>Loading user details...</p>
       </div>
-      
+
       <!-- Error state -->
       <div *ngIf="!isLoading && error" class="error-container">
         <div class="alert alert-danger">{{ error }}</div>
-        <button class="btn btn-primary" (click)="loadUserDetails()">Try Again</button>
+        <button class="btn btn-primary" (click)="loadUserDetails()">
+          Try Again
+        </button>
       </div>
-      
+
       <!-- User details -->
       <div *ngIf="!isLoading && !error && user" class="user-details">
         <!-- Basic info section -->
@@ -31,14 +33,16 @@
           <div class="details-grid">
             <div class="detail-item">
               <span class="detail-label">Name</span>
-              <span class="detail-value">{{ user.firstName }} {{ user.lastName }}</span>
+              <span class="detail-value"
+                >{{ user.firstName }} {{ user.lastName }}</span
+              >
             </div>
-            
+
             <div class="detail-item">
               <span class="detail-label">Email</span>
               <span class="detail-value">{{ user.email }}</span>
             </div>
-            
+
             <div class="detail-item">
               <span class="detail-label">Role</span>
               <span class="detail-value">
@@ -47,77 +51,99 @@
                 </span>
               </span>
             </div>
-            
+
             <div class="detail-item">
               <span class="detail-label">Contact Number</span>
-              <span class="detail-value">{{ user.contactNumber || 'Not provided' }}</span>
+              <span class="detail-value">{{
+                user.contactNumber || "Not provided"
+              }}</span>
             </div>
-            
+
             <div class="detail-item">
               <span class="detail-label">Status</span>
               <span class="detail-value">
-                <span class="badge" [ngClass]="user.isActive ? 'badge-success' : 'badge-danger'">
-                  {{ user.isActive ? 'Active' : 'Inactive' }}
+                <span
+                  class="badge"
+                  [ngClass]="user.isActive ? 'badge-success' : 'badge-danger'"
+                >
+                  {{ user.isActive ? "Active" : "Inactive" }}
                 </span>
               </span>
             </div>
           </div>
         </div>
-        
+
         <!-- Teacher specific info -->
         <div class="details-section" *ngIf="user.teacher">
           <h3 class="section-title">Teacher Information</h3>
           <div class="details-grid">
             <div class="detail-item">
               <span class="detail-label">Qualification</span>
-              <span class="detail-value">{{ user.teacher.qualification || 'Not provided' }}</span>
+              <span class="detail-value">{{
+                user.teacher.qualification || "Not provided"
+              }}</span>
             </div>
-            
+
             <div class="detail-item">
               <span class="detail-label">Expertise</span>
-              <span class="detail-value">{{ user.teacher.expertise || 'Not provided' }}</span>
+              <span class="detail-value">{{
+                user.teacher.expertise || "Not provided"
+              }}</span>
             </div>
-            
+
             <div class="detail-item">
               <span class="detail-label">Experience</span>
-              <span class="detail-value">{{ user.teacher.experience }} years</span>
+              <span class="detail-value"
+                >{{ user.teacher.experience }} years</span
+              >
             </div>
-            
+
             <div class="detail-item" *ngIf="user.teacher.bio">
               <span class="detail-label">Bio</span>
               <span class="detail-value bio">{{ user.teacher.bio }}</span>
             </div>
           </div>
         </div>
-        
+
         <!-- Student specific info -->
         <div class="details-section" *ngIf="user.student">
           <h3 class="section-title">Student Information</h3>
           <div class="details-grid">
             <div class="detail-item">
               <span class="detail-label">Roll Number</span>
-              <span class="detail-value">{{ user.student.rollNumber || 'Not assigned' }}</span>
+              <span class="detail-value">{{
+                user.student.rollNumber || "Not assigned"
+              }}</span>
             </div>
-            
+
             <div class="detail-item">
               <span class="detail-label">Grade</span>
-              <span class="detail-value">{{ user.student.grade || 'Not assigned' }}</span>
+              <span class="detail-value">{{
+                user.student.grade || "Not assigned"
+              }}</span>
             </div>
-            
+
             <div class="detail-item">
               <span class="detail-label">Parent Contact</span>
-              <span class="detail-value">{{ user.student.parentContactNumber || 'Not provided' }}</span>
+              <span class="detail-value">{{
+                user.student.parentContactNumber || "Not provided"
+              }}</span>
             </div>
-            
+
             <div class="detail-item">
               <span class="detail-label">Joining Date</span>
-              <span class="detail-value">{{ formatDate(user.student.joiningDate) }}</span>
+              <span class="detail-value">{{
+                formatDate(user.student.joiningDate)
+              }}</span>
             </div>
           </div>
         </div>
-        
+
         <!-- Subject information -->
-        <div class="details-section" *ngIf="user.subjects && user.subjects.length > 0">
+        <div
+          class="details-section"
+          *ngIf="user.subjects && user.subjects.length > 0"
+        >
           <h3 class="section-title">Subject Information</h3>
           <div class="subject-list">
             <table class="subject-table">
@@ -132,28 +158,33 @@
               <tbody>
                 <tr *ngFor="let subject of user.subjects">
                   <td>{{ subject.name }}</td>
-                  <td>{{ subject.code || 'N/A' }}</td>
-                  <td>{{ subject.credits || 'N/A' }}</td>
+                  <td>{{ subject.code || "N/A" }}</td>
+                  <td>{{ subject.credits || "N/A" }}</td>
                   <td>
-                    <span class="badge" [ngClass]="subject.isActive ? 'badge-success' : 'badge-danger'">
-                      {{ subject.isActive ? 'Active' : 'Inactive' }}
+                    <span
+                      class="badge"
+                      [ngClass]="
+                        subject.isActive ? 'badge-success' : 'badge-danger'
+                      "
+                    >
+                      {{ subject.isActive ? "Active" : "Inactive" }}
                     </span>
                   </td>
                 </tr>
               </tbody>
             </table>
-            
+
             <div *ngIf="user.role === 'TEACHER'" class="subject-note">
-              <i class="fas fa-info-circle"></i> 
+              <i class="fas fa-info-circle"></i>
               These are the subjects taught by this teacher.
             </div>
             <div *ngIf="user.role === 'STUDENT'" class="subject-note">
-              <i class="fas fa-info-circle"></i> 
+              <i class="fas fa-info-circle"></i>
               These are the subjects in which this student is enrolled.
             </div>
           </div>
         </div>
-        
+
         <!-- System info section -->
         <div class="details-section">
           <h3 class="section-title">System Information</h3>
@@ -162,7 +193,7 @@
               <span class="detail-label">Created At</span>
               <span class="detail-value">{{ formatDate(user.createdAt) }}</span>
             </div>
-            
+
             <div class="detail-item">
               <span class="detail-label">Last Updated</span>
               <span class="detail-value">{{ formatDate(user.updatedAt) }}</span>
@@ -171,9 +202,11 @@
         </div>
       </div>
     </div>
-    
+
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
+      <button type="button" class="btn btn-secondary" (click)="closeModal()">
+        Close
+      </button>
     </div>
   </div>
-</div> 
+</div>

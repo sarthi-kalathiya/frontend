@@ -6,7 +6,7 @@ interface CacheEntry<T> {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CacheService {
   private cache: { [key: string]: CacheEntry<any> } = {};
@@ -18,7 +18,7 @@ export class CacheService {
     if (savedCache) {
       try {
         this.cache = JSON.parse(savedCache);
-        
+
         // Clean up any expired cache entries
         this.cleanExpiredCache();
       } catch (e) {
@@ -28,7 +28,7 @@ export class CacheService {
       }
     }
   }
-  
+
   /**
    * Get cached data if available and not expired
    * @param key The cache key
@@ -38,16 +38,16 @@ export class CacheService {
   get<T>(key: string, expiration?: number): T | null {
     const cacheEntry = this.cache[key];
     const expirationTime = expiration || this.defaultExpiration;
-    
+
     // If entry exists and isn't expired, return the data
-    if (cacheEntry && (Date.now() - cacheEntry.timestamp) < expirationTime) {
+    if (cacheEntry && Date.now() - cacheEntry.timestamp < expirationTime) {
       return cacheEntry.data;
     }
-    
+
     // No valid cache entry found
     return null;
   }
-  
+
   /**
    * Save data to the cache
    * @param key The cache key
@@ -56,13 +56,13 @@ export class CacheService {
   set<T>(key: string, data: T): void {
     this.cache[key] = {
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
-    
+
     // Save to sessionStorage for persistence
     this.saveToStorage();
   }
-  
+
   /**
    * Remove a specific entry from the cache
    * @param key The cache key to remove
@@ -73,7 +73,7 @@ export class CacheService {
       this.saveToStorage();
     }
   }
-  
+
   /**
    * Clear all cached data
    */
@@ -81,23 +81,23 @@ export class CacheService {
     this.cache = {};
     sessionStorage.removeItem('appDataCache');
   }
-  
+
   /**
    * Clear all cached data for a specific prefix
    * @param keyPrefix The prefix to match for keys to clear
    */
   clearByPrefix(keyPrefix: string): void {
-    const keysToRemove = Object.keys(this.cache).filter(key => 
+    const keysToRemove = Object.keys(this.cache).filter((key) =>
       key.startsWith(keyPrefix)
     );
-    
-    keysToRemove.forEach(key => {
+
+    keysToRemove.forEach((key) => {
       delete this.cache[key];
     });
-    
+
     this.saveToStorage();
   }
-  
+
   /**
    * Check if a key exists in the cache and is not expired
    * @param key The cache key
@@ -107,32 +107,32 @@ export class CacheService {
   has(key: string, expiration?: number): boolean {
     return this.get(key, expiration) !== null;
   }
-  
+
   /**
    * Remove all expired entries from the cache
    */
   private cleanExpiredCache(): void {
     const now = Date.now();
     const keysToRemove: string[] = [];
-    
+
     // Find expired keys
-    Object.keys(this.cache).forEach(key => {
-      if ((now - this.cache[key].timestamp) > this.defaultExpiration) {
+    Object.keys(this.cache).forEach((key) => {
+      if (now - this.cache[key].timestamp > this.defaultExpiration) {
         keysToRemove.push(key);
       }
     });
-    
+
     // Remove expired keys
-    keysToRemove.forEach(key => {
+    keysToRemove.forEach((key) => {
       delete this.cache[key];
     });
-    
+
     // Save clean cache to sessionStorage
     if (keysToRemove.length > 0) {
       this.saveToStorage();
     }
   }
-  
+
   /**
    * Save the current cache to sessionStorage
    */
@@ -143,4 +143,4 @@ export class CacheService {
       console.error('Error saving cache to sessionStorage', e);
     }
   }
-} 
+}

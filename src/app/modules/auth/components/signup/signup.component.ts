@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormGroup,
+  FormBuilder,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 
@@ -9,7 +14,7 @@ import { AuthService } from '../../../../core/services/auth.service';
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink]
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
 })
 export class SignupComponent implements OnInit {
   signupForm!: FormGroup;
@@ -26,29 +31,51 @@ export class SignupComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.signupForm = this.formBuilder.group({
-      firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-      lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [
-        Validators.required,
-        Validators.minLength(8),
-        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).+$/)
-      ]],
-      confirmPassword: ['', Validators.required],
-      contactNumber: ['', [
-        Validators.required, 
-        Validators.pattern(/^\d{9,11}$/)
-      ]]
-    }, { 
-      validators: this.passwordMatchValidator 
-    });
+    this.signupForm = this.formBuilder.group(
+      {
+        firstName: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(2),
+            Validators.maxLength(50),
+          ],
+        ],
+        lastName: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(2),
+            Validators.maxLength(50),
+          ],
+        ],
+        email: ['', [Validators.required, Validators.email]],
+        password: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(8),
+            Validators.pattern(
+              /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).+$/
+            ),
+          ],
+        ],
+        confirmPassword: ['', Validators.required],
+        contactNumber: [
+          '',
+          [Validators.required, Validators.pattern(/^\d{9,11}$/)],
+        ],
+      },
+      {
+        validators: this.passwordMatchValidator,
+      }
+    );
   }
 
   passwordMatchValidator(form: FormGroup) {
     const password = form.get('password')?.value;
     const confirmPassword = form.get('confirmPassword')?.value;
-    
+
     return password === confirmPassword ? null : { passwordMismatch: true };
   }
 
@@ -60,12 +87,24 @@ export class SignupComponent implements OnInit {
     }
   }
 
-  get firstName() { return this.signupForm.get('firstName'); }
-  get lastName() { return this.signupForm.get('lastName'); }
-  get email() { return this.signupForm.get('email'); }
-  get password() { return this.signupForm.get('password'); }
-  get confirmPassword() { return this.signupForm.get('confirmPassword'); }
-  get contactNumber() { return this.signupForm.get('contactNumber'); }
+  get firstName() {
+    return this.signupForm.get('firstName');
+  }
+  get lastName() {
+    return this.signupForm.get('lastName');
+  }
+  get email() {
+    return this.signupForm.get('email');
+  }
+  get password() {
+    return this.signupForm.get('password');
+  }
+  get confirmPassword() {
+    return this.signupForm.get('confirmPassword');
+  }
+  get contactNumber() {
+    return this.signupForm.get('contactNumber');
+  }
 
   onSubmit(): void {
     if (this.signupForm.invalid) {
@@ -85,12 +124,13 @@ export class SignupComponent implements OnInit {
       next: (response) => {
         console.log('Signup response received:', response);
         this.isLoading = false;
-        
+
         // Check for success based on the API response structure
         if (response && response.status === 'success') {
-          this.success = 'Account created successfully. Redirecting to login...';
+          this.success =
+            'Account created successfully. Redirecting to login...';
           this.signupForm.reset();
-          
+
           // Navigate to login page after a delay
           console.log('Will redirect to login in 2 seconds');
           setTimeout(() => {
@@ -113,7 +153,7 @@ export class SignupComponent implements OnInit {
         } else {
           this.error = 'Failed to create account. Please try again.';
         }
-      }
+      },
     });
   }
-} 
+}

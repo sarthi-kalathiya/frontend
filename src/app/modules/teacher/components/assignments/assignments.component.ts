@@ -7,13 +7,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './assignments.component.html',
-  styleUrls: ['./assignments.component.scss']
+  styleUrls: ['./assignments.component.scss'],
 })
 export class AssignmentsComponent implements OnInit {
-  
-  constructor() { }
+  constructor() {}
 
   ngOnInit(): void {
     // Initialize component
   }
-} 
+}

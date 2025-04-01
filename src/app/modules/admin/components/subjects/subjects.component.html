@@ -3,65 +3,90 @@
     <h2>Subject Management</h2>
     <p>Manage and organize subjects for the system</p>
   </div>
-  
+
   <div class="filter-bar">
     <div class="search-box">
-      <input 
-        type="text" 
-        [(ngModel)]="searchTerm" 
-        (input)="onSearchInput($event)" 
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (input)="onSearchInput($event)"
         placeholder="Search by name, code, or description"
       />
       <button class="btn-search" title="Search subjects">
         <i class="fas fa-search"></i>
       </button>
     </div>
-    
+
     <div class="filter-actions">
       <div class="filter-selects">
         <div class="custom-select">
-          <button class="form-select" (click)="$event.stopPropagation(); toggleStatusDropdown()">
+          <button
+            class="form-select"
+            (click)="$event.stopPropagation(); toggleStatusDropdown()"
+          >
             {{ selectedStatus }}
           </button>
           <div class="dropdown-menu" *ngIf="showStatusDropdown">
-            <button class="dropdown-item" [ngClass]="{'active': selectedStatus === 'All Statuses'}" (click)="selectStatus('All Statuses')">
+            <button
+              class="dropdown-item"
+              [ngClass]="{ active: selectedStatus === 'All Statuses' }"
+              (click)="selectStatus('All Statuses')"
+            >
               All Statuses
             </button>
-            <button class="dropdown-item" [ngClass]="{'active': selectedStatus === 'Active'}" (click)="selectStatus('Active')">
+            <button
+              class="dropdown-item"
+              [ngClass]="{ active: selectedStatus === 'Active' }"
+              (click)="selectStatus('Active')"
+            >
               Active
             </button>
-            <button class="dropdown-item" [ngClass]="{'active': selectedStatus === 'Inactive'}" (click)="selectStatus('Inactive')">
+            <button
+              class="dropdown-item"
+              [ngClass]="{ active: selectedStatus === 'Inactive' }"
+              (click)="selectStatus('Inactive')"
+            >
               Inactive
             </button>
           </div>
         </div>
       </div>
-      
+
       <button class="btn btn-primary add-btn" (click)="openAddSubjectModal()">
         <i class="fas fa-plus"></i> Add Subject
       </button>
     </div>
   </div>
-  
+
   <div class="data-table">
     <!-- Loading state -->
     <div *ngIf="isLoading" class="loading-state">
       <div class="spinner"></div>
       <p>Loading subjects...</p>
     </div>
-    
+
     <!-- Error state -->
     <div *ngIf="!isLoading && error" class="error-state">
       <p class="error-message">{{ error }}</p>
       <button class="btn-retry" (click)="loadSubjects()">Try Again</button>
     </div>
-    
+
     <!-- Empty state -->
-    <div *ngIf="!isLoading && !error && filteredSubjects.length === 0" class="empty-state">
+    <div
+      *ngIf="!isLoading && !error && filteredSubjects.length === 0"
+      class="empty-state"
+    >
       <p>No subjects found matching your criteria.</p>
-      <button class="btn-reset" (click)="searchTerm = ''; selectedStatus = 'All Statuses'; loadSubjects()">Reset Filters</button>
+      <button
+        class="btn-reset"
+        (click)="
+          searchTerm = ''; selectedStatus = 'All Statuses'; loadSubjects()
+        "
+      >
+        Reset Filters
+      </button>
     </div>
-    
+
     <!-- Subject table -->
     <table *ngIf="!isLoading && !error && filteredSubjects.length > 0">
       <thead>
@@ -79,8 +104,11 @@
           <td>{{ subject.code }}</td>
           <td>{{ subject.credits }}</td>
           <td>
-            <span class="badge" [ngClass]="subject.isActive ? 'badge-success' : 'badge-danger'">
-              {{ subject.isActive ? 'Active' : 'Inactive' }}
+            <span
+              class="badge"
+              [ngClass]="subject.isActive ? 'badge-success' : 'badge-danger'"
+            >
+              {{ subject.isActive ? "Active" : "Inactive" }}
             </span>
           </td>
           <td>
@@ -93,31 +121,36 @@
         </tr>
       </tbody>
     </table>
-    
+
     <!-- Pagination controls -->
-    <div class="pagination-controls" *ngIf="!isLoading && !error && totalPages > 1">
+    <div
+      class="pagination-controls"
+      *ngIf="!isLoading && !error && totalPages > 1"
+    >
       <div class="pagination-info">
-        Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalItems) }} of {{ totalItems }} subjects
+        Showing {{ (currentPage - 1) * pageSize + 1 }} to
+        {{ Math.min(currentPage * pageSize, totalItems) }} of
+        {{ totalItems }} subjects
       </div>
-      
+
       <div class="pagination-buttons">
-        <button 
-          class="page-btn" 
-          [disabled]="currentPage === 1" 
-          (click)="onPageChange(currentPage - 1)" 
+        <button
+          class="page-btn"
+          [disabled]="currentPage === 1"
+          (click)="onPageChange(currentPage - 1)"
           title="Previous page"
         >
           <i class="fas fa-chevron-left"></i>
         </button>
-        
+
         <ng-container *ngFor="let page of getPageNumbers()">
           <!-- Render ellipsis for -1 value -->
           <span *ngIf="page === -1" class="page-ellipsis">...</span>
-          
+
           <!-- Render normal page button for actual page numbers -->
-          <button 
+          <button
             *ngIf="page !== -1"
-            class="page-btn" 
+            class="page-btn"
             [class.active]="page === currentPage"
             (click)="onPageChange(page)"
             title="Go to page {{ page }}"
@@ -125,10 +158,10 @@
             {{ page }}
           </button>
         </ng-container>
-        
-        <button 
-          class="page-btn" 
-          [disabled]="currentPage === totalPages" 
+
+        <button
+          class="page-btn"
+          [disabled]="currentPage === totalPages"
           (click)="onPageChange(currentPage + 1)"
           title="Next page"
         >
@@ -140,7 +173,7 @@
 </div>
 
 <!-- Add Subject Modal Component -->
-<app-add-subject-modal 
+<app-add-subject-modal
   *ngIf="showAddSubjectModal"
   (close)="closeAddSubjectModal($event)"
 ></app-add-subject-modal>
@@ -157,4 +190,4 @@
   *ngIf="showEditSubjectModal"
   [subject]="selectedSubject"
   (close)="closeEditSubjectModal($event)"
-></app-edit-subject-modal> 
+></app-edit-subject-modal>

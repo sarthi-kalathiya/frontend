@@ -1,7 +1,7 @@
 <div class="dashboard-container">
   <div class="dashboard-header">
     <h1>Dashboard</h1>
-    <p class="current-date">{{ currentDate | date:'fullDate' }}</p>
+    <p class="current-date">{{ currentDate | date : "fullDate" }}</p>
   </div>
 
   <!-- Stats Cards -->
@@ -13,7 +13,7 @@
         <i class="fas fa-arrow-up"></i> 12% from last month
       </p>
     </div>
-    
+
     <div class="stat-card" title="Total students registered">
       <h3>Students</h3>
       <p class="stat-value">{{ 980 }}</p>
@@ -21,7 +21,7 @@
         <i class="fas fa-arrow-up"></i> 8% from last month
       </p>
     </div>
-    
+
     <div class="stat-card" title="Total teachers registered">
       <h3>Teachers</h3>
       <p class="stat-value">{{ 185 }}</p>
@@ -29,7 +29,7 @@
         <i class="fas fa-arrow-up"></i> 5% from last month
       </p>
     </div>
-    
+
     <div class="stat-card" title="Total exams conducted">
       <h3>Exams</h3>
       <p class="stat-value">{{ 325 }}</p>
@@ -47,48 +47,54 @@
         <h2>User Activity</h2>
         <p class="subtitle">Registration trends over the last 6 months</p>
       </div>
-      
+
       <div class="card-body">
         <div class="chart-tabs">
-          <button class="tab-btn active" title="View 6 months of data">Last 6 months</button>
-          <button class="tab-btn" title="View 3 months of data">Last 3 months</button>
-          <button class="tab-btn" title="View 30 days of data">Last 30 days</button>
+          <button class="tab-btn active" title="View 6 months of data">
+            Last 6 months
+          </button>
+          <button class="tab-btn" title="View 3 months of data">
+            Last 3 months
+          </button>
+          <button class="tab-btn" title="View 30 days of data">
+            Last 30 days
+          </button>
         </div>
-        
+
         <div class="activity-chart">
           <div class="chart-months">
             <div class="month-column">
-              <div class="student-bar" style="height: 80px;"></div>
-              <div class="teacher-bar" style="height: 30px;"></div>
+              <div class="student-bar" style="height: 80px"></div>
+              <div class="teacher-bar" style="height: 30px"></div>
               <div class="month-label">Jan</div>
             </div>
             <div class="month-column">
-              <div class="student-bar" style="height: 120px;"></div>
-              <div class="teacher-bar" style="height: 40px;"></div>
+              <div class="student-bar" style="height: 120px"></div>
+              <div class="teacher-bar" style="height: 40px"></div>
               <div class="month-label">Feb</div>
             </div>
             <div class="month-column">
-              <div class="student-bar" style="height: 90px;"></div>
-              <div class="teacher-bar" style="height: 25px;"></div>
+              <div class="student-bar" style="height: 90px"></div>
+              <div class="teacher-bar" style="height: 25px"></div>
               <div class="month-label">Mar</div>
             </div>
             <div class="month-column">
-              <div class="student-bar" style="height: 150px;"></div>
-              <div class="teacher-bar" style="height: 45px;"></div>
+              <div class="student-bar" style="height: 150px"></div>
+              <div class="teacher-bar" style="height: 45px"></div>
               <div class="month-label">Apr</div>
             </div>
             <div class="month-column">
-              <div class="student-bar" style="height: 110px;"></div>
-              <div class="teacher-bar" style="height: 35px;"></div>
+              <div class="student-bar" style="height: 110px"></div>
+              <div class="teacher-bar" style="height: 35px"></div>
               <div class="month-label">May</div>
             </div>
             <div class="month-column">
-              <div class="student-bar" style="height: 140px;"></div>
-              <div class="teacher-bar" style="height: 50px;"></div>
+              <div class="student-bar" style="height: 140px"></div>
+              <div class="teacher-bar" style="height: 50px"></div>
               <div class="month-label">Jun</div>
             </div>
           </div>
-          
+
           <div class="chart-legend">
             <div class="legend-item">
               <div class="legend-color student-color"></div>
@@ -102,24 +108,29 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Performance Chart -->
     <div class="chart-card">
       <div class="card-header">
         <h2>Exam Performance</h2>
         <p class="subtitle">Average scores across all exams</p>
       </div>
-      
+
       <div class="card-body">
         <div class="chart-tabs">
-          <button class="tab-btn active" title="View by subject">By Subject</button>
+          <button class="tab-btn active" title="View by subject">
+            By Subject
+          </button>
           <button class="tab-btn" title="View by class">By Class</button>
         </div>
-        
+
         <div class="line-chart-container">
           <div class="line-chart-placeholder">
             <svg class="line-chart" viewBox="0 0 500 200">
-              <path class="chart-line" d="M 50,150 L 130,100 L 210,120 L 290,80 L 370,70 L 450,110" />
+              <path
+                class="chart-line"
+                d="M 50,150 L 130,100 L 210,120 L 290,80 L 370,70 L 450,110"
+              />
               <circle class="data-point" cx="50" cy="150" r="4" />
               <circle class="data-point" cx="130" cy="100" r="4" />
               <circle class="data-point" cx="210" cy="120" r="4" />
@@ -127,7 +138,7 @@
               <circle class="data-point" cx="370" cy="70" r="4" />
               <circle class="data-point" cx="450" cy="110" r="4" />
             </svg>
-            
+
             <div class="x-labels">
               <span>Mathematics</span>
               <span>Science</span>
@@ -141,4 +152,4 @@
       </div>
     </div>
   </div>
-</div> 
+</div>

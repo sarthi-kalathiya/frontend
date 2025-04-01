@@ -7,18 +7,18 @@
     <div class="alert alert-danger">
       {{ error }}
     </div>
-    }
-    
-    @if (success) {
+    } @if (success) {
     <div class="alert alert-success">
       {{ success }}
     </div>
     }
-    
+
     <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-row">
         <div class="form-group">
-          <label for="firstName">First Name <span class="required">*</span></label>
+          <label for="firstName"
+            >First Name <span class="required">*</span></label
+          >
           <input
             type="text"
             id="firstName"
@@ -28,18 +28,17 @@
           />
           @if (firstName?.invalid && (firstName?.dirty || firstName?.touched)) {
           <div class="error-message">
-            @if (firstName?.errors?.['required']) {
-              First name is required
-            }
-            @if (firstName?.errors?.['minlength']) {
-              First name must be at least 2 characters
-            }
+            @if (firstName?.errors?.['required']) { First name is required } @if
+            (firstName?.errors?.['minlength']) { First name must be at least 2
+            characters }
           </div>
           }
         </div>
-        
+
         <div class="form-group">
-          <label for="lastName">Last Name <span class="required">*</span></label>
+          <label for="lastName"
+            >Last Name <span class="required">*</span></label
+          >
           <input
             type="text"
             id="lastName"
@@ -49,19 +48,18 @@
           />
           @if (lastName?.invalid && (lastName?.dirty || lastName?.touched)) {
           <div class="error-message">
-            @if (lastName?.errors?.['required']) {
-              Last name is required
-            }
-            @if (lastName?.errors?.['minlength']) {
-              Last name must be at least 2 characters
-            }
+            @if (lastName?.errors?.['required']) { Last name is required } @if
+            (lastName?.errors?.['minlength']) { Last name must be at least 2
+            characters }
           </div>
           }
         </div>
       </div>
-      
+
       <div class="form-group">
-        <label for="contactNumber">Contact Number <span class="required">*</span></label>
+        <label for="contactNumber"
+          >Contact Number <span class="required">*</span></label
+        >
         <input
           type="tel"
           id="contactNumber"
@@ -69,18 +67,16 @@
           class="form-control"
           placeholder="1234567890"
         />
-        @if (contactNumber?.invalid && (contactNumber?.dirty || contactNumber?.touched)) {
+        @if (contactNumber?.invalid && (contactNumber?.dirty ||
+        contactNumber?.touched)) {
         <div class="error-message">
-          @if (contactNumber?.errors?.['required']) {
-            Contact number is required
-          }
-          @if (contactNumber?.errors?.['pattern']) {
-            Please enter a valid phone number
-          }
+          @if (contactNumber?.errors?.['required']) { Contact number is required
+          } @if (contactNumber?.errors?.['pattern']) { Please enter a valid
+          phone number }
         </div>
         }
       </div>
-      
+
       <div class="form-group">
         <label for="email">Email <span class="required">*</span></label>
         <input
@@ -92,16 +88,12 @@
         />
         @if (email?.invalid && (email?.dirty || email?.touched)) {
         <div class="error-message">
-          @if (email?.errors?.['required']) {
-            Email is required
-          }
-          @if (email?.errors?.['email']) {
-            Please enter a valid email address
-          }
+          @if (email?.errors?.['required']) { Email is required } @if
+          (email?.errors?.['email']) { Please enter a valid email address }
         </div>
         }
       </div>
-      
+
       <div class="form-group">
         <label for="password">Password <span class="required">*</span></label>
         <div class="password-field">
@@ -112,27 +104,33 @@
             class="form-control"
             placeholder="••••••••"
           />
-          <button type="button" class="password-toggle" (click)="togglePasswordVisibility('password')" aria-label="Toggle password visibility">
-            <i class="fa" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility('password')"
+            aria-label="Toggle password visibility"
+          >
+            <i
+              class="fa"
+              [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"
+            ></i>
           </button>
         </div>
         @if (password?.invalid && (password?.dirty || password?.touched)) {
         <div class="error-message">
-          @if (password?.errors?.['required']) {
-            Password is required
-          }
-          @if (password?.errors?.['minlength']) {
-            Password must be at least 8 characters long
-          }
-          @if (password?.errors?.['pattern']) {
-            Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character
-          }
+          @if (password?.errors?.['required']) { Password is required } @if
+          (password?.errors?.['minlength']) { Password must be at least 8
+          characters long } @if (password?.errors?.['pattern']) { Password must
+          contain at least one uppercase letter, one lowercase letter, one
+          number, and one special character }
         </div>
         }
       </div>
-      
+
       <div class="form-group">
-        <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
+        <label for="confirmPassword"
+          >Confirm Password <span class="required">*</span></label
+        >
         <div class="password-field">
           <input
             [type]="showConfirmPassword ? 'text' : 'password'"
@@ -141,34 +139,48 @@
             class="form-control"
             placeholder="••••••••"
           />
-          <button type="button" class="password-toggle" (click)="togglePasswordVisibility('confirm')" aria-label="Toggle confirm password visibility">
-            <i class="fa" [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility('confirm')"
+            aria-label="Toggle confirm password visibility"
+          >
+            <i
+              class="fa"
+              [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"
+            ></i>
           </button>
         </div>
-        @if ((confirmPassword?.invalid || signupForm.hasError('passwordMismatch')) && (confirmPassword?.dirty || confirmPassword?.touched)) {
+        @if ((confirmPassword?.invalid ||
+        signupForm.hasError('passwordMismatch')) && (confirmPassword?.dirty ||
+        confirmPassword?.touched)) {
         <div class="error-message">
-          @if (confirmPassword?.errors?.['required']) {
-            Please confirm your password
-          }
-          @if (signupForm.hasError('passwordMismatch')) {
-            Passwords do not match
-          }
+          @if (confirmPassword?.errors?.['required']) { Please confirm your
+          password } @if (signupForm.hasError('passwordMismatch')) { Passwords
+          do not match }
         </div>
         }
       </div>
-      
-      <button type="submit" class="btn-submit" [disabled]="signupForm.invalid || isLoading">
+
+      <button
+        type="submit"
+        class="btn-submit"
+        [disabled]="signupForm.invalid || isLoading"
+      >
         @if (isLoading) {
-          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-          Creating account...
-        } @else {
-          Create account
-        }
+        <span
+          class="spinner-border spinner-border-sm"
+          role="status"
+          aria-hidden="true"
+        ></span>
+        Creating account... } @else { Create account }
       </button>
-      
+
       <div class="auth-footer">
-        <p>Already have an account? <a [routerLink]="['/auth/login']">Sign in</a></p>
+        <p>
+          Already have an account? <a [routerLink]="['/auth/login']">Sign in</a>
+        </p>
       </div>
     </form>
   </div>
-</div> 
+</div>

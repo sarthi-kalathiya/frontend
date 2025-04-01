@@ -1,4 +1,4 @@
-@use 'sass:color';
+@use "sass:color";
 
 // Variables
 $primary-color: #000000;
@@ -64,14 +64,14 @@ $danger-color: #f44336;
   justify-content: space-between;
   padding: 16px 24px;
   border-bottom: 1px solid $border-color;
-  
+
   h2 {
     margin: 0;
     font-size: 20px;
     font-weight: 600;
     color: $primary-color;
   }
-  
+
   .close-btn {
     background: none;
     border: none;
@@ -81,7 +81,7 @@ $danger-color: #f44336;
     padding: 4px;
     border-radius: 4px;
     transition: all 0.2s;
-    
+
     &:hover {
       color: $primary-color;
       background-color: rgba(0, 0, 0, 0.05);
@@ -92,53 +92,53 @@ $danger-color: #f44336;
 // Modal Body
 .modal-body {
   padding: 24px;
-  
+
   .subject-details {
     .subject-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 24px;
-      
+
       h3 {
         margin: 0;
         font-size: 24px;
         font-weight: 600;
         color: $primary-color;
       }
-      
+
       .badge {
         padding: 6px 12px;
         border-radius: 4px;
         font-size: 14px;
         font-weight: 500;
-        
+
         &.badge-success {
           background-color: rgba($success-color, 0.1);
           color: $success-color;
         }
-        
+
         &.badge-danger {
           background-color: rgba($danger-color, 0.1);
           color: $danger-color;
         }
       }
     }
-    
+
     .detail-row {
       display: flex;
       margin-bottom: 16px;
-      
+
       .detail-label {
         width: 120px;
         font-weight: 600;
         color: $secondary-color;
       }
-      
+
       .detail-value {
         flex: 1;
         color: $text-color;
-        
+
         &.description {
           white-space: pre-line;
         }
@@ -153,7 +153,7 @@ $danger-color: #f44336;
   border-top: 1px solid $border-color;
   display: flex;
   justify-content: flex-end;
-  
+
   button {
     padding: 10px 20px;
     border-radius: 4px;
@@ -161,12 +161,12 @@ $danger-color: #f44336;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    
+
     &.btn-secondary {
       background-color: white;
       border: 1px solid $border-color;
       color: $text-color;
-      
+
       &:hover {
         background-color: $light-gray;
       }
@@ -179,19 +179,19 @@ $danger-color: #f44336;
   .modal-container {
     max-width: 95%;
   }
-  
+
   .modal-body {
     padding: 16px;
   }
-  
+
   .subject-details {
     .detail-row {
       flex-direction: column;
-      
+
       .detail-label {
         width: 100%;
         margin-bottom: 4px;
       }
     }
   }
-} 
+}

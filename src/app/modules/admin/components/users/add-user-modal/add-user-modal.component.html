@@ -7,150 +7,171 @@
         <i class="fas fa-times"></i>
       </button>
     </div>
-    
+
     <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
       <div class="modal-body">
         <!-- Form fields -->
         <div class="form-row">
           <div class="form-group">
             <label for="firstName">First Name *</label>
-            <input 
-              type="text" 
-              id="firstName" 
-              formControlName="firstName" 
-              [class.is-invalid]="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched"
-            >
-            @if (userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched) {
-              <div class="invalid-feedback">
-                @if (userForm.get('firstName')?.errors?.['required']) {
-                  First name is required
-                }
-                @if (userForm.get('firstName')?.errors?.['minlength']) {
-                  First name must be at least 2 characters
-                }
-                @if (userForm.get('firstName')?.errors?.['maxlength']) {
-                  First name must be at most 50 characters
-                }
-              </div>
+            <input
+              type="text"
+              id="firstName"
+              formControlName="firstName"
+              [class.is-invalid]="
+                userForm.get('firstName')?.invalid &&
+                userForm.get('firstName')?.touched
+              "
+            />
+            @if (userForm.get('firstName')?.invalid &&
+            userForm.get('firstName')?.touched) {
+            <div class="invalid-feedback">
+              @if (userForm.get('firstName')?.errors?.['required']) { First name
+              is required } @if
+              (userForm.get('firstName')?.errors?.['minlength']) { First name
+              must be at least 2 characters } @if
+              (userForm.get('firstName')?.errors?.['maxlength']) { First name
+              must be at most 50 characters }
+            </div>
             }
           </div>
-          
+
           <div class="form-group">
             <label for="lastName">Last Name *</label>
-            <input 
-              type="text" 
-              id="lastName" 
+            <input
+              type="text"
+              id="lastName"
               formControlName="lastName"
-              [class.is-invalid]="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched"
-            >
-            @if (userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched) {
-              <div class="invalid-feedback">
-                @if (userForm.get('lastName')?.errors?.['required']) {
-                  Last name is required
-                }
-                @if (userForm.get('lastName')?.errors?.['minlength']) {
-                  Last name must be at least 2 characters
-                }
-                @if (userForm.get('lastName')?.errors?.['maxlength']) {
-                  Last name must be at most 50 characters
-                }
-              </div>
+              [class.is-invalid]="
+                userForm.get('lastName')?.invalid &&
+                userForm.get('lastName')?.touched
+              "
+            />
+            @if (userForm.get('lastName')?.invalid &&
+            userForm.get('lastName')?.touched) {
+            <div class="invalid-feedback">
+              @if (userForm.get('lastName')?.errors?.['required']) { Last name
+              is required } @if
+              (userForm.get('lastName')?.errors?.['minlength']) { Last name must
+              be at least 2 characters } @if
+              (userForm.get('lastName')?.errors?.['maxlength']) { Last name must
+              be at most 50 characters }
+            </div>
             }
           </div>
         </div>
-        
+
         <div class="form-group">
           <label for="email">Email *</label>
-          <input 
-            type="email" 
-            id="email" 
+          <input
+            type="email"
+            id="email"
             formControlName="email"
-            [class.is-invalid]="userForm.get('email')?.invalid && userForm.get('email')?.touched"
-          >
-          @if (userForm.get('email')?.invalid && userForm.get('email')?.touched) {
-            <div class="invalid-feedback">
-              @if (userForm.get('email')?.errors?.['required']) {
-                Email is required
-              }
-              @if (userForm.get('email')?.errors?.['email']) {
-                Please enter a valid email address
-              }
-            </div>
+            [class.is-invalid]="
+              userForm.get('email')?.invalid && userForm.get('email')?.touched
+            "
+          />
+          @if (userForm.get('email')?.invalid && userForm.get('email')?.touched)
+          {
+          <div class="invalid-feedback">
+            @if (userForm.get('email')?.errors?.['required']) { Email is
+            required } @if (userForm.get('email')?.errors?.['email']) { Please
+            enter a valid email address }
+          </div>
           }
         </div>
-        
+
         <div class="form-group">
           <label for="password">Password *</label>
-          <input 
-            type="password" 
-            id="password" 
+          <input
+            type="password"
+            id="password"
             formControlName="password"
-            [class.is-invalid]="userForm.get('password')?.invalid && userForm.get('password')?.touched"
-          >
-          @if (userForm.get('password')?.invalid && userForm.get('password')?.touched) {
-            <div class="invalid-feedback">
-              @if (userForm.get('password')?.errors?.['required']) {
-                Password is required
-              }
-              @if (userForm.get('password')?.errors?.['minlength']) {
-                Password must be at least 8 characters
-              }
-              @if (userForm.get('password')?.errors?.['pattern']) {
-                Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character
-              }
-            </div>
+            [class.is-invalid]="
+              userForm.get('password')?.invalid &&
+              userForm.get('password')?.touched
+            "
+          />
+          @if (userForm.get('password')?.invalid &&
+          userForm.get('password')?.touched) {
+          <div class="invalid-feedback">
+            @if (userForm.get('password')?.errors?.['required']) { Password is
+            required } @if (userForm.get('password')?.errors?.['minlength']) {
+            Password must be at least 8 characters } @if
+            (userForm.get('password')?.errors?.['pattern']) { Password must
+            contain at least one uppercase letter, one lowercase letter, one
+            number, and one special character }
+          </div>
           }
         </div>
-        
+
         <div class="form-row">
           <div class="form-group">
             <label for="role">Role *</label>
-            <select 
-              id="role" 
+            <select
+              id="role"
               formControlName="role"
-              [class.is-invalid]="userForm.get('role')?.invalid && userForm.get('role')?.touched"
+              [class.is-invalid]="
+                userForm.get('role')?.invalid && userForm.get('role')?.touched
+              "
             >
-              <option *ngFor="let role of roles" [value]="role.value">{{ role.label }}</option>
+              <option *ngFor="let role of roles" [value]="role.value">
+                {{ role.label }}
+              </option>
             </select>
-            @if (userForm.get('role')?.invalid && userForm.get('role')?.touched) {
-              <div class="invalid-feedback">
-                @if (userForm.get('role')?.errors?.['required']) {
-                  Role is required
-                }
-              </div>
+            @if (userForm.get('role')?.invalid && userForm.get('role')?.touched)
+            {
+            <div class="invalid-feedback">
+              @if (userForm.get('role')?.errors?.['required']) { Role is
+              required }
+            </div>
             }
           </div>
-          
+
           <div class="form-group">
             <label for="contactNumber">Contact Number *</label>
-            <input 
-              type="tel" 
-              id="contactNumber" 
+            <input
+              type="tel"
+              id="contactNumber"
               formControlName="contactNumber"
               placeholder="000000000(00)"
-              [class.is-invalid]="userForm.get('contactNumber')?.invalid && userForm.get('contactNumber')?.touched"
-            >
-            @if (userForm.get('contactNumber')?.invalid && userForm.get('contactNumber')?.touched) {
-              <div class="invalid-feedback">
-                @if (userForm.get('contactNumber')?.errors?.['required']) {
-                  Contact number is required
-                }
-                @if (userForm.get('contactNumber')?.errors?.['pattern']) {
-                  Please enter a valid phone number
-                }
-              </div>
+              [class.is-invalid]="
+                userForm.get('contactNumber')?.invalid &&
+                userForm.get('contactNumber')?.touched
+              "
+            />
+            @if (userForm.get('contactNumber')?.invalid &&
+            userForm.get('contactNumber')?.touched) {
+            <div class="invalid-feedback">
+              @if (userForm.get('contactNumber')?.errors?.['required']) {
+              Contact number is required } @if
+              (userForm.get('contactNumber')?.errors?.['pattern']) { Please
+              enter a valid phone number }
+            </div>
             }
           </div>
         </div>
       </div>
-      
+
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" [disabled]="isSubmitting" (click)="closeModal()">Cancel</button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          [disabled]="isSubmitting"
+          (click)="closeModal()"
+        >
+          Cancel
+        </button>
         <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
-          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-          {{ isSubmitting ? 'Creating User...' : 'Create User' }}
+          <span
+            *ngIf="isSubmitting"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          {{ isSubmitting ? "Creating User..." : "Create User" }}
         </button>
       </div>
     </form>
   </div>
-</div> 
+</div>

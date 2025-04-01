@@ -8,13 +8,13 @@ import { ConfirmationModalComponent } from './shared/components/confirmation-mod
   selector: 'app-root',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     RouterOutlet,
     ToastComponent,
-    ConfirmationModalComponent
+    ConfirmationModalComponent,
   ],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
   title = 'Online Exam System';
