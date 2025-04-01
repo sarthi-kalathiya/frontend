@@ -82,12 +82,12 @@ export class ExamsComponent implements OnInit, OnDestroy {
 
     this.examService.getTeacherExams(page, this.pageSize).subscribe({
       next: (response) => {
-        if (!response || !response.data || !response.data.items || !response.data.pagination) {
+        if (!response || !response.data || !response.data.exams || !response.data.pagination) {
           this.error = 'Invalid response from server';
           return;
         }
 
-        this.exams = response.data.items;
+        this.exams = response.data.exams;
         this.filteredExams = [...this.exams];
         this.totalItems = response.data.pagination.total;
         this.totalPages = response.data.pagination.totalPages;

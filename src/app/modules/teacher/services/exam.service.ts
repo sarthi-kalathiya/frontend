@@ -37,7 +37,7 @@ export interface PaginatedResponse<T> {
   status: string;
   message: string;
   data: {
-    items: T[];
+    exams: T[];
     pagination: {
       total: number;
       page: number;
