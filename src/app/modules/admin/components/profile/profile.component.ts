@@ -84,92 +84,119 @@ export class ProfileComponent implements OnInit {
 
   private updateFormWithUserData(): void {
     console.log('Updating form with user data');
-    // Get full user profile with role-specific data
-    this.userService.getUserProfile().subscribe({
-      next: (response) => {
-        console.log('Profile API response:', response);
-        // Extract user data from response
-        const userData = response.data;
-        console.log('User data extracted:', userData);
+    
+    // Use the current user data directly from authService instead of making an API call
+    if (this.currentUser) {
+      console.log('Using stored user data:', this.currentUser);
+      
+      // Update base user fields
+      this.profileForm.patchValue({
+        firstName: this.currentUser.firstName,
+        lastName: this.currentUser.lastName,
+        email: this.currentUser.email,
+        contactNumber: this.currentUser.contactNumber || '',
+      });
 
-        // Update base user fields
-        this.profileForm.patchValue({
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          email: userData.email,
-          contactNumber: userData.contactNumber || '',
+      console.log('User role:', this.currentUser.role);
+      console.log('Teacher data exists:', !!this.currentUser.teacher);
+      console.log('Full teacher data:', this.currentUser.teacher);
+
+      // Update role-specific fields if they exist
+      if (this.currentUser.role === 'TEACHER' && this.currentUser.teacher) {
+        // Store teacher data for debugging
+        this.teacherProfileData = this.currentUser.teacher;
+
+        console.log('Patching teacher profile fields with:', {
+          qualification: this.currentUser.teacher.qualification || '',
+          expertise: this.currentUser.teacher.expertise || '',
+          experience: this.currentUser.teacher.experience || 0,
+          bio: this.currentUser.teacher.bio || '',
         });
 
-        console.log('User role:', userData.role);
-        console.log('Teacher data exists:', !!userData.teacher);
-        console.log('Full teacher data:', userData.teacher);
+        this.profileForm.patchValue({
+          qualification: this.currentUser.teacher.qualification || '',
+          expertise: this.currentUser.teacher.expertise || '',
+          experience: this.currentUser.teacher.experience || 0,
+          bio: this.currentUser.teacher.bio || '',
+        });
 
-        // Update role-specific fields if they exist
-        if (userData.role === 'TEACHER' && userData.teacher) {
-          // Store teacher data for debugging
-          this.teacherProfileData = userData.teacher;
+        // Check if the form was successfully patched
+        console.log('Form values after patching:', {
+          qualification: this.profileForm.get('qualification')?.value,
+          expertise: this.profileForm.get('expertise')?.value,
+          experience: this.profileForm.get('experience')?.value,
+          bio: this.profileForm.get('bio')?.value,
+        });
+      } else if (this.currentUser.role === 'STUDENT' && this.currentUser.student) {
+        console.log('Patching student profile fields');
+        this.profileForm.patchValue({
+          rollNumber: this.currentUser.student.rollNumber || '',
+          grade: this.currentUser.student.grade || '',
+          parentContactNumber: this.currentUser.student.parentContactNumber || '',
+        });
+      }
+    } else {
+      // Only if we don't have the user data, fetch it from the API
+      this.userService.getUserProfile().subscribe({
+        next: (response) => {
+          console.log('Profile API response:', response);
+          // Extract user data from response
+          const userData = response.data;
+          console.log('User data extracted:', userData);
 
-          console.log('Patching teacher profile fields with:', {
-            qualification: userData.teacher.qualification || '',
-            expertise: userData.teacher.expertise || '',
-            experience: userData.teacher.experience || 0,
-            bio: userData.teacher.bio || '',
-          });
-
-          // Check for null or undefined values in teacher profile
-          if (
-            userData.teacher.qualification === null ||
-            userData.teacher.qualification === undefined
-          ) {
-            console.error('Teacher qualification is null or undefined');
-          }
-          if (
-            userData.teacher.expertise === null ||
-            userData.teacher.expertise === undefined
-          ) {
-            console.error('Teacher expertise is null or undefined');
-          }
-          if (
-            userData.teacher.experience === null ||
-            userData.teacher.experience === undefined
-          ) {
-            console.error('Teacher experience is null or undefined');
-          }
-          if (
-            userData.teacher.bio === null ||
-            userData.teacher.bio === undefined
-          ) {
-            console.error('Teacher bio is null or undefined');
-          }
-
+          // Update base user fields
           this.profileForm.patchValue({
-            qualification: userData.teacher.qualification || '',
-            expertise: userData.teacher.expertise || '',
-            experience: userData.teacher.experience || 0,
-            bio: userData.teacher.bio || '',
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            email: userData.email,
+            contactNumber: userData.contactNumber || '',
           });
 
-          // Check if the form was successfully patched
-          console.log('Form values after patching:', {
-            qualification: this.profileForm.get('qualification')?.value,
-            expertise: this.profileForm.get('expertise')?.value,
-            experience: this.profileForm.get('experience')?.value,
-            bio: this.profileForm.get('bio')?.value,
-          });
-        } else if (userData.role === 'STUDENT' && userData.student) {
-          console.log('Patching student profile fields');
-          this.profileForm.patchValue({
-            rollNumber: userData.student.rollNumber || '',
-            grade: userData.student.grade || '',
-            parentContactNumber: userData.student.parentContactNumber || '',
-          });
-        }
-      },
-      error: (err) => {
-        console.error('Error loading user profile:', err);
-        this.apiError = 'Unable to load profile data';
-      },
-    });
+          console.log('User role:', userData.role);
+          console.log('Teacher data exists:', !!userData.teacher);
+          console.log('Full teacher data:', userData.teacher);
+
+          // Update role-specific fields if they exist
+          if (userData.role === 'TEACHER' && userData.teacher) {
+            // Store teacher data for debugging
+            this.teacherProfileData = userData.teacher;
+
+            console.log('Patching teacher profile fields with:', {
+              qualification: userData.teacher.qualification || '',
+              expertise: userData.teacher.expertise || '',
+              experience: userData.teacher.experience || 0,
+              bio: userData.teacher.bio || '',
+            });
+
+            this.profileForm.patchValue({
+              qualification: userData.teacher.qualification || '',
+              expertise: userData.teacher.expertise || '',
+              experience: userData.teacher.experience || 0,
+              bio: userData.teacher.bio || '',
+            });
+
+            // Check if the form was successfully patched
+            console.log('Form values after patching:', {
+              qualification: this.profileForm.get('qualification')?.value,
+              expertise: this.profileForm.get('expertise')?.value,
+              experience: this.profileForm.get('experience')?.value,
+              bio: this.profileForm.get('bio')?.value,
+            });
+          } else if (userData.role === 'STUDENT' && userData.student) {
+            console.log('Patching student profile fields');
+            this.profileForm.patchValue({
+              rollNumber: userData.student.rollNumber || '',
+              grade: userData.student.grade || '',
+              parentContactNumber: userData.student.parentContactNumber || '',
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Error loading user profile:', err);
+          this.apiError = 'Unable to load profile data';
+        },
+      });
+    }
   }
 
   toggleEditMode(): void {
@@ -235,9 +262,12 @@ export class ProfileComponent implements OnInit {
         this.editMode = false;
         this.toastService.showSuccess('Profile updated successfully');
         console.log('Profile update response:', response);
-
-        // Update current user in auth service
-        this.authService.refreshCurrentUser();
+        
+        // The UserService now handles updating the AuthService data
+        // Update the currentUser with the response data
+        if (response && response.status === 'success' && response.data) {
+          this.currentUser = response.data;
+        }
       },
       error: (err) => {
         this.isLoading = false;

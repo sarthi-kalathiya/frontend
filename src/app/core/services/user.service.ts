@@ -5,6 +5,7 @@ import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { UserData } from '../models/auth.models';
 import { CacheService } from './cache.service';
+import { AuthService } from './auth.service';
 
 // Define response types
 export interface PaginatedResponse<T> {
@@ -34,7 +35,11 @@ export class UserService {
   private apiUrl = environment.apiUrl;
   private cachePrefix = 'user_service_';
 
-  constructor(private http: HttpClient, private cacheService: CacheService) {}
+  constructor(
+    private http: HttpClient, 
+    private cacheService: CacheService,
+    private authService: AuthService
+  ) {}
 
   // Get users with pagination
   getUsers(filters: UserFilter = {}): Observable<PaginatedResponse<any>> {
@@ -150,16 +155,42 @@ export class UserService {
 
   // Get current user profile
   getUserProfile(): Observable<any> {
-    // Clear the profile cache to force a fresh request
-    this.cacheService.remove(this.cachePrefix + 'profile');
-
+    const cacheKey = this.cachePrefix + 'profile';
+    
+    // First, try to get the user data from the AuthService
+    const currentUser = this.authService.getCurrentUser();
+    
+    if (currentUser) {
+      console.log('Using user data from AuthService:', currentUser);
+      // Return the user data from AuthService
+      return of({
+        status: 'success',
+        data: currentUser
+      });
+    }
+    
+    // Next, check the cache
+    const cachedData = this.cacheService.get<any>(cacheKey);
+    if (cachedData) {
+      console.log('Using cached profile data');
+      return of(cachedData);
+    }
+    
+    // If not available, make the API call
+    console.log('Fetching user profile from API');
     return this.http.get(`${this.apiUrl}/user/profile`).pipe(
       tap((response) => {
-        // Log the response to check what's being returned
         console.log('User profile API response:', response);
-
-        // Don't cache the profile data for now while debugging
-        // this.cacheService.set(cacheKey, response);
+        // Cache the response
+        this.cacheService.set(cacheKey, response);
+      }),
+      catchError(error => {
+        console.error('Error fetching user profile:', error);
+        return of({
+          status: 'error',
+          message: 'Failed to fetch user profile',
+          data: null
+        });
       })
     );
   }
@@ -169,7 +200,25 @@ export class UserService {
     // Clear profile cache when updating
     this.cacheService.remove(this.cachePrefix + 'profile');
 
-    return this.http.put(`${this.apiUrl}/user/profile`, profileData);
+    // Add type information to the HTTP request
+    interface ProfileResponse {
+      status: string;
+      data: UserData;
+      message: string;
+    }
+
+    return this.http.put<ProfileResponse>(`${this.apiUrl}/user/profile`, profileData).pipe(
+      tap(response => {
+        // If the update was successful and we have user data in the response
+        if (response && response.status === 'success' && response.data) {
+          // Update the AuthService with the new user data
+          this.authService.updateUserData(response.data);
+          
+          // Update the cache
+          this.cacheService.set(this.cachePrefix + 'profile', response);
+        }
+      })
+    );
   }
 
   // Change current user password

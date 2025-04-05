@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { catchError, filter, map, take, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, throwError, timer } from 'rxjs';
+import { catchError, debounceTime, filter, map, shareReplay, take, tap, switchMap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import {
@@ -20,6 +20,9 @@ export class AuthService {
   private apiUrl = environment.apiUrl;
   private jwtHelper = new JwtHelperService();
   private userSubject = new BehaviorSubject<UserData | null>(null);
+  private fetchingProfile = false;
+  private lastFetchTime = 0;
+  private fetchMinInterval = 5000; // 5 seconds minimum between fetches
 
   user$ = this.userSubject.asObservable();
 
@@ -108,11 +111,32 @@ export class AuthService {
 
   // Fetch current user's complete profile data
   private fetchCurrentUser(): Observable<any> {
+    const now = Date.now();
+    
+    // If we recently fetched the profile, wait a bit before making another request
+    if (this.fetchingProfile || (now - this.lastFetchTime < this.fetchMinInterval)) {
+      console.log('Profile fetch already in progress or too recent, throttling request');
+      return timer(this.fetchMinInterval).pipe(
+        take(1),
+        switchMap(() => this.fetchCurrentUser())
+      );
+    }
+    
+    this.fetchingProfile = true;
+    this.lastFetchTime = now;
+    
+    console.log('Fetching current user profile from API');
     return this.http.get<any>(`${this.apiUrl}/user/profile`).pipe(
+      tap(() => {
+        console.log('Profile fetch completed');
+        this.fetchingProfile = false;
+      }),
       catchError((error) => {
         console.error('Failed to fetch user profile:', error);
+        this.fetchingProfile = false;
         return throwError(() => error);
-      })
+      }),
+      shareReplay(1)  // Share the result with multiple subscribers
     );
   }
 
@@ -261,12 +285,19 @@ export class AuthService {
 
   // Refresh the current user data from the server
   refreshCurrentUser(): void {
+    // Only fetch if the user is logged in
+    if (!this.isLoggedIn()) {
+      return;
+    }
+    
+    console.log('Refreshing user data from server');
     this.fetchCurrentUser().subscribe({
       next: (response) => {
         if (response && response.data) {
           // Store the updated user data
           this.storeUserData(response.data);
           this.userSubject.next(response.data);
+          console.log('User data refreshed successfully');
         }
       },
       error: (error) => {
@@ -323,6 +354,11 @@ export class AuthService {
     }
     
     return of(false);
+  }
+
+  // Get the current user data directly (for use by other services)
+  getCurrentUser(): UserData | null {
+    return this.userSubject.value;
   }
 
   private getToken(): string | null {
