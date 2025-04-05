@@ -84,10 +84,7 @@ export class ExamDetailsComponent implements OnInit {
     // Upcoming can be changed to Draft (but not Active to Draft)
     if (status === 'Upcoming') return true;
     
-    // Active can't be changed back to Draft once students might have started
-    if (status === 'Active') return true;
-    
-    // Finished exams can't be changed
+    // Active and Finished exams can't have their status changed
     return false;
   }
   

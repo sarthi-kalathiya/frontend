@@ -209,13 +209,11 @@
           <p class="status-description" *ngIf="canChangeStatus(selectedStatus)">
             Change the status of this exam to control its visibility
             and availability to students.
-            <span *ngIf="selectedStatus === 'Active'">
-              <strong>Note:</strong> Once an exam is Active, it cannot be changed back to Draft.
-            </span>
           </p>
           
           <p class="status-description" *ngIf="!canChangeStatus(selectedStatus)">
             This exam is in <strong>{{ selectedStatus }}</strong> status and cannot be changed.
+            <span *ngIf="selectedStatus === 'Active'">The exam is currently active and available to students.</span>
             <span *ngIf="selectedStatus === 'Finished'">You can create a new exam based on this one if needed.</span>
           </p>
 
