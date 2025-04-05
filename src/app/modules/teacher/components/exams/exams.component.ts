@@ -147,11 +147,29 @@ export class ExamsComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.error = null;
 
-    // Apply client-side filtering for now, but this should ideally be server-side
-    const page = this.currentPage;
-    const pageSize = this.pageSize;
-    
-    this.examService.getTeacherExams(page, pageSize).subscribe({
+    // Create query params object
+    const params: any = {
+      page: this.currentPage,
+      pageSize: this.pageSize
+    };
+
+    // Add search term if exists
+    if (this.searchTerm) {
+      params.searchTerm = this.searchTerm;
+    }
+
+    // Add status filter if selected
+    if (this.selectedStatus) {
+      params.status = this.selectedStatus;
+    }
+
+    // Add subject filter if selected
+    if (this.selectedSubject) {
+      params.subjectId = this.selectedSubject;
+    }
+
+    // Call API with filters - will return cached data if available
+    this.examService.getFilteredTeacherExams(params).subscribe({
       next: (response: any) => {
         if (
           !response ||
@@ -163,54 +181,8 @@ export class ExamsComponent implements OnInit, OnDestroy {
           return;
         }
 
-        let filteredExams = [...response.data.exams];
-
-        // Apply search filter
-        if (this.searchTerm) {
-          const searchLower = this.searchTerm.toLowerCase();
-          filteredExams = filteredExams.filter(
-            (exam) =>
-              exam.name.toLowerCase().includes(searchLower) ||
-              exam.subject.name.toLowerCase().includes(searchLower) ||
-              exam.subject.code.toLowerCase().includes(searchLower)
-          );
-        }
-
-        // Apply status filter
-        if (this.selectedStatus) {
-          filteredExams = filteredExams.filter((exam) => {
-            const currentDate = new Date();
-            const startDate = new Date(exam.startDate);
-            const endDate = new Date(exam.endDate);
-
-            switch (this.selectedStatus) {
-              case 'active':
-                return (
-                  exam.isActive &&
-                  startDate <= currentDate &&
-                  endDate >= currentDate
-                );
-              case 'draft':
-                return !exam.isActive;
-              case 'upcoming':
-                return exam.isActive && startDate > currentDate;
-              case 'completed':
-                return exam.isActive && endDate < currentDate;
-              default:
-                return true;
-            }
-          });
-        }
-
-        // Apply subject filter
-        if (this.selectedSubject) {
-          filteredExams = filteredExams.filter(
-            (exam) => exam.subjectId === this.selectedSubject
-          );
-        }
-
-        this.filteredExams = filteredExams;
-        this.exams = response.data.exams; // Keep the original exams for reference
+        this.exams = response.data.exams;
+        this.filteredExams = [...this.exams];
         this.totalItems = response.data.pagination.total;
         this.totalPages = response.data.pagination.totalPages;
       },
@@ -425,7 +397,7 @@ export class ExamsComponent implements OnInit, OnDestroy {
     if (startDate > currentDate) return 'Upcoming';
     if (endDate < currentDate) return 'Completed';
     return 'Active';
-  }
+  } 
 
   // Pagination methods
   onPageChange(page: number | '...'): void {

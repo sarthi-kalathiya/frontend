@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { map, tap, catchError } from 'rxjs/operators';
+import { CacheService } from '@app/core/services/cache.service';
 
 const API_URL = 'http://localhost:3000/api';
 
@@ -33,6 +34,14 @@ export interface Exam {
   updatedAt: Date;
 }
 
+export interface ExamFilter {
+  page?: number;
+  pageSize?: number;
+  searchTerm?: string;
+  status?: string;
+  subjectId?: string;
+}
+
 export interface PaginatedResponse<T> {
   status: string;
   message: string;
@@ -51,7 +60,9 @@ export interface PaginatedResponse<T> {
   providedIn: 'root',
 })
 export class ExamService {
-  constructor(private http: HttpClient) {}
+  private cachePrefix = 'exam_service_';
+
+  constructor(private http: HttpClient, private cacheService: CacheService) {}
 
   getTeacherExams(
     page: number = 1,
@@ -62,15 +73,63 @@ export class ExamService {
     });
   }
 
+  getFilteredTeacherExams(filters: ExamFilter = {}): Observable<PaginatedResponse<Exam>> {
+    let params = new HttpParams();
+    
+    if (filters.page) params = params.append('page', filters.page.toString());
+    if (filters.pageSize) params = params.append('limit', filters.pageSize.toString());
+    if (filters.searchTerm) params = params.append('searchTerm', filters.searchTerm);
+    if (filters.status) params = params.append('status', filters.status);
+    if (filters.subjectId) params = params.append('subjectId', filters.subjectId);
+    
+    // Generate cache key based on the request parameters
+    const cacheKey = this.cachePrefix + 'filtered_exams_' + this.objectToQueryString(filters);
+    
+    // Check cache first
+    const cachedData = this.cacheService.get<PaginatedResponse<Exam>>(cacheKey);
+    if (cachedData) {
+      return of(cachedData);
+    }
+    
+    // If not in cache, make API call
+    return this.http.get<PaginatedResponse<Exam>>(`${API_URL}/teacher/exams`, { params })
+      .pipe(
+        tap(response => {
+          // Save the response to cache
+          this.cacheService.set(cacheKey, response);
+        }),
+        catchError(error => {
+          console.error('Error fetching filtered exams:', error);
+          throw error;
+        })
+      );
+  }
+
   getExamById(id: string): Observable<Exam> {
+    // Check cache first
+    const cacheKey = this.cachePrefix + 'exam_' + id;
+    const cachedData = this.cacheService.get<Exam>(cacheKey);
+    if (cachedData) {
+      return of(cachedData);
+    }
+    
     return this.http
       .get<{ status: string; message: string; data: Exam }>(
         `${API_URL}/exams/${id}`
       )
-      .pipe(map((response) => response.data));
+      .pipe(
+        map((response) => response.data),
+        tap(exam => {
+          // Save to cache
+          this.cacheService.set(cacheKey, exam);
+        })
+      );
   }
 
   createExam(data: Partial<Exam>): Observable<Exam> {
+    // Clear exams cache when creating a new exam
+    this.clearExamsCache();
+    
     return this.http
       .post<{ status: string; message: string; data: Exam }>(
         `${API_URL}/exams`,
@@ -80,6 +139,10 @@ export class ExamService {
   }
 
   updateExam(id: string, data: Partial<Exam>): Observable<Exam> {
+    // Clear exams cache and specific exam cache
+    this.clearExamsCache();
+    this.cacheService.remove(this.cachePrefix + 'exam_' + id);
+    
     return this.http
       .put<{ status: string; message: string; data: Exam }>(
         `${API_URL}/exams/${id}`,
@@ -89,6 +152,10 @@ export class ExamService {
   }
 
   updateExamStatus(id: string, isActive: boolean): Observable<Exam> {
+    // Clear exams cache and specific exam cache
+    this.clearExamsCache();
+    this.cacheService.remove(this.cachePrefix + 'exam_' + id);
+    
     return this.http
       .patch<{ status: string; message: string; data: Exam }>(
         `${API_URL}/exams/${id}/status`,
@@ -98,6 +165,26 @@ export class ExamService {
   }
 
   deleteExam(id: string): Observable<void> {
+    // Clear exams cache and specific exam cache
+    this.clearExamsCache();
+    this.cacheService.remove(this.cachePrefix + 'exam_' + id);
+    
     return this.http.delete<void>(`${API_URL}/exams/${id}`);
+  }
+  
+  // Clear all exam list related cache entries
+  clearExamsCache(): void {
+    this.cacheService.clearByPrefix(this.cachePrefix + 'filtered_exams_');
+  }
+  
+  // Helper method to convert an object to a query string for cache keys
+  private objectToQueryString(obj: any): string {
+    return Object.entries(obj)
+      .filter(
+        ([, value]) => value !== undefined && value !== null && value !== ''
+      )
+      .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+      .map(([key, value]) => `${key}=${value}`)
+      .join('&');
   }
 }
