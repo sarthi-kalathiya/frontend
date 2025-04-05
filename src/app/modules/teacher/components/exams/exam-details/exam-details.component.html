@@ -94,7 +94,7 @@
             <div class="info-row">
               <div class="info-item">
                 <h3>Status</h3>
-                <span class="status-badge upcoming">
+                <span class="status-badge" [class]="getStatusText(exam).toLowerCase()">
                   {{ getStatusText(exam) }}
                 </span>
               </div>
@@ -204,7 +204,7 @@
         <!-- Exam Status Section -->
         <div class="exam-status-section">
           <h3>Exam Status</h3>
-          <span class="status-badge upcoming">{{ selectedStatus }}</span>
+          <span class="status-badge" [class]="selectedStatus.toLowerCase()">{{ selectedStatus }}</span>
           
           <p class="status-description">
             Change the status of this exam to control its visibility
@@ -219,7 +219,7 @@
               aria-label="Change exam status"
               title="Change exam status"
             >
-              <option value="Upcoming">Upcoming</option>
+              <option value="Active">Active</option>
               <option value="Draft">Draft</option>
             </select>
             <i class="fas fa-chevron-down"></i>

@@ -277,14 +277,19 @@ $info-color: #2196f3;
           color: $info-color;
         }
         
-        &.in-progress {
+        &.active {
           background-color: rgba($success-color, 0.1);
           color: $success-color;
         }
         
-        &.completed {
+        &.finished {
           background-color: rgba($secondary-color, 0.1);
           color: $secondary-color;
+        }
+        
+        &.draft {
+          background-color: rgba(#9e9e9e, 0.1);
+          color: #9e9e9e;
         }
       }
       

@@ -61,7 +61,8 @@ export class ExamDetailsComponent implements OnInit {
       .subscribe({
         next: (response: any) => {
           this.exam = response;
-          this.selectedStatus = this.getStatusText(this.exam);
+          // Use statusText from API if available, otherwise calculate it
+          this.selectedStatus = response.statusText || this.getStatusText(this.exam);
         },
         error: (error: any) => {
           console.error('Failed to load exam details:', error);
@@ -116,6 +117,12 @@ export class ExamDetailsComponent implements OnInit {
   getStatusText(exam: any): string {
     if (!exam) return 'Unknown';
     
+    // If exam is inactive, always show "Draft" status
+    if (!exam.isActive) {
+      return 'Draft';
+    }
+    
+    // If exam is active, determine status based on dates
     const now = new Date();
     const startDate = new Date(exam.startDate);
     const endDate = new Date(exam.endDate);
@@ -123,14 +130,14 @@ export class ExamDetailsComponent implements OnInit {
     if (now < startDate) {
       return 'Upcoming';
     } else if (now >= startDate && now <= endDate) {
-      return 'In Progress';
+      return 'Active';
     } else {
-      return 'Completed';
+      return 'Finished';
     }
   }
 
   updateExamStatus(status: string): void {
-    // In a real implementation, this would make an API call to update the exam status
+    // Set isActive based on status
     const isActive = status !== 'Draft';
     
     this.examService.updateExamStatus(this.examId, isActive)
