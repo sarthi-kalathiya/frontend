@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, filter, map, take, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import {
@@ -31,27 +31,26 @@ export class AuthService {
     try {
       const token = this.getToken();
       if (token) {
-        // First decode the token and set basic user info
-        const decodedToken = this.jwtHelper.decodeToken(token);
-        if (decodedToken) {
-          // Check if we have stored user data in localStorage first
-          const storedUserData = this.getStoredUserData();
+        // First check if we have stored user data in localStorage
+        const storedUserData = this.getStoredUserData();
 
-          if (storedUserData) {
-            // We have complete user data stored, use it
-            this.userSubject.next(storedUserData);
-          } else {
+        if (storedUserData) {
+          // We have complete user data stored, use it
+          this.userSubject.next(storedUserData);
+        } else {
+          // No stored user data, decode token and fetch profile
+          const decodedToken = this.jwtHelper.decodeToken(token);
+          if (decodedToken) {
             // Create a minimal user object from the token for initial state
             const minimalUser: Partial<UserData> = {
-              id: decodedToken.sub || '',
+              id: decodedToken.id || '',
               email: decodedToken.email || '',
               role: decodedToken.role as UserData['role'],
-              name: decodedToken.name || '',
-              // Add default values for required properties
               firstName: decodedToken.firstName || '',
               lastName: decodedToken.lastName || '',
               contactNumber: '',
               isActive: true,
+              profileCompleted: false, // Default to incomplete until fetched
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
             };
@@ -73,16 +72,16 @@ export class AuthService {
                 // Continue with minimal user data if fetch fails, no need to logout
               },
             });
+          } else {
+            this.clearTokens();
+            this.userSubject.next(null);
           }
-        } else {
-          this.clearTokens();
-          this.userSubject.next(null);
         }
       } else {
         this.userSubject.next(null);
       }
     } catch (error) {
-      console.error('Error decoding token:', error);
+      console.error('Error loading user data:', error);
       this.clearTokens();
       this.userSubject.next(null);
     }
@@ -129,6 +128,8 @@ export class AuthService {
           if (response.status === 'success' && response.data) {
             localStorage.setItem('accessToken', response.data.accessToken);
             localStorage.setItem('refreshToken', response.data.refreshToken);
+            // Store complete user data
+            this.storeUserData(response.data.user);
             this.userSubject.next(response.data.user);
           }
         }),
@@ -150,6 +151,8 @@ export class AuthService {
                     'refreshToken',
                     response.data.refreshToken
                   );
+                  // Store complete user data
+                  this.storeUserData(response.data.user);
                   this.userSubject.next(response.data.user);
                 }
               }),
@@ -173,6 +176,8 @@ export class AuthService {
           if (response.status === 'success' && response.data) {
             localStorage.setItem('accessToken', response.data.accessToken);
             localStorage.setItem('refreshToken', response.data.refreshToken);
+            // Store complete user data
+            this.storeUserData(response.data.user);
             this.userSubject.next(response.data.user);
           }
         }),
@@ -217,7 +222,7 @@ export class AuthService {
     return currentUser ? !!currentUser.profileCompleted : false;
   }
 
-  // Check profile status from the API
+  // Check profile status from the API - keeping for backward compatibility
   checkProfileStatus(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/user/profile-status`);
   }
@@ -282,29 +287,42 @@ export class AuthService {
 
   // Check if the logged-in user needs to complete their profile
   redirectToProfileCompletionIfNeeded(): Observable<boolean> {
-    return this.checkProfileStatus().pipe(
-      map((response) => {
-        if (
-          response &&
-          response.data &&
-          response.data.requiresAdditionalSetup
-        ) {
-          // User needs to complete profile
-          const userRole = this.getUserRole();
-          if (userRole === 'TEACHER') {
-            this.router.navigate(['/profile/teacher/complete']);
-          } else if (userRole === 'STUDENT') {
-            this.router.navigate(['/profile/student/complete']);
+    const currentUser = this.userSubject.value;
+    
+    // If no user data is available yet, wait for it
+    if (!currentUser) {
+      return this.user$.pipe(
+        filter(user => !!user),
+        take(1),
+        map(user => {
+          if (user && !user.profileCompleted) {
+            // User needs to complete profile
+            const userRole = this.getUserRole();
+            if (userRole === 'TEACHER') {
+              this.router.navigate(['/profile/teacher/complete']);
+            } else if (userRole === 'STUDENT') {
+              this.router.navigate(['/profile/student/complete']);
+            }
+            return true;
           }
-          return true;
-        }
-        return false;
-      }),
-      catchError((error) => {
-        console.error('Error checking profile status:', error);
-        return of(false);
-      })
-    );
+          return false;
+        })
+      );
+    }
+    
+    // Use the profileCompleted field directly from the user data
+    if (!currentUser.profileCompleted) {
+      // User needs to complete profile
+      const userRole = this.getUserRole();
+      if (userRole === 'TEACHER') {
+        this.router.navigate(['/profile/teacher/complete']);
+      } else if (userRole === 'STUDENT') {
+        this.router.navigate(['/profile/student/complete']);
+      }
+      return of(true);
+    }
+    
+    return of(false);
   }
 
   private getToken(): string | null {

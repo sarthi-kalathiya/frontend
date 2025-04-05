@@ -84,36 +84,23 @@ export class LoginComponent implements OnInit {
   }
 
   private handlePostLoginNavigation(): void {
-    // Check if user needs to complete their profile first
-    this.authService.checkProfileStatus().subscribe({
-      next: (response) => {
-        if (
-          response &&
-          response.data &&
-          response.data.requiresAdditionalSetup
-        ) {
-          // User needs to complete profile first
-          const userRole = this.authService.getUserRole();
+    // Check profile completion status using the AuthService method
+    if (!this.authService.isProfileComplete()) {
+      // User needs to complete profile first
+      const userRole = this.authService.getUserRole();
 
-          if (userRole === 'TEACHER') {
-            this.router.navigate(['/profile/teacher/complete']);
-          } else if (userRole === 'STUDENT') {
-            this.router.navigate(['/profile/student/complete']);
-          } else {
-            // For other roles, just use normal routing
-            this.redirectBasedOnRole();
-          }
-        } else {
-          // Profile is complete or not required, proceed with normal routing
-          this.redirectBasedOnRole();
-        }
-      },
-      error: (error) => {
-        console.error('Error checking profile status:', error);
-        // On error, fall back to standard routing
+      if (userRole === 'TEACHER') {
+        this.router.navigate(['/profile/teacher/complete']);
+      } else if (userRole === 'STUDENT') {
+        this.router.navigate(['/profile/student/complete']);
+      } else {
+        // For other roles, just use normal routing
         this.redirectBasedOnRole();
-      },
-    });
+      }
+    } else {
+      // Profile is complete or not required, proceed with normal routing
+      this.redirectBasedOnRole();
+    }
   }
 
   private redirectBasedOnRole(): void {
