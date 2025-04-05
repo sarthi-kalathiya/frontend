@@ -235,9 +235,8 @@ $hover-color: #f1f1f1;
 
   .nav-tabs {
     display: flex;
-    max-width: 1200px;
     margin: 0 auto;
-    padding: 0;
+    padding: 0 24px;
     width: 100%;
 
     .tab-item {
@@ -292,7 +291,6 @@ $hover-color: #f1f1f1;
 .main-content {
   flex: 1;
   padding: 24px;
-  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
 }
