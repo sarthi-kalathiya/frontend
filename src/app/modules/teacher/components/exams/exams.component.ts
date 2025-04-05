@@ -58,6 +58,10 @@ export class ExamsComponent implements OnInit, OnDestroy {
   exams: Exam[] = [];
   filteredExams: Exam[] = [];
 
+  // Cache for exam pages
+  private pageCache: Map<string, { data: Exam[], pagination: any }> = new Map();
+  private lastCacheKey: string = '';
+
   // For cleanup
   private destroy$ = new RxjsSubject<void>();
   private searchSubject = new RxjsSubject<string>();
@@ -114,6 +118,16 @@ export class ExamsComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.error = null;
 
+    // Try to use cached data
+    const cacheKey = this.getCacheKey(page);
+    const cachedData = this.pageCache.get(cacheKey);
+    
+    if (cachedData) {
+      this.handleExamResponse(cachedData.data, cachedData.pagination, page);
+      this.isLoading = false;
+      return;
+    }
+
     this.examService.getTeacherExams(page, this.pageSize).subscribe({
       next: (response) => {
         if (
@@ -126,11 +140,9 @@ export class ExamsComponent implements OnInit, OnDestroy {
           return;
         }
 
-        this.exams = response.data.exams;
-        this.filteredExams = [...this.exams];
-        this.totalItems = response.data.pagination.total;
-        this.totalPages = response.data.pagination.totalPages;
-        this.currentPage = page;
+        // Cache the response
+        this.cacheResponse(cacheKey, response.data.exams, response.data.pagination);
+        this.handleExamResponse(response.data.exams, response.data.pagination, page);
       },
       error: (error: Error) => {
         console.error('Failed to load exams:', error);
@@ -140,6 +152,26 @@ export class ExamsComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
     });
+  }
+
+  // Helper method to handle exam response data
+  private handleExamResponse(exams: Exam[], pagination: any, page: number): void {
+    this.exams = exams;
+    this.filteredExams = [...exams];
+    this.totalItems = pagination.total;
+    this.totalPages = pagination.totalPages;
+    this.currentPage = page;
+  }
+
+  // Creates a unique cache key based on current filters and page
+  private getCacheKey(page: number): string {
+    return `page=${page}&size=${this.pageSize}&search=${this.searchTerm}&status=${this.selectedStatus}&subject=${this.selectedSubject}`;
+  }
+
+  // Caches the API response
+  private cacheResponse(key: string, data: Exam[], pagination: any): void {
+    this.pageCache.set(key, { data, pagination });
+    this.lastCacheKey = key;
   }
 
   // Search and filter methods
@@ -168,6 +200,16 @@ export class ExamsComponent implements OnInit, OnDestroy {
       params.subjectId = this.selectedSubject;
     }
 
+    // Check cache before making API call
+    const cacheKey = this.getCacheKey(this.currentPage);
+    const cachedData = this.pageCache.get(cacheKey);
+    
+    if (cachedData) {
+      this.handleExamResponse(cachedData.data, cachedData.pagination, this.currentPage);
+      this.isLoading = false;
+      return;
+    }
+
     // Call API with filters - will return cached data if available
     this.examService.getFilteredTeacherExams(params).subscribe({
       next: (response: any) => {
@@ -181,10 +223,9 @@ export class ExamsComponent implements OnInit, OnDestroy {
           return;
         }
 
-        this.exams = response.data.exams;
-        this.filteredExams = [...this.exams];
-        this.totalItems = response.data.pagination.total;
-        this.totalPages = response.data.pagination.totalPages;
+        // Cache the response
+        this.cacheResponse(cacheKey, response.data.exams, response.data.pagination);
+        this.handleExamResponse(response.data.exams, response.data.pagination, this.currentPage);
       },
       error: (error: Error) => {
         console.error('Failed to load filtered exams:', error);
@@ -228,18 +269,29 @@ export class ExamsComponent implements OnInit, OnDestroy {
   }
 
   selectStatus(status: string): void {
+    if (this.selectedStatus === status) return;
+    
     this.selectedStatus = status;
     this.showStatusDropdown = false;
     this.currentPage = 1; // Reset to first page when filter changes
+    this.clearCache(); // Clear cache when filters change
     this.loadFilteredExams();
   }
 
   selectSubject(subjectId: string, subjectName: string): void {
+    if (this.selectedSubject === subjectId) return;
+    
     this.selectedSubject = subjectId;
     this.selectedSubjectName = subjectName;
     this.showSubjectDropdown = false;
     this.currentPage = 1; // Reset to first page when filter changes
+    this.clearCache(); // Clear cache when filters change
     this.loadFilteredExams();
+  }
+
+  // Clear cache when filters change
+  private clearCache(): void {
+    this.pageCache.clear();
   }
 
   // Modal methods
@@ -250,6 +302,7 @@ export class ExamsComponent implements OnInit, OnDestroy {
   closeAddExamModal(refresh?: boolean): void {
     this.showAddExamModal = false;
     if (refresh) {
+      this.clearCache(); // Clear cache when data changes
       this.loadExams(this.currentPage);
     }
   }
@@ -273,6 +326,7 @@ export class ExamsComponent implements OnInit, OnDestroy {
     this.showEditExamModal = false;
     this.selectedExamId = null;
     if (refresh) {
+      this.clearCache(); // Clear cache when data changes
       this.loadExams(this.currentPage);
     }
   }
@@ -349,6 +403,7 @@ export class ExamsComponent implements OnInit, OnDestroy {
 
     this.examService.updateExamStatus(examId, !exam.isActive).subscribe({
       next: () => {
+        this.clearCache(); // Clear cache when data changes
         this.loadExams(this.currentPage);
       },
       error: (error: Error) => {
