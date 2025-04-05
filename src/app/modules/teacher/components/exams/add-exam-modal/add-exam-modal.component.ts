@@ -42,8 +42,7 @@ export class AddExamModalComponent implements OnInit {
       passingMarks: ['', [Validators.required, Validators.min(1)]],
       duration: ['', [Validators.required, Validators.min(1)]],
       startDate: ['', [Validators.required]],
-      endDate: ['', [Validators.required]],
-      isActive: [false]
+      endDate: ['', [Validators.required]]
     });
   }
 

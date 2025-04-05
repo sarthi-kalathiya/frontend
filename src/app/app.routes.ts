@@ -101,6 +101,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'exams/:id',
+        loadComponent: () =>
+          import('./modules/teacher/components/exams/exam-details/exam-details.component').then(
+            (c) => c.ExamDetailsComponent
+          ),
+      },
+      {
         path: 'assignments',
         loadComponent: () =>
           import(

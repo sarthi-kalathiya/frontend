@@ -1,0 +1,238 @@
+<div class="exam-details-container">
+  <!-- Loading and Error States -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading exam details...</p>
+  </div>
+
+  <div *ngIf="error && !isLoading" class="error-container">
+    <div class="alert alert-danger">{{ error }}</div>
+    <button class="btn btn-primary mt-3" (click)="navigateBack()">
+      Go Back
+    </button>
+  </div>
+
+  <!-- Exam Details Content -->
+  <div *ngIf="!isLoading && !error && exam" class="exam-details-content">
+    <!-- Header -->
+    <div class="exam-header">
+      <div class="back-button">
+        <button class="btn btn-icon" (click)="navigateBack()" aria-label="Go back to exams list" title="Go back">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+      </div>
+
+      <div class="exam-title">
+        <h1>{{ exam.name }}</h1>
+        <p class="subject-name">{{ exam.subject?.name }}</p>
+      </div>
+
+      <div class="action-buttons">
+        <!-- Removed top action buttons as requested -->
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Left Column - Exam Details -->
+      <div class="details-card">
+        <div class="card-header">
+          <h2>Exam Details</h2>
+          <p>View and manage exam information</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button 
+            class="tab-button" 
+            [class.active]="activeTab === 'overview'"
+            (click)="setActiveTab('overview')"
+          >
+            Overview
+          </button>
+          <button 
+            class="tab-button" 
+            [class.active]="activeTab === 'students'"
+            (click)="setActiveTab('students')"
+          >
+            Students
+          </button>
+          <button 
+            class="tab-button" 
+            [class.active]="activeTab === 'questions'"
+            (click)="setActiveTab('questions')"
+          >
+            Questions
+          </button>
+        </div>
+
+        <!-- Overview Tab Content -->
+        <div *ngIf="activeTab === 'overview'" class="tab-content">
+          <div class="info-grid">
+            <div class="info-row">
+              <div class="info-item">
+                <h3>Exam Name</h3>
+                <p>{{ exam.name }}</p>
+              </div>
+              <div class="info-item">
+                <h3>Total Marks</h3>
+                <p>{{ exam.totalMarks }}</p>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-item">
+                <h3>Subject</h3>
+                <p>{{ exam.subject?.name }}</p>
+              </div>
+              <div class="info-item">
+                <h3>Passing Marks</h3>
+                <p>{{ exam.passingMarks }}</p>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-item">
+                <h3>Status</h3>
+                <span class="status-badge upcoming">
+                  {{ getStatusText(exam) }}
+                </span>
+              </div>
+              <div class="info-item">
+                <h3>Duration</h3>
+                <p><i class="far fa-clock"></i> {{ exam.duration }} hour</p>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-item">
+                <h3>Number of Questions</h3>
+                <p>{{ exam.numQuestions }}</p>
+              </div>
+              <div class="info-item">
+                <h3>Date & Time</h3>
+                <div class="datetime-info">
+                  <div class="icon"><i class="far fa-calendar-alt"></i></div>
+                  <div class="text">
+                    <p>Start: {{ formatDate(exam.startDate) }}</p>
+                    <p>End: {{ formatDate(exam.endDate) }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-item">
+                <h3>Created At</h3>
+                <p>{{ formatDate(exam.createdAt) }}</p>
+              </div>
+              <div class="info-item">
+                <h3>Last Updated</h3>
+                <p>{{ formatDate(exam.updatedAt) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Students Tab Content -->
+        <div *ngIf="activeTab === 'students'" class="tab-content">
+          <div class="students-header">
+            <h3>Students Assigned</h3>
+            <div class="count">{{ studentsAssigned }}</div>
+            <button class="manage-btn" (click)="navigateToManageStudents()">
+              <i class="fas fa-users"></i> Manage Students
+            </button>
+          </div>
+
+          <div class="stats-container">
+            <div class="stat-card">
+              <h4>Completed</h4>
+              <div class="stat-value">{{ studentsCompleted }}</div>
+              <div class="stat-percentage">{{ (studentsCompleted / studentsAssigned * 100) || 0 }}% of students</div>
+            </div>
+
+            <div class="stat-card">
+              <h4>Pending</h4>
+              <div class="stat-value">{{ studentsPending }}</div>
+              <div class="stat-percentage">{{ (studentsPending / studentsAssigned * 100) || 0 }}% of students</div>
+            </div>
+
+            <div class="stat-card">
+              <h4>Banned</h4>
+              <div class="stat-value">{{ studentsBanned }}</div>
+              <div class="stat-percentage">{{ (studentsBanned / studentsAssigned * 100) || 0 }}% of students</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Questions Tab Content -->
+        <div *ngIf="activeTab === 'questions'" class="tab-content">
+          <div class="questions-header">
+            <h3>Total Questions</h3>
+            <div class="count">{{ exam?.numQuestions || 15 }}</div>
+            <button class="manage-btn" (click)="navigateToManageQuestions()">
+              <i class="far fa-file-alt"></i> Manage Questions
+            </button>
+          </div>
+
+          <div class="questions-message">
+            <p>Click on "Manage Questions" to view and add questions to this exam.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Quick Actions -->
+      <div class="actions-card">
+        <div class="card-header">
+          <h2>Quick Actions</h2>
+        </div>
+
+        <div class="action-list">
+          <button class="action-button" (click)="openEditExamModal()">
+            <i class="fas fa-edit"></i> Edit Exam
+          </button>
+          
+          <button class="action-button" (click)="navigateToManageQuestions()">
+            <i class="far fa-file-alt"></i> Manage Questions
+          </button>
+          
+          <button class="action-button" (click)="navigateToManageStudents()">
+            <i class="fas fa-users"></i> Manage Students
+          </button>
+        </div>
+
+        <!-- Exam Status Section -->
+        <div class="exam-status-section">
+          <h3>Exam Status</h3>
+          <span class="status-badge upcoming">{{ selectedStatus }}</span>
+          
+          <p class="status-description">
+            Change the status of this exam to control its visibility
+            and availability to students.
+          </p>
+
+          <div class="status-dropdown">
+            <select 
+              class="status-select" 
+              [(ngModel)]="selectedStatus" 
+              (change)="updateExamStatus(selectedStatus)"
+              aria-label="Change exam status"
+              title="Change exam status"
+            >
+              <option value="Upcoming">Upcoming</option>
+              <option value="Draft">Draft</option>
+            </select>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Exam Modal -->
+<app-edit-exam-modal 
+  *ngIf="showEditModal" 
+  [examId]="examId" 
+  (close)="closeEditExamModal($event)"
+></app-edit-exam-modal> 

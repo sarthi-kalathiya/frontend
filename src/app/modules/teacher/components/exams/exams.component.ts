@@ -13,6 +13,8 @@ import { debounceTime, distinctUntilChanged, takeUntil, finalize } from 'rxjs/op
 import { AddExamModalComponent } from './add-exam-modal/add-exam-modal.component';
 import { ViewExamModalComponent } from './view-exam-modal/view-exam-modal.component';
 import { EditExamModalComponent } from './edit-exam-modal/edit-exam-modal.component';
+import { Router } from '@angular/router';
+import { ToastService } from '@app/core/services/toast.service';
 
 @Component({
   selector: 'app-exams',
@@ -71,7 +73,9 @@ export class ExamsComponent implements OnInit, OnDestroy {
 
   constructor(
     private examService: ExamService,
-    private subjectService: SubjectService
+    private subjectService: SubjectService,
+    private router: Router,
+    private toastService: ToastService
   ) {
     // Setup search debounce
     this.searchSubject
@@ -308,8 +312,8 @@ export class ExamsComponent implements OnInit, OnDestroy {
   }
 
   openViewExamModal(examId: string): void {
-    this.selectedExamId = examId;
-    this.showViewExamModal = true;
+    // Navigate to exam details page instead of showing a modal
+    this.router.navigate(['/teacher/exams', examId]);
   }
 
   closeViewExamModal(): void {
@@ -414,11 +418,12 @@ export class ExamsComponent implements OnInit, OnDestroy {
 
   navigateToQuestions(examId: string): void {
     // TODO: Implement navigation to questions management
+    this.toastService.showInfo('Questions management will be implemented soon');
   }
 
   assignStudents(examId: string): void {
     // TODO: Implement student assignment functionality
-    console.log(`Assign students to exam ${examId}`);
+    this.toastService.showInfo('Student assignment will be implemented soon');
   }
 
   exportResults(examId: string): void {
