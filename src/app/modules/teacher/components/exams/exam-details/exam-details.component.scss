@@ -397,6 +397,11 @@ $info-color: #2196f3;
         outline: none;
         border-color: $secondary-color;
       }
+      
+      option:disabled {
+        color: #cccccc;
+        font-style: italic;
+      }
     }
     
     i {

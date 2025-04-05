@@ -364,12 +364,6 @@ export class ExamsComponent implements OnInit, OnDestroy {
       },
       {
         id: exam.id,
-        label: 'Export Results',
-        icon: 'fas fa-download',
-        action: 'export',
-      },
-      {
-        id: exam.id,
         label: 'Delete',
         icon: 'far fa-trash-alt',
         action: 'delete',

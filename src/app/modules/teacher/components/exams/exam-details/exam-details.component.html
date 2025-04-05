@@ -206,12 +206,20 @@
           <h3>Exam Status</h3>
           <span class="status-badge" [class]="selectedStatus.toLowerCase()">{{ selectedStatus }}</span>
           
-          <p class="status-description">
+          <p class="status-description" *ngIf="canChangeStatus(selectedStatus)">
             Change the status of this exam to control its visibility
             and availability to students.
+            <span *ngIf="selectedStatus === 'Active'">
+              <strong>Note:</strong> Once an exam is Active, it cannot be changed back to Draft.
+            </span>
+          </p>
+          
+          <p class="status-description" *ngIf="!canChangeStatus(selectedStatus)">
+            This exam is in <strong>{{ selectedStatus }}</strong> status and cannot be changed.
+            <span *ngIf="selectedStatus === 'Finished'">You can create a new exam based on this one if needed.</span>
           </p>
 
-          <div class="status-dropdown">
+          <div class="status-dropdown" *ngIf="canChangeStatus(selectedStatus)">
             <select 
               class="status-select" 
               [(ngModel)]="selectedStatus" 
@@ -219,8 +227,7 @@
               aria-label="Change exam status"
               title="Change exam status"
             >
-              <option value="Active">Active</option>
-              <option value="Draft">Draft</option>
+              <option *ngFor="let option of getAvailableStatusOptions()" [value]="option">{{ option }}</option>
             </select>
             <i class="fas fa-chevron-down"></i>
           </div>
