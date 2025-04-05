@@ -1,0 +1,177 @@
+<div class="modal-backdrop" (click)="onClose()"></div>
+<div class="modal-container">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Edit Exam</h2>
+      <button class="close-btn" (click)="onClose()" title="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="loading-overlay" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading exam data...</p>
+    </div>
+
+    <form [formGroup]="examForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+      <div class="modal-body">
+        <!-- Error message -->
+        <div class="alert alert-danger" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <!-- Basic Information section -->
+        <div class="form-section">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Exam Name <span class="required">*</span></label>
+              <input
+                type="text"
+                id="name"
+                formControlName="name"
+                placeholder="e.g., Sessional 1"
+                [class.is-invalid]="examForm.get('name')?.invalid && examForm.get('name')?.touched"
+              />
+              <div class="invalid-feedback" *ngIf="examForm.get('name')?.invalid && examForm.get('name')?.touched">
+                <span *ngIf="examForm.get('name')?.errors?.['required']">Exam name is required</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="subjectId">Subject <span class="required">*</span></label>
+              <div class="select-wrapper">
+                <select
+                  id="subjectId"
+                  formControlName="subjectId"
+                  [class.is-invalid]="examForm.get('subjectId')?.invalid && examForm.get('subjectId')?.touched"
+                >
+                  <option value="">Select a subject</option>
+                  <option *ngFor="let subject of subjects" [value]="subject.id">
+                    {{ subject.name }}
+                  </option>
+                </select>
+                <i class="fas fa-chevron-down"></i>
+              </div>
+              <div class="invalid-feedback" *ngIf="examForm.get('subjectId')?.invalid && examForm.get('subjectId')?.touched">
+                <span *ngIf="examForm.get('subjectId')?.errors?.['required']">Subject is required</span>
+              </div>
+              <div class="loading-indicator" *ngIf="isLoadingSubjects">
+                <i class="fas fa-spinner fa-spin"></i> Loading subjects...
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="numQuestions">Number of Questions <span class="required">*</span></label>
+              <input
+                type="number"
+                id="numQuestions"
+                formControlName="numQuestions"
+                placeholder="e.g., 10"
+                [class.is-invalid]="examForm.get('numQuestions')?.invalid && examForm.get('numQuestions')?.touched"
+              />
+              <div class="invalid-feedback" *ngIf="examForm.get('numQuestions')?.invalid && examForm.get('numQuestions')?.touched">
+                <span *ngIf="examForm.get('numQuestions')?.errors?.['required']">Number of questions is required</span>
+                <span *ngIf="examForm.get('numQuestions')?.errors?.['min']">Number of questions must be at least 1</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="totalMarks">Total Marks <span class="required">*</span></label>
+              <input
+                type="number"
+                id="totalMarks"
+                formControlName="totalMarks"
+                placeholder="e.g., 100"
+                [class.is-invalid]="examForm.get('totalMarks')?.invalid && examForm.get('totalMarks')?.touched"
+              />
+              <div class="invalid-feedback" *ngIf="examForm.get('totalMarks')?.invalid && examForm.get('totalMarks')?.touched">
+                <span *ngIf="examForm.get('totalMarks')?.errors?.['required']">Total marks is required</span>
+                <span *ngIf="examForm.get('totalMarks')?.errors?.['min']">Total marks must be at least 1</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="passingMarks">Passing Marks <span class="required">*</span></label>
+              <input
+                type="number"
+                id="passingMarks"
+                formControlName="passingMarks"
+                placeholder="e.g., 40"
+                [class.is-invalid]="examForm.get('passingMarks')?.invalid && examForm.get('passingMarks')?.touched"
+              />
+              <div class="invalid-feedback" *ngIf="examForm.get('passingMarks')?.invalid && examForm.get('passingMarks')?.touched">
+                <span *ngIf="examForm.get('passingMarks')?.errors?.['required']">Passing marks is required</span>
+                <span *ngIf="examForm.get('passingMarks')?.errors?.['min']">Passing marks must be at least 1</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="duration">Duration (minutes) <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i class="far fa-clock"></i>
+                <input
+                  type="number"
+                  id="duration"
+                  formControlName="duration"
+                  placeholder="e.g., 60"
+                  [class.is-invalid]="examForm.get('duration')?.invalid && examForm.get('duration')?.touched"
+                />
+              </div>
+              <div class="invalid-feedback" *ngIf="examForm.get('duration')?.invalid && examForm.get('duration')?.touched">
+                <span *ngIf="examForm.get('duration')?.errors?.['required']">Duration is required</span>
+                <span *ngIf="examForm.get('duration')?.errors?.['min']">Duration must be at least 1 minute</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="startDate">Start Date & Time <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i class="far fa-calendar-alt"></i>
+                <input
+                  type="datetime-local"
+                  id="startDate"
+                  formControlName="startDate"
+                  [class.is-invalid]="examForm.get('startDate')?.invalid && examForm.get('startDate')?.touched"
+                />
+              </div>
+              <div class="invalid-feedback" *ngIf="examForm.get('startDate')?.invalid && examForm.get('startDate')?.touched">
+                <span *ngIf="examForm.get('startDate')?.errors?.['required']">Start date and time is required</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="endDate">End Date & Time <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i class="far fa-calendar-alt"></i>
+                <input
+                  type="datetime-local"
+                  id="endDate"
+                  formControlName="endDate"
+                  [class.is-invalid]="examForm.get('endDate')?.invalid && examForm.get('endDate')?.touched"
+                />
+              </div>
+              <div class="invalid-feedback" *ngIf="examForm.get('endDate')?.invalid && examForm.get('endDate')?.touched">
+                <span *ngIf="examForm.get('endDate')?.errors?.['required']">End date and time is required</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" [disabled]="isSubmitting" (click)="onClose()">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          {{ isSubmitting ? "Saving Changes..." : "Save Changes" }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div> 

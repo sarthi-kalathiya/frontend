@@ -115,7 +115,7 @@ export class ExamService {
     
     return this.http
       .get<{ status: string; message: string; data: Exam }>(
-        `${API_URL}/exams/${id}`
+        `${API_URL}/teacher/exams/${id}`
       )
       .pipe(
         map((response) => response.data),
@@ -132,7 +132,7 @@ export class ExamService {
     
     return this.http
       .post<{ status: string; message: string; data: Exam }>(
-        `${API_URL}/exams`,
+        `${API_URL}/teacher/exams`,
         data
       )
       .pipe(map((response) => response.data));
@@ -145,7 +145,7 @@ export class ExamService {
     
     return this.http
       .put<{ status: string; message: string; data: Exam }>(
-        `${API_URL}/exams/${id}`,
+        `${API_URL}/teacher/exams/${id}`,
         data
       )
       .pipe(map((response) => response.data));
@@ -158,7 +158,7 @@ export class ExamService {
     
     return this.http
       .patch<{ status: string; message: string; data: Exam }>(
-        `${API_URL}/exams/${id}/status`,
+        `${API_URL}/teacher/exams/${id}/status`,
         { isActive }
       )
       .pipe(map((response) => response.data));
@@ -169,7 +169,7 @@ export class ExamService {
     this.clearExamsCache();
     this.cacheService.remove(this.cachePrefix + 'exam_' + id);
     
-    return this.http.delete<void>(`${API_URL}/exams/${id}`);
+    return this.http.delete<void>(`${API_URL}/teacher/exams/${id}`);
   }
   
   // Clear all exam list related cache entries
