@@ -6,9 +6,10 @@ import {
   ActionMenuItem,
 } from '@shared/components/action-menu/action-menu.component';
 import { ExamService, Exam } from '../../services/exam.service';
+import { SubjectService } from '@app/core/services/subject.service';
 import { HttpClientModule } from '@angular/common/http';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { Subject as RxjsSubject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil, finalize } from 'rxjs/operators';
 import { AddExamModalComponent } from './add-exam-modal/add-exam-modal.component';
 import { ViewExamModalComponent } from './view-exam-modal/view-exam-modal.component';
 import { EditExamModalComponent } from './edit-exam-modal/edit-exam-modal.component';
@@ -31,6 +32,7 @@ import { EditExamModalComponent } from './edit-exam-modal/edit-exam-modal.compon
 export class ExamsComponent implements OnInit, OnDestroy {
   // States
   isLoading = true;
+  isLoadingSubjects = false;
   error: string | null = null;
   showAddExamModal = false;
   showViewExamModal = false;
@@ -39,8 +41,12 @@ export class ExamsComponent implements OnInit, OnDestroy {
 
   // Filters
   searchTerm = '';
-  selectedStatus = 'All Statuses';
-  showStatusDropdown = false;
+  selectedStatus: string = '';
+  selectedSubject: string = '';
+  selectedSubjectName: string = 'All Subjects';
+  showStatusDropdown: boolean = false;
+  showSubjectDropdown: boolean = false;
+  subjects: any[] = []; // Will be populated from the API
 
   // Pagination
   currentPage = 1;
@@ -53,28 +59,55 @@ export class ExamsComponent implements OnInit, OnDestroy {
   filteredExams: Exam[] = [];
 
   // For cleanup
-  private destroy$ = new Subject<void>();
-  private searchSubject = new Subject<string>();
+  private destroy$ = new RxjsSubject<void>();
+  private searchSubject = new RxjsSubject<string>();
 
   // Make Math available to template
   protected readonly Math = Math;
 
-  constructor(private examService: ExamService) {
+  constructor(
+    private examService: ExamService,
+    private subjectService: SubjectService
+  ) {
     // Setup search debounce
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe(() => {
-        this.applyFilters();
+        this.loadFilteredExams();
       });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', () => {
+      this.showStatusDropdown = false;
+      this.showSubjectDropdown = false;
+    });
   }
 
   ngOnInit(): void {
+    this.loadSubjects();
     this.loadExams();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  loadSubjects(): void {
+    this.isLoadingSubjects = true;
+    
+    this.subjectService.getMySubjects()
+      .pipe(finalize(() => this.isLoadingSubjects = false))
+      .subscribe({
+        next: (response: any) => {
+          if (response && response.data) {
+            this.subjects = response.data;
+          }
+        },
+        error: (error: any) => {
+          console.error('Failed to load subjects:', error);
+        }
+      });
   }
 
   loadExams(page: number = 1): void {
@@ -110,63 +143,131 @@ export class ExamsComponent implements OnInit, OnDestroy {
   }
 
   // Search and filter methods
+  loadFilteredExams(): void {
+    this.isLoading = true;
+    this.error = null;
+
+    // Apply client-side filtering for now, but this should ideally be server-side
+    const page = this.currentPage;
+    const pageSize = this.pageSize;
+    
+    this.examService.getTeacherExams(page, pageSize).subscribe({
+      next: (response: any) => {
+        if (
+          !response ||
+          !response.data ||
+          !response.data.exams ||
+          !response.data.pagination
+        ) {
+          this.error = 'Invalid response from server';
+          return;
+        }
+
+        let filteredExams = [...response.data.exams];
+
+        // Apply search filter
+        if (this.searchTerm) {
+          const searchLower = this.searchTerm.toLowerCase();
+          filteredExams = filteredExams.filter(
+            (exam) =>
+              exam.name.toLowerCase().includes(searchLower) ||
+              exam.subject.name.toLowerCase().includes(searchLower) ||
+              exam.subject.code.toLowerCase().includes(searchLower)
+          );
+        }
+
+        // Apply status filter
+        if (this.selectedStatus) {
+          filteredExams = filteredExams.filter((exam) => {
+            const currentDate = new Date();
+            const startDate = new Date(exam.startDate);
+            const endDate = new Date(exam.endDate);
+
+            switch (this.selectedStatus) {
+              case 'active':
+                return (
+                  exam.isActive &&
+                  startDate <= currentDate &&
+                  endDate >= currentDate
+                );
+              case 'draft':
+                return !exam.isActive;
+              case 'upcoming':
+                return exam.isActive && startDate > currentDate;
+              case 'completed':
+                return exam.isActive && endDate < currentDate;
+              default:
+                return true;
+            }
+          });
+        }
+
+        // Apply subject filter
+        if (this.selectedSubject) {
+          filteredExams = filteredExams.filter(
+            (exam) => exam.subjectId === this.selectedSubject
+          );
+        }
+
+        this.filteredExams = filteredExams;
+        this.exams = response.data.exams; // Keep the original exams for reference
+        this.totalItems = response.data.pagination.total;
+        this.totalPages = response.data.pagination.totalPages;
+      },
+      error: (error: Error) => {
+        console.error('Failed to load filtered exams:', error);
+        this.error = error.message || 'Failed to load exams';
+      },
+      complete: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+
   onSearchInput(event: Event): void {
     const target = event.target as HTMLInputElement;
     this.searchTerm = target.value;
     this.searchSubject.next(this.searchTerm);
   }
 
-  toggleStatusDropdown(): void {
+  toggleStatusDropdown(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
     this.showStatusDropdown = !this.showStatusDropdown;
+    if (this.showStatusDropdown) {
+      this.showSubjectDropdown = false;
+    }
+  }
+
+  toggleSubjectDropdown(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.showSubjectDropdown = !this.showSubjectDropdown;
+    if (this.showSubjectDropdown) {
+      this.showStatusDropdown = false;
+      
+      // Load subjects if not already loaded
+      if (this.subjects.length === 0 && !this.isLoadingSubjects) {
+        this.loadSubjects();
+      }
+    }
   }
 
   selectStatus(status: string): void {
     this.selectedStatus = status;
     this.showStatusDropdown = false;
-    this.applyFilters();
+    this.currentPage = 1; // Reset to first page when filter changes
+    this.loadFilteredExams();
   }
 
-  applyFilters(): void {
-    let filtered = [...this.exams];
-
-    // Apply search filter
-    if (this.searchTerm) {
-      const searchLower = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (exam) =>
-          exam.name.toLowerCase().includes(searchLower) ||
-          exam.subject.name.toLowerCase().includes(searchLower) ||
-          exam.subject.code.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // Apply status filter
-    if (this.selectedStatus !== 'All Statuses') {
-      filtered = filtered.filter((exam) => {
-        const currentDate = new Date();
-        const startDate = new Date(exam.startDate);
-        const endDate = new Date(exam.endDate);
-
-        switch (this.selectedStatus) {
-          case 'Active':
-            return (
-              exam.isActive &&
-              startDate <= currentDate &&
-              endDate >= currentDate
-            );
-          case 'Draft':
-            return !exam.isActive;
-          case 'Upcoming':
-            return exam.isActive && startDate > currentDate;
-          case 'Completed':
-            return exam.isActive && endDate < currentDate;
-          default:
-            return true;
-        }
-      });
-    }
-
-    this.filteredExams = filtered;
+  selectSubject(subjectId: string, subjectName: string): void {
+    this.selectedSubject = subjectId;
+    this.selectedSubjectName = subjectName;
+    this.showSubjectDropdown = false;
+    this.currentPage = 1; // Reset to first page when filter changes
+    this.loadFilteredExams();
   }
 
   // Modal methods
@@ -210,26 +311,39 @@ export class ExamsComponent implements OnInit, OnDestroy {
       {
         id: exam.id,
         label: 'View Details',
-        icon: 'fas fa-eye',
+        icon: 'far fa-file-alt',
         action: 'view',
       },
       {
         id: exam.id,
-        label: 'Edit',
-        icon: 'fas fa-edit',
+        label: 'Edit Exam',
+        icon: 'far fa-edit',
         action: 'edit',
       },
       {
         id: exam.id,
-        label: exam.isActive ? 'Deactivate' : 'Activate',
-        icon: exam.isActive ? 'fas fa-ban' : 'fas fa-check',
-        action: 'toggle-status',
+        label: 'Manage Questions',
+        icon: 'far fa-list-alt',
+        action: 'questions',
       },
       {
         id: exam.id,
-        label: 'Manage Questions',
-        icon: 'fas fa-list',
-        action: 'manage-questions',
+        label: 'Assign Students',
+        icon: 'fas fa-user-plus',
+        action: 'assign',
+      },
+      {
+        id: exam.id,
+        label: 'Export Results',
+        icon: 'fas fa-download',
+        action: 'export',
+      },
+      {
+        id: exam.id,
+        label: 'Delete',
+        icon: 'far fa-trash-alt',
+        action: 'delete',
+        // class: 'delete',
       },
     ];
   }
@@ -242,11 +356,17 @@ export class ExamsComponent implements OnInit, OnDestroy {
       case 'edit':
         this.openEditExamModal(event.id);
         break;
-      case 'toggle-status':
-        this.toggleExamStatus(event.id);
-        break;
-      case 'manage-questions':
+      case 'questions':
         this.navigateToQuestions(event.id);
+        break;
+      case 'assign':
+        this.assignStudents(event.id);
+        break;
+      case 'export':
+        this.exportResults(event.id);
+        break;
+      case 'delete':
+        this.deleteExam(event.id);
         break;
     }
   }
@@ -267,6 +387,21 @@ export class ExamsComponent implements OnInit, OnDestroy {
 
   navigateToQuestions(examId: string): void {
     // TODO: Implement navigation to questions management
+  }
+
+  assignStudents(examId: string): void {
+    // TODO: Implement student assignment functionality
+    console.log(`Assign students to exam ${examId}`);
+  }
+
+  exportResults(examId: string): void {
+    // TODO: Implement results export functionality
+    console.log(`Export results for exam ${examId}`);
+  }
+
+  deleteExam(examId: string): void {
+    // TODO: Implement exam deletion with confirmation
+    console.log(`Delete exam ${examId}`);
   }
 
   // Helper methods
@@ -295,7 +430,8 @@ export class ExamsComponent implements OnInit, OnDestroy {
   // Pagination methods
   onPageChange(page: number | '...'): void {
     if (typeof page === 'number' && page !== this.currentPage) {
-      this.loadExams(page);
+      this.currentPage = page;
+      this.loadFilteredExams();
     }
   }
 

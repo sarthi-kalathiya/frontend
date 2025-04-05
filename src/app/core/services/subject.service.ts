@@ -156,6 +156,30 @@ export class SubjectService {
       );
   }
 
+  // Get current user's assigned subjects
+  getMySubjects(): Observable<any> {
+    const cacheKey = this.cachePrefix + 'my_subjects';
+
+    // Check cache first
+    const cachedData = this.cacheService.get<any>(cacheKey);
+    if (cachedData) {
+      return of(cachedData);
+    }
+
+    return this.http
+      .get<any>(`${this.apiUrl}/subjects/my/subjects`)
+      .pipe(
+        tap((response) => {
+          // Save the response to cache
+          this.cacheService.set(cacheKey, response);
+        }),
+        catchError((error) => {
+          console.error('Error fetching my subjects:', error);
+          throw error;
+        })
+      );
+  }
+
   // Assign subjects to a user
   assignSubjectsToUser(userId: string, subjectIds: string[]): Observable<any> {
     // Clear user subjects cache when assigning subjects
@@ -170,6 +194,13 @@ export class SubjectService {
   // Clear all subject list related cache entries
   clearSubjectsCache(): void {
     this.cacheService.clearByPrefix(this.cachePrefix + 'subjects_');
+    // Also clear my subjects cache
+    this.clearMySubjectsCache();
+  }
+
+  // Clear current user subjects cache
+  clearMySubjectsCache(): void {
+    this.cacheService.remove(this.cachePrefix + 'my_subjects');
   }
 
   // Helper method to convert an object to a query string for cache keys

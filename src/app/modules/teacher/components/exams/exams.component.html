@@ -1,8 +1,8 @@
 <div class="exams-container">
   <div class="user-management">
     <div class="section-header">
-      <h2>Exam Management</h2>
-      <p>Create and manage exams for your subjects.</p>
+      <h2>Exams</h2>
+      <p>Manage your exams, questions, and student assignments</p>
     </div>
 
     <div class="filter-bar">
@@ -23,51 +23,91 @@
           <div class="custom-select">
             <button
               class="form-select"
-              (click)="$event.stopPropagation(); toggleStatusDropdown()"
+              (click)="$event.stopPropagation(); toggleStatusDropdown($event)"
             >
-              {{ selectedStatus }}
+              {{ selectedStatus ? (selectedStatus | titlecase) : 'All Statuses' }}
             </button>
             <div class="dropdown-menu" *ngIf="showStatusDropdown">
               <button
                 class="dropdown-item"
-                [ngClass]="{ active: selectedStatus === 'All Statuses' }"
-                (click)="selectStatus('All Statuses')"
+                [ngClass]="{ active: selectedStatus === '' }"
+                (click)="selectStatus('')"
               >
                 All Statuses
               </button>
               <button
                 class="dropdown-item"
-                [ngClass]="{ active: selectedStatus === 'Active' }"
-                (click)="selectStatus('Active')"
+                [ngClass]="{ active: selectedStatus === 'active' }"
+                (click)="selectStatus('active')"
               >
                 Active
               </button>
               <button
                 class="dropdown-item"
-                [ngClass]="{ active: selectedStatus === 'Draft' }"
-                (click)="selectStatus('Draft')"
+                [ngClass]="{ active: selectedStatus === 'draft' }"
+                (click)="selectStatus('draft')"
               >
                 Draft
               </button>
               <button
                 class="dropdown-item"
-                [ngClass]="{ active: selectedStatus === 'Upcoming' }"
-                (click)="selectStatus('Upcoming')"
+                [ngClass]="{ active: selectedStatus === 'upcoming' }"
+                (click)="selectStatus('upcoming')"
               >
                 Upcoming
               </button>
               <button
                 class="dropdown-item"
-                [ngClass]="{ active: selectedStatus === 'Completed' }"
-                (click)="selectStatus('Completed')"
+                [ngClass]="{ active: selectedStatus === 'completed' }"
+                (click)="selectStatus('completed')"
               >
                 Completed
               </button>
             </div>
           </div>
+
+          <div class="custom-select">
+            <button
+              class="form-select"
+              (click)="$event.stopPropagation(); toggleSubjectDropdown($event)"
+            >
+              {{ selectedSubjectName || 'All Subjects' }}
+            </button>
+            <div class="dropdown-menu" *ngIf="showSubjectDropdown">
+              <button
+                class="dropdown-item"
+                [ngClass]="{ active: selectedSubject === '' }"
+                (click)="selectSubject('', 'All Subjects')"
+              >
+                All Subjects
+              </button>
+              <button
+                *ngFor="let subject of subjects"
+                class="dropdown-item"
+                [ngClass]="{ active: selectedSubject === subject.id }"
+                (click)="selectSubject(subject.id, subject.name)"
+              >
+                {{ subject.name }}
+              </button>
+              <button 
+                class="dropdown-item" 
+                *ngIf="isLoadingSubjects"
+                disabled
+              >
+                <i class="fas fa-spinner fa-spin mr-2"></i> Loading subjects...
+              </button>
+              <button 
+                class="dropdown-item" 
+                *ngIf="!isLoadingSubjects && subjects.length === 0"
+                disabled
+              >
+                No subjects found
+              </button>
+            </div>
+          </div>
         </div>
 
-        <button class="btn btn-primary add-btn" (click)="openAddExamModal()">
+        <button class="add-btn" (click)="openAddExamModal()">
           <i class="fas fa-plus"></i>
           Create Exam
         </button>
@@ -75,6 +115,60 @@
     </div>
 
     <div class="data-table">
+      <!-- Exam table -->
+      <table *ngIf="!isLoading && !error && filteredExams.length > 0">
+        <thead>
+          <tr>
+            <th>Exam Name</th>
+            <th>Subject</th>
+            <th>Marks</th>
+            <th>Questions</th>
+            <th>Date <i class="fas fa-sort-down"></i></th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let exam of filteredExams">
+            <td class="exam-name">
+              <div>{{ exam.name }}</div>
+              <small>Created: {{ exam.createdAt | date:'MMM d, yyyy, h:mm a' }}</small>
+            </td>
+            <td>
+              <div class="subject-info">
+                {{ exam.subject.name }}
+                <small>{{ exam.subject.code }}</small>
+              </div>
+            </td>
+            <td>
+              <div class="marks-info">
+                {{ exam.totalMarks }}
+                <small>Pass: {{ exam.passingMarks ?? (exam.totalMarks * 0.4) | number:'1.0-0' }}</small>
+              </div>
+            </td>
+            <td>{{ exam.numQuestions ?? exam.currentQuestionCount }}</td>
+            <td>
+              <div class="date-info">
+                {{ exam.startDate | date : "MMM d" }}
+                <small>{{ exam.duration }} min</small>
+              </div>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="getStatusBadgeClass(exam)">
+                {{ getStatusText(exam) }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <app-action-menu
+                [items]="getExamMenuItems(exam)"
+                [targetId]="exam.id"
+                (onAction)="handleMenuAction($event)"
+              ></app-action-menu>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
       <!-- Loading and error states -->
       <div *ngIf="isLoading" class="loading-state">
         <div class="spinner"></div>
@@ -95,61 +189,16 @@
         <button
           class="btn-reset"
           (click)="
-            selectStatus('All Statuses'); searchTerm = ''; applyFilters()
+            selectStatus('');
+            searchTerm = '';
+            selectedSubject = '';
+            selectedSubjectName = 'All Subjects';
+            loadFilteredExams()
           "
         >
           Reset Filters
         </button>
       </div>
-
-      <!-- Exam table -->
-      <table *ngIf="!isLoading && !error && filteredExams.length > 0">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Subject</th>
-            <th>Questions</th>
-            <th>Duration</th>
-            <th>Start Date</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let exam of filteredExams">
-            <td>{{ exam.name }}</td>
-            <td>
-              <div class="subject-info">
-                {{ exam.subject.name }}
-                <small>{{ exam.subject.code }}</small>
-              </div>
-            </td>
-            <td>
-              <div class="questions-info">
-                {{ exam.currentQuestionCount }} / {{ exam.numQuestions }}
-                <small
-                  >{{ exam.currentTotalMarks }} /
-                  {{ exam.totalMarks }} marks</small
-                >
-              </div>
-            </td>
-            <td>{{ exam.duration }} hr</td>
-            <td>{{ exam.startDate | date : "MMM d, y, h:mm a" }}</td>
-            <td>
-              <span class="badge" [ngClass]="getStatusBadgeClass(exam)">
-                {{ getStatusText(exam) }}
-              </span>
-            </td>
-            <td>
-              <app-action-menu
-                [items]="getExamMenuItems(exam)"
-                [targetId]="exam.id"
-                (onAction)="handleMenuAction($event)"
-              ></app-action-menu>
-            </td>
-          </tr>
-        </tbody>
-      </table>
 
       <!-- Pagination controls -->
       <div
