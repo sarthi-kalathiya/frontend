@@ -16,6 +16,7 @@ $warning-color: #ff9800;
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   padding: 24px;
+  width: 100%;
 
   .section-header {
     margin-bottom: 24px;
@@ -172,10 +173,12 @@ $warning-color: #ff9800;
 
   .data-table {
     overflow-x: auto;
+    width: 100%;
 
     table {
       width: 100%;
       border-collapse: collapse;
+      min-width: 800px;
 
       th,
       td {

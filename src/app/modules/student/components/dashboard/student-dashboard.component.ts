@@ -34,6 +34,7 @@ import { CommonModule, DatePipe } from '@angular/common';
         border-radius: 4px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         padding: 24px;
+        width: 100%;
       }
 
       .dashboard-header {

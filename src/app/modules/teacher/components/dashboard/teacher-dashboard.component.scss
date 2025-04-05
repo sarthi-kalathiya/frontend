@@ -44,6 +44,7 @@ $incomplete-color: #f44336;
 // Main container
 .dashboard-container {
   padding: 0;
+  width: 100%;
 }
 
 // Stats Cards
@@ -103,6 +104,7 @@ $incomplete-color: #f44336;
   grid-template-columns: 3fr 2fr;
   gap: 20px;
   margin-top: 20px;
+  width: 100%;
 }
 
 // Common card styles
