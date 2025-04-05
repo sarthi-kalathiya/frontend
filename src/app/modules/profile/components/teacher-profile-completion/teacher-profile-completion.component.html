@@ -13,61 +13,45 @@
       {{ successMessage }}
     </div>
 
-    <form
-      [formGroup]="profileForm"
-      (ngSubmit)="onSubmit()"
-      class="teacher-profile-form"
-    >
-      <div class="form-group">
-        <label for="qualification">
-          Qualification <span class="required">*</span>
-        </label>
-        <input
-          type="text"
-          id="qualification"
-          formControlName="qualification"
-          class="form-control"
-          [ngClass]="{
-            'is-invalid':
-              qualification?.invalid &&
-              (qualification?.dirty || qualification?.touched)
-          }"
-          placeholder="Your highest qualification"
-        />
-        <div
-          *ngIf="
-            qualification?.invalid &&
-            (qualification?.dirty || qualification?.touched)
-          "
-          class="invalid-feedback"
-        >
-          <div *ngIf="qualification?.errors?.['required']">
-            Qualification is required
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="qualification">
+            Qualification <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            id="qualification"
+            formControlName="qualification"
+            class="form-control"
+            [class.is-invalid]="qualification?.invalid && qualification?.touched"
+            placeholder="Enter your qualification"
+          />
+          <div
+            *ngIf="qualification?.invalid && qualification?.touched"
+            class="error-message"
+          >
+            <span *ngIf="qualification?.errors?.['required']">Qualification is required</span>
           </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="expertise">
-          Expertise <span class="required">*</span>
-        </label>
-        <input
-          type="text"
-          id="expertise"
-          formControlName="expertise"
-          class="form-control"
-          [ngClass]="{
-            'is-invalid':
-              expertise?.invalid && (expertise?.dirty || expertise?.touched)
-          }"
-          placeholder="Your area of expertise"
-        />
-        <div
-          *ngIf="expertise?.invalid && (expertise?.dirty || expertise?.touched)"
-          class="invalid-feedback"
-        >
-          <div *ngIf="expertise?.errors?.['required']">
-            Area of expertise is required
+        <div class="form-group">
+          <label for="expertise">
+            Area of Expertise <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            id="expertise"
+            formControlName="expertise"
+            class="form-control"
+            [class.is-invalid]="expertise?.invalid && expertise?.touched"
+            placeholder="Enter your area of expertise"
+          />
+          <div
+            *ngIf="expertise?.invalid && expertise?.touched"
+            class="error-message"
+          >
+            <span *ngIf="expertise?.errors?.['required']">Area of expertise is required</span>
           </div>
         </div>
       </div>
@@ -81,64 +65,47 @@
           id="experience"
           formControlName="experience"
           class="form-control"
+          [class.is-invalid]="experience?.invalid && experience?.touched"
+          placeholder="Enter years of experience"
           min="0"
-          [ngClass]="{
-            'is-invalid':
-              experience?.invalid && (experience?.dirty || experience?.touched)
-          }"
-          placeholder="Your years of teaching experience"
         />
         <div
-          *ngIf="
-            experience?.invalid && (experience?.dirty || experience?.touched)
-          "
-          class="invalid-feedback"
+          *ngIf="experience?.invalid && experience?.touched"
+          class="error-message"
         >
-          <div *ngIf="experience?.errors?.['required']">
-            Years of experience is required
-          </div>
-          <div *ngIf="experience?.errors?.['min']">
-            Experience cannot be negative
-          </div>
+          <span *ngIf="experience?.errors?.['required']">Experience is required</span>
+          <span *ngIf="experience?.errors?.['min']">Experience cannot be negative</span>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="bio"> Bio <span class="required">*</span> </label>
+        <label for="bio">
+          Professional Bio <span class="required">*</span>
+        </label>
         <textarea
           id="bio"
           formControlName="bio"
           class="form-control"
+          [class.is-invalid]="bio?.invalid && bio?.touched"
+          placeholder="Write a brief description about yourself"
           rows="4"
-          [ngClass]="{
-            'is-invalid': bio?.invalid && (bio?.dirty || bio?.touched)
-          }"
-          placeholder="Tell us about yourself and your teaching experience"
         ></textarea>
         <div
-          *ngIf="bio?.invalid && (bio?.dirty || bio?.touched)"
-          class="invalid-feedback"
+          *ngIf="bio?.invalid && bio?.touched"
+          class="error-message"
         >
-          <div *ngIf="bio?.errors?.['required']">Bio is required</div>
-          <div *ngIf="bio?.errors?.['minlength']">
-            Bio must be at least 10 characters long
-          </div>
+          <span *ngIf="bio?.errors?.['required']">Bio is required</span>
+          <span *ngIf="bio?.errors?.['minlength']">Bio must be at least 10 characters</span>
         </div>
       </div>
 
-      <div class="form-group">
-        <button
-          type="submit"
-          [disabled]="isLoading"
-          class="btn btn-primary w-100"
-        >
-          <span
-            *ngIf="isLoading"
-            class="spinner-border spinner-border-sm mr-1"
-          ></span>
-          Complete Profile
-        </button>
-      </div>
+      <button type="submit" class="btn-submit" [disabled]="isLoading">
+        <span
+          *ngIf="isLoading"
+          class="spinner-border spinner-border-sm me-2"
+        ></span>
+        Complete Profile
+      </button>
     </form>
   </div>
 </div>
