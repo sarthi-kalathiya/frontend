@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -50,7 +50,7 @@ export class ExamsComponent implements OnInit, OnDestroy {
 
   // Pagination
   currentPage = 1;
-  pageSize = 10;
+  pageSize = 5; // Changed from 10 to 5 to match users component
   totalItems = 0;
   totalPages = 0;
 
@@ -63,7 +63,7 @@ export class ExamsComponent implements OnInit, OnDestroy {
   private searchSubject = new RxjsSubject<string>();
 
   // Make Math available to template
-  protected readonly Math = Math;
+  Math = Math;
 
   constructor(
     private examService: ExamService,
@@ -75,12 +75,12 @@ export class ExamsComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.loadFilteredExams();
       });
+  }
 
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', () => {
-      this.showStatusDropdown = false;
-      this.showSubjectDropdown = false;
-    });
+  @HostListener('document:click')
+  closeDropdowns() {
+    this.showStatusDropdown = false;
+    this.showSubjectDropdown = false;
   }
 
   ngOnInit(): void {
@@ -400,40 +400,51 @@ export class ExamsComponent implements OnInit, OnDestroy {
   } 
 
   // Pagination methods
-  onPageChange(page: number | '...'): void {
-    if (typeof page === 'number' && page !== this.currentPage) {
-      this.currentPage = page;
-      this.loadFilteredExams();
+  onPageChange(page: number): void {
+    if (page < 1 || page > this.totalPages || page === this.currentPage) {
+      return;
     }
+
+    this.currentPage = page;
+    this.loadFilteredExams();
   }
 
-  getPageNumbers(): (number | '...')[] {
-    const pages: (number | '...')[] = [];
-    const maxVisiblePages = 5;
+  // Updated to match users component pagination
+  getPageNumbers(): number[] {
+    const visiblePages = 5; // Number of page buttons to show
+    const pages: number[] = [];
 
-    if (this.totalPages <= maxVisiblePages) {
+    if (this.totalPages <= visiblePages) {
+      // If we have fewer pages than visible count, show all
       for (let i = 1; i <= this.totalPages; i++) {
         pages.push(i);
       }
     } else {
-      pages.push(1);
+      // Calculate start and end based on current page
+      let start = Math.max(1, this.currentPage - Math.floor(visiblePages / 2));
+      let end = start + visiblePages - 1;
 
-      if (this.currentPage > 3) {
-        pages.push('...');
+      // Adjust if end exceeds total pages
+      if (end > this.totalPages) {
+        end = this.totalPages;
+        start = Math.max(1, end - visiblePages + 1);
       }
 
-      const start = Math.max(2, this.currentPage - 1);
-      const end = Math.min(this.totalPages - 1, this.currentPage + 1);
-
+      // Add page numbers
       for (let i = start; i <= end; i++) {
         pages.push(i);
       }
 
-      if (this.currentPage < this.totalPages - 2) {
-        pages.push('...');
+      // Add ellipsis indicators
+      if (start > 1) {
+        pages.unshift(1);
+        if (start > 2) pages.splice(1, 0, -1); // -1 represents ellipsis
       }
 
-      pages.push(this.totalPages);
+      if (end < this.totalPages) {
+        if (end < this.totalPages - 1) pages.push(-1); // -1 represents ellipsis
+        pages.push(this.totalPages);
+      }
     }
 
     return pages;
