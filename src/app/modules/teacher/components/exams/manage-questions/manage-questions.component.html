@@ -1,0 +1,108 @@
+<div class="container py-4">
+  <div class="d-flex align-items-center mb-4">
+    <button (click)="navigateBack()" class="btn btn-link p-0 me-3" title="Go back">
+      <i class="bi bi-arrow-left fs-5"></i>
+    </button>
+    <div>
+      <h1 class="mb-0">Manage Questions</h1>
+      <p class="text-muted mb-0">{{ sessionName }}</p>
+    </div>
+  </div>
+
+  <!-- Loading spinner -->
+  <div class="loading-spinner" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading questions...</p>
+  </div>
+
+  <div class="card shadow-sm border-0" *ngIf="!loading">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="mb-0">Questions</h2>
+          <p class="text-muted mb-0">Manage questions for this exam. Drag and drop to reorder questions.</p>
+        </div>
+        <button (click)="addQuestion()" class="btn btn-dark">
+          <i class="bi bi-plus-lg me-2"></i> Add Question
+        </button>
+      </div>
+      
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="search-container w-50">
+          <input 
+            type="text" 
+            class="form-control" 
+            placeholder="Search questions..." 
+            [(ngModel)]="searchQuery"
+          >
+        </div>
+        <div class="text-muted">
+          Showing {{ filteredQuestions.length }} of {{ questions.length }} questions
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div class="text-center py-5" *ngIf="filteredQuestions.length === 0">
+        <p class="text-muted">No questions found. Add your first question to get started.</p>
+        <button (click)="addQuestion()" class="btn btn-dark mt-3">
+          <i class="bi bi-plus-lg me-2"></i> Add a Question
+        </button>
+      </div>
+
+      <!-- Questions list -->
+      <div cdkDropList (cdkDropListDropped)="onDragDrop($event)" class="question-list" *ngIf="filteredQuestions.length > 0">
+        <div *ngFor="let question of filteredQuestions; let i = index" cdkDrag class="question-item card mb-3 border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center">
+                <div class="question-number me-3">
+                  {{ i + 1 }}
+                </div>
+                <div class="question-content">
+                  <h3 class="mb-2">{{ question.questionText }}</h3>
+                  <div class="d-flex question-meta">
+                    <div class="me-3">
+                      <i class="bi bi-award me-1"></i> {{ question.marks }} marks
+                    </div>
+                    <div *ngIf="question.negativeMarks">
+                      <i class="bi bi-dash-circle me-1"></i> {{ question.negativeMarks }} negative
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="dropdown">
+                <button class="btn btn-sm btn-link text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Question options">
+                  <i class="bi bi-three-dots-vertical fs-4"></i>
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" (click)="editQuestion(question.id)"><i class="bi bi-pencil me-2"></i> Edit</a></li>
+                  <li><a class="dropdown-item text-danger" (click)="deleteQuestion(question.id)"><i class="bi bi-trash me-2"></i> Delete</a></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="options-container mt-3">
+              <div class="row">
+                <div *ngFor="let option of question.options; let j = index" class="col-md-6 mb-2">
+                  <div class="option-item p-2 rounded-2" [class.option-correct]="option.isCorrect">
+                    <div class="d-flex align-items-center">
+                      <div class="option-number me-2">{{ j + 1 }}</div>
+                      <div class="option-text">{{ option.optionText }}</div>
+                      <i class="bi bi-check-lg text-success ms-auto" *ngIf="option.isCorrect"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Drag handle -->
+            <div class="drag-handle" cdkDragHandle title="Drag to reorder">
+              <i class="bi bi-grip-horizontal"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

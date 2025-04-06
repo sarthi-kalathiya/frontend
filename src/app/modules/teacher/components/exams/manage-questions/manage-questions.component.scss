@@ -1,0 +1,431 @@
+@use "sass:color";
+
+// Variables
+$primary-color: #000000;
+$secondary-color: #333333;
+$text-color: #333333;
+$light-gray: #f8f8f8;
+$border-color: #e0e0e0;
+$success-color: #4caf50;
+$danger-color: #f44336;
+
+// Container
+.container {
+  padding: 30px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+// Back button and header
+.d-flex {
+  display: flex;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+.mb-4 {
+  margin-bottom: 24px;
+}
+
+.mb-3 {
+  margin-bottom: 16px;
+}
+
+.mb-2 {
+  margin-bottom: 12px;
+}
+
+.mb-0 {
+  margin-bottom: 0;
+}
+
+.me-3 {
+  margin-right: 16px;
+}
+
+.me-2 {
+  margin-right: 12px;
+}
+
+.me-1 {
+  margin-right: 4px;
+}
+
+.ms-auto {
+  margin-left: auto;
+}
+
+.mt-3 {
+  margin-top: 16px;
+}
+
+.p-0 {
+  padding: 0;
+}
+
+.p-2 {
+  padding: 8px;
+}
+
+.py-4 {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.py-5 {
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-muted {
+  color: #6c757d;
+}
+
+.text-success {
+  color: $success-color;
+}
+
+.rounded-2 {
+  border-radius: 4px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: $primary-color;
+  
+  &:hover {
+    text-decoration: underline;
+    color: $secondary-color;
+  }
+}
+
+.btn-dark {
+  background-color: $primary-color;
+  color: white;
+  border: none;
+  
+  &:hover {
+    background-color: $secondary-color;
+  }
+}
+
+.btn-sm {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+// Card
+.card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  position: relative;
+}
+
+.border-0 {
+  border: none;
+}
+
+.shadow-sm {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+  padding: 20px;
+}
+
+// Search
+.search-container {
+  position: relative;
+  
+  .form-control {
+    width: 100%;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid $border-color;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    
+    &:focus {
+      border-color: $secondary-color;
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
+    }
+  }
+}
+
+.w-50 {
+  width: 50%;
+}
+
+// Questions list
+.question-list {
+  margin-top: 24px;
+}
+
+.question-item {
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+  cursor: move;
+  position: relative;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    
+    .drag-handle {
+      opacity: 1;
+    }
+  }
+}
+
+.question-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: $light-gray;
+  border-radius: 50%;
+  font-weight: 500;
+  color: $secondary-color;
+}
+
+.question-content {
+  flex: 1;
+  
+  h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: $text-color;
+    font-weight: 500;
+  }
+}
+
+.question-meta {
+  font-size: 14px;
+  color: #666;
+}
+
+// Options
+.options-container {
+  margin-top: 16px;
+  border-top: 1px solid $border-color;
+  padding-top: 16px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -8px;
+  margin-right: -8px;
+}
+
+.col-md-6 {
+  width: 50%;
+  padding-left: 8px;
+  padding-right: 8px;
+  box-sizing: border-box;
+}
+
+.option-item {
+  background-color: $light-gray;
+  border-left: 3px solid transparent;
+  border-radius: 4px;
+  
+  &.option-correct {
+    background-color: rgba($success-color, 0.1);
+    border-left-color: $success-color;
+  }
+}
+
+.option-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 500;
+  color: $secondary-color;
+}
+
+.option-text {
+  margin-left: 8px;
+  font-size: 14px;
+}
+
+// Drag handle
+.drag-handle {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 24px;
+  border-radius: 4px 4px 0 0;
+  background-color: $light-gray;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.2s;
+  
+  &:hover {
+    background-color: darken($light-gray, 5%);
+  }
+  
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+// Dropdown
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1000;
+  display: none;
+  min-width: 160px;
+  padding: 8px 0;
+  margin: 2px 0 0;
+  background-color: white;
+  border: 1px solid $border-color;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  
+  &.show {
+    display: block;
+  }
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  clear: both;
+  font-weight: 400;
+  font-size: 14px;
+  color: $text-color;
+  text-align: left;
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: $light-gray;
+    text-decoration: none;
+  }
+  
+  &.text-danger {
+    color: $danger-color;
+    
+    &:hover {
+      background-color: rgba($danger-color, 0.05);
+    }
+  }
+}
+
+// Angular CDK drag and drop styles
+.cdk-drag-preview {
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+              0 8px 10px 1px rgba(0, 0, 0, 0.14),
+              0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  background-color: white;
+  padding: 20px;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+  background-color: $light-gray;
+  border: 2px dashed $border-color;
+  border-radius: 8px;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.question-list.cdk-drop-list-dragging .question-item:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+// Loading spinner
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: $secondary-color;
+    font-size: 14px;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .col-md-6 {
+    width: 100%;
+  }
+  
+  .w-50 {
+    width: 100%;
+  }
+  
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 12px;
+  }
+} 

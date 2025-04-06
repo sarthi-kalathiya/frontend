@@ -34,6 +34,36 @@ export interface Exam {
   updatedAt: Date;
 }
 
+export interface Question {
+  id: string;
+  examId: string;
+  questionText: string;
+  hasImage: boolean;
+  images: string[];
+  marks: number;
+  negativeMarks: number;
+  options: QuestionOption[];
+}
+
+export interface QuestionOption {
+  id: string;
+  questionId: string;
+  optionText: string;
+  isCorrect: boolean;
+}
+
+export interface CreateQuestionDto {
+  questionText: string;
+  hasImage?: boolean;
+  images?: string[];
+  marks?: number;
+  negativeMarks?: number;
+  options: {
+    text: string;
+    isCorrect: boolean;
+  }[];
+}
+
 export interface ExamFilter {
   page?: number;
   pageSize?: number;
@@ -236,5 +266,108 @@ export class ExamService {
           return mappedData;
         })
       );
+  }
+
+  /**
+   * Get questions for an exam
+   * @param examId The ID of the exam
+   * @returns Observable with exam questions
+   */
+  getExamQuestions(examId: string): Observable<Question[]> {
+    const cacheKey = `${this.cachePrefix}exam_questions_${examId}`;
+    const cachedData = this.cacheService.get<Question[]>(cacheKey);
+    
+    if (cachedData) {
+      return of(cachedData);
+    }
+    
+    return this.http
+      .get<{ status: string; message: string; data: Question[] }>(
+        `${API_URL}/teacher/exams/${examId}/questions`
+      )
+      .pipe(
+        map((response) => {
+          this.cacheService.set(cacheKey, response.data);
+          return response.data;
+        })
+      );
+  }
+
+  /**
+   * Add a new question to an exam
+   * @param examId The ID of the exam
+   * @param question The question to add
+   * @returns Observable with the created question
+   */
+  addQuestion(examId: string, question: CreateQuestionDto): Observable<Question> {
+    // Clear questions cache
+    this.clearQuestionsCache(examId);
+    
+    return this.http
+      .post<{ status: string; message: string; data: Question }>(
+        `${API_URL}/teacher/exams/${examId}/question`, 
+        question
+      )
+      .pipe(map((response) => response.data));
+  }
+
+  /**
+   * Update an existing question
+   * @param examId The ID of the exam
+   * @param questionId The ID of the question to update
+   * @param question The updated question data
+   * @returns Observable with the updated question
+   */
+  updateQuestion(examId: string, questionId: string, question: CreateQuestionDto): Observable<Question> {
+    // Clear questions cache
+    this.clearQuestionsCache(examId);
+    
+    return this.http
+      .put<{ status: string; message: string; data: Question }>(
+        `${API_URL}/teacher/exams/${examId}/questions/${questionId}`,
+        question
+      )
+      .pipe(map((response) => response.data));
+  }
+
+  /**
+   * Delete a question
+   * @param examId The ID of the exam
+   * @param questionId The ID of the question to delete
+   * @returns Observable with the operation result
+   */
+  deleteQuestion(examId: string, questionId: string): Observable<void> {
+    // Clear questions cache
+    this.clearQuestionsCache(examId);
+    
+    return this.http.delete<void>(
+      `${API_URL}/teacher/exams/${examId}/questions/${questionId}`
+    );
+  }
+
+  /**
+   * Reorder questions in an exam
+   * @param examId The ID of the exam
+   * @param questionIds Array of question IDs in the new order
+   * @returns Observable with the operation result
+   */
+  reorderQuestions(examId: string, questionIds: string[]): Observable<void> {
+    // Clear questions cache
+    this.clearQuestionsCache(examId);
+    
+    return this.http.post<void>(
+      `${API_URL}/teacher/exams/${examId}/reorder-questions`,
+      { questionIds }
+    );
+  }
+
+  /**
+   * Clear question-related cache for an exam
+   * @param examId The ID of the exam
+   */
+  private clearQuestionsCache(examId: string): void {
+    this.cacheService.remove(`${this.cachePrefix}exam_questions_${examId}`);
+    // Also clear the exam cache as question changes may affect exam stats
+    this.cacheService.remove(`${this.cachePrefix}exam_${examId}`);
   }
 }

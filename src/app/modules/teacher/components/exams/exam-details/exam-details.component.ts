@@ -141,9 +141,7 @@ export class ExamDetailsComponent implements OnInit {
   }
 
   navigateToManageQuestions(): void {
-    // Temporarily show a toast until the questions component is implemented
-    this.toastService.showInfo('Questions management will be implemented soon');
-    // this.router.navigate(['/teacher/exams', this.examId, 'questions']);
+    this.router.navigate(['/teacher/exams', this.examId, 'manage-questions']);
   }
 
   navigateToManageStudents(): void {

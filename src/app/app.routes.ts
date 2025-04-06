@@ -108,6 +108,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'exams/:id/manage-questions',
+        loadComponent: () =>
+          import('./modules/teacher/components/exams/manage-questions/manage-questions.component').then(
+            (c) => c.ManageQuestionsComponent
+          ),
+      },
+      {
         path: 'exams/:id/manage-students',
         loadComponent: () =>
           import('./modules/teacher/components/exams/manage-students/manage-students.component').then(
