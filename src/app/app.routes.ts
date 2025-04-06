@@ -108,6 +108,20 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'exams/:id/manage-students',
+        loadComponent: () =>
+          import('./modules/teacher/components/exams/manage-students/manage-students.component').then(
+            (c) => c.ManageStudentsComponent
+          ),
+      },
+      {
+        path: 'exams/:id/students',
+        loadComponent: () =>
+          import('./modules/teacher/components/exams/manage-students/manage-students.component').then(
+            (c) => c.ManageStudentsComponent
+          ),
+      },
+      {
         path: 'assignments',
         loadComponent: () =>
           import(
@@ -164,6 +178,21 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: '**', redirectTo: 'dashboard' },
     ],
+  },
+
+  // Standalone routes without layout
+  {
+    path: 'standalone',
+    canActivate: [AuthGuard, ProfileCompletionGuard],
+    children: [
+      {
+        path: 'teacher/exams/:id/manage-students',
+        loadComponent: () =>
+          import('./modules/teacher/components/exams/manage-students/manage-students.component').then(
+            (c) => c.ManageStudentsComponent
+          ),
+      }
+    ]
   },
 
   // Default routes

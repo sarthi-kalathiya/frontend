@@ -141,9 +141,7 @@ export class ExamDetailsComponent implements OnInit {
   }
 
   navigateToManageStudents(): void {
-    // Temporarily show a toast until the students component is implemented
-    this.toastService.showInfo('Student management will be implemented soon');
-    // this.router.navigate(['/teacher/exams', this.examId, 'students']);
+    this.router.navigate(['/teacher/exams', this.examId, 'students']);
   }
 
   formatDate(dateString: string): string {

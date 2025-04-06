@@ -1,0 +1,139 @@
+<div class="manage-students-container">
+  <!-- Loading state -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading...</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="!isLoading && error" class="error-state">
+    <p class="error-message">{{ error }}</p>
+    <button class="btn-primary" (click)="navigateBack()">Go Back</button>
+  </div>
+
+  <!-- Main content -->
+  <div *ngIf="!isLoading && !error" class="content-wrapper">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <button class="back-button" (click)="navigateBack()" aria-label="Go back">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="header-title">
+          <h1>Manage Students</h1>
+          <p>{{ examName }} - {{ subjectName }}</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="btn-assign">
+          <i class="fas fa-plus"></i>
+          Assign Students
+        </button>
+      </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total Students</h3>
+        <div class="stat-value">{{ totalStudents }}</div>
+        <div class="stat-details">
+          {{ completedCount }} completed · {{ inProgressCount }} in progress · {{ notStartedCount }} not started
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Average Score</h3>
+        <div class="stat-value">{{ averageScore }}/30</div>
+        <div class="stat-details">
+          83% average
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Pass Rate</h3>
+        <div class="stat-value">{{ passRate }}%</div>
+        <div class="stat-details">
+          {{ passCount }} of {{ completedCount }} students passed
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Banned Students</h3>
+        <div class="stat-value">{{ bannedCount }}</div>
+        <div class="stat-details">
+          20% of total students
+        </div>
+      </div>
+    </div>
+
+    <!-- Students Section -->
+    <div class="students-section">
+      <div class="section-header">
+        <h2>Students</h2>
+        <p>Manage students assigned to this exam</p>
+      </div>
+
+      <div class="search-container">
+        <input 
+          type="text" 
+          placeholder="Search students..." 
+          [value]="searchQuery"
+          (input)="search($event)"
+        />
+      </div>
+
+      <div class="filter-tabs">
+        <button [class.active]="activeFilter === 'All'" (click)="applyFilter('All')">All</button>
+        <button [class.active]="activeFilter === 'Completed'" (click)="applyFilter('Completed')">Completed</button>
+        <button [class.active]="activeFilter === 'In Progress'" (click)="applyFilter('In Progress')">In Progress</button>
+        <button [class.active]="activeFilter === 'Not Started'" (click)="applyFilter('Not Started')">Not Started</button>
+        <button [class.active]="activeFilter === 'Banned'" (click)="applyFilter('Banned')">Banned</button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Roll Number</th>
+              <th>Status</th>
+              <th>Score</th>
+              <th>Submitted At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="filteredStudents.length === 0">
+              <td colspan="6" class="no-data">No students found with the selected filter</td>
+            </tr>
+            <tr *ngFor="let student of filteredStudents">
+              <td class="student-name">
+                <div>{{ student.student?.user?.firstName }} {{ student.student?.user?.lastName }}</div>
+                <small>{{ student.student?.user?.email }}</small>
+              </td>
+              <td>{{ student.student?.rollNumber || 'N/A' }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatusClass(student.status)">
+                  {{ student.statusText || getStatusText(student.status) }}
+                </span>
+              </td>
+              <td>
+                <span *ngIf="student.status === 'COMPLETED'">
+                  {{ student.result?.marks || '28/30' }}
+                </span>
+                <span *ngIf="student.status !== 'COMPLETED'">-</span>
+              </td>
+              <td>{{ student.submittedAt ? formatDate(student.submittedAt) : 'N/A' }}</td>
+              <td class="actions-cell">
+                <button class="action-btn" title="More options" aria-label="More options">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div> 
