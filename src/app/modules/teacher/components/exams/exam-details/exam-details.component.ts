@@ -21,6 +21,9 @@ import { EditExamModalComponent } from '../edit-exam-modal/edit-exam-modal.compo
   styleUrls: ['./exam-details.component.scss'],
 })
 export class ExamDetailsComponent implements OnInit {
+  // Make Math available to the template
+  Math = Math;
+  
   examId: string = '';
   exam: any = null;
   isLoading: boolean = true;
@@ -39,7 +42,10 @@ export class ExamDetailsComponent implements OnInit {
     completed: 0,
     inProgress: 0,
     notStarted: 0,
-    banned: 0
+    banned: 0,
+    averageScore: 0,
+    passRate: 0,
+    passCount: 0
   };
   
   // For backward compatibility during development

@@ -188,7 +188,23 @@ export class ExamService {
       .join('&');
   }
 
-  getExamStudentStats(examId: string): Observable<any> {
+  /**
+   * Get student statistics for an exam
+   * @param examId The ID of the exam
+   * @returns Observable with enhanced student statistics
+   */
+  getExamStudentStats(examId: string): Observable<{
+    total: number;
+    completed: number;
+    inProgress: number;
+    notStarted: number;
+    banned: number;
+    averageScore: number;
+    passRate: number;
+    passCount: number;
+    totalMarks: number;
+    passingMarks: number;
+  }> {
     const cacheKey = `${this.cachePrefix}exam_student_stats_${examId}`;
     const cachedData = this.cacheService.get<any>(cacheKey);
     
@@ -198,12 +214,26 @@ export class ExamService {
     
     return this.http
       .get<{ status: string; message: string; data: any }>(
-        `${API_URL}/teacher/exams/${examId}/student-stats`
+        `${API_URL}/teacher/exams/${examId}/student-statistics`
       )
       .pipe(
         map((response) => {
-          this.cacheService.set(cacheKey, response.data);
-          return response.data;
+          // Map the backend property names to the frontend property names
+          const mappedData = {
+            total: response.data.totalStudents,
+            completed: response.data.completedCount,
+            inProgress: response.data.inProgressCount,
+            notStarted: response.data.notStartedCount,
+            banned: response.data.bannedCount,
+            averageScore: response.data.averageScore,
+            passRate: response.data.passRate,
+            passCount: response.data.passCount,
+            totalMarks: response.data.totalMarks,
+            passingMarks: response.data.passingMarks
+          };
+          
+          this.cacheService.set(cacheKey, mappedData);
+          return mappedData;
         })
       );
   }

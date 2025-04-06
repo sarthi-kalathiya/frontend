@@ -32,44 +32,6 @@
       </div>
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <h3>Total Students</h3>
-        <div class="stat-value">{{ totalStudents }}</div>
-        <div class="stat-details">
-          {{ completedCount }} completed · {{ inProgressCount }} in progress · {{ notStartedCount }} not started
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <h3>Average Score</h3>
-        <div class="stat-value">{{ averageScore }}/30</div>
-        <div class="stat-details">
-          {{ Math.round(averageScore / 30 * 100) }}% average
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <h3>Pass Rate</h3>
-        <div class="stat-value">{{ passRate }}%</div>
-        <div class="stat-details">
-          {{ passCount }} of {{ completedCount }} students passed
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <h3>Banned Students</h3>
-        <div class="stat-value">{{ bannedCount }}</div>
-        <div class="stat-details" *ngIf="totalStudents > 0">
-          {{ Math.round(bannedCount / totalStudents * 100) }}% of total students
-        </div>
-        <div class="stat-details" *ngIf="totalStudents === 0">
-          0% of total students
-        </div>
-      </div>
-    </div>
-
     <!-- Students Section -->
     <div class="students-section">
       <div class="section-header">

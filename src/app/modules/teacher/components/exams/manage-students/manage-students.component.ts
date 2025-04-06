@@ -37,7 +37,7 @@ export class ManageStudentsComponent implements OnInit {
   
   // Pagination
   currentPage: number = 1;
-  pageSize: number = 10;
+  pageSize: number = 5;
   totalItems: number = 0;
   totalPages: number = 0;
   
@@ -89,18 +89,10 @@ export class ManageStudentsComponent implements OnInit {
       items.push({
         id: 'view-logs',
         label: 'View Cheating Logs',
-        icon: 'fa-exclamation-triangle',
+        icon: 'fa-shield-alt',
         action: 'viewCheatLogs'
       });
     }
-    
-    // Change status option
-    items.push({
-      id: 'change-status',
-      label: 'Change Status',
-      icon: 'fa-exchange-alt',
-      action: 'changeStatus'
-    });
     
     // Ban/Unban student
     if (student.status === 'BANNED') {
@@ -114,7 +106,7 @@ export class ManageStudentsComponent implements OnInit {
       items.push({
         id: 'ban',
         label: 'Ban Student',
-        icon: 'fa-user-slash',
+        icon: 'fa-ban',
         action: 'banStudent',
       });
     }
@@ -136,10 +128,6 @@ export class ManageStudentsComponent implements OnInit {
         this.viewStudentCheatLogs(student);
         break;
         
-      case 'changeStatus':
-        this.changeStudentStatus(student);
-        break;
-        
       case 'banStudent':
       case 'unbanStudent':
         this.toggleBanStudent(student);
@@ -158,11 +146,6 @@ export class ManageStudentsComponent implements OnInit {
     this.router.navigate(['/teacher/exams', this.examId, 'students', student.student.id, 'cheat-logs']);
   }
   
-  changeStudentStatus(student: any): void {
-    // Implement status change (could be modal or dropdown)
-    this.toastService.showInfo('Status change feature is coming soon');
-  }
-
   @HostListener('document:click')
   closeDropdowns() {
     this.showStatusDropdown = false;

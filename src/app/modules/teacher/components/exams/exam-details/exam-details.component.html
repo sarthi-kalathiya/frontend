@@ -100,7 +100,7 @@
               </div>
               <div class="info-item">
                 <h3>Duration</h3>
-                <p><i class="far fa-clock"></i> {{ exam.duration }} hour</p>
+                <p><i class="far fa-clock"></i> {{ exam.duration }} minutes</p>
               </div>
             </div>
 
@@ -144,28 +144,41 @@
             </button>
           </div>
 
-          <div class="stats-container">
+          <!-- Enhanced Statistics Cards -->
+          <div class="stats-grid">
             <div class="stat-card">
-              <h4>Completed</h4>
-              <div class="stat-number">{{ studentStats.completed }}</div>
-              <div class="stat-subtitle">{{ studentStats.percentages?.completed || '0.0' }}% of students</div>
+              <h3>Total Students</h3>
+              <div class="stat-value">{{ studentStats.total }}</div>
+              <div class="stat-details">
+                {{ studentStats.completed }} completed · {{ studentStats.inProgress }} in progress · {{ studentStats.notStarted }} not started
+              </div>
             </div>
 
             <div class="stat-card">
-              <h4>In Progress</h4>
-              <div class="stat-number">{{ studentStats.inProgress }}</div>
-              <div class="stat-subtitle">{{ studentStats.percentages?.inProgress || '0.0' }}% of students</div>
+              <h3>Average Score</h3>
+              <div class="stat-value">{{ studentStats.averageScore || 0 }}/{{ studentStats.totalMarks || exam?.totalMarks || 30 }}</div>
+              <div class="stat-details">
+                {{ Math.round((studentStats.averageScore / (studentStats.totalMarks || exam?.totalMarks || 30)) * 100) || 0 }}% average
+              </div>
             </div>
 
             <div class="stat-card">
-              <h4>Pending</h4>
-              <div class="stat-number">{{ studentStats.notStarted }}</div>
-              <div class="stat-subtitle">{{ studentStats.percentages?.notStarted || '0.0' }}% of students</div>
+              <h3>Pass Rate</h3>
+              <div class="stat-value">{{ studentStats.passRate || 0 }}%</div>
+              <div class="stat-details">
+                {{ studentStats.passCount || 0 }} of {{ studentStats.completed || 0 }} students passed
+              </div>
             </div>
 
             <div class="stat-card">
-              <h4>Banned</h4>
-              <div class="stat-number">{{ studentStats.banned }}</div>
+              <h3>Banned Students</h3>
+              <div class="stat-value">{{ studentStats.banned }}</div>
+              <div class="stat-details" *ngIf="studentStats.total > 0">
+                {{ Math.round((studentStats.banned / studentStats.total) * 100) || 0 }}% of total students
+              </div>
+              <div class="stat-details" *ngIf="studentStats.total === 0">
+                0% of total students
+              </div>
             </div>
           </div>
         </div>
