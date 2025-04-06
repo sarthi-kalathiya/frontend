@@ -187,4 +187,24 @@ export class ExamService {
       .map(([key, value]) => `${key}=${value}`)
       .join('&');
   }
+
+  getExamStudentStats(examId: string): Observable<any> {
+    const cacheKey = `${this.cachePrefix}exam_student_stats_${examId}`;
+    const cachedData = this.cacheService.get<any>(cacheKey);
+    
+    if (cachedData) {
+      return of(cachedData);
+    }
+    
+    return this.http
+      .get<{ status: string; message: string; data: any }>(
+        `${API_URL}/teacher/exams/${examId}/student-stats`
+      )
+      .pipe(
+        map((response) => {
+          this.cacheService.set(cacheKey, response.data);
+          return response.data;
+        })
+      );
+  }
 }

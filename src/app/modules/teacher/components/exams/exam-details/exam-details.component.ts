@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ExamService } from '../../../services/exam.service';
 import { ToastService } from '@app/core/services/toast.service';
 import { finalize } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 import { EditExamModalComponent } from '../edit-exam-modal/edit-exam-modal.component';
 
 @Component({
@@ -32,11 +33,31 @@ export class ExamDetailsComponent implements OnInit {
   // Define settable statuses
   readonly SETTABLE_STATUSES = ['Draft', 'Active'];
   
-  // New properties for students and questions tabs
-  studentsAssigned: number = 45; // Placeholder
-  studentsCompleted: number = 0; // Placeholder
-  studentsPending: number = 45; // Placeholder
-  studentsBanned: number = 0; // Placeholder
+  // Student statistics
+  studentStats: any = {
+    total: 0,
+    completed: 0,
+    inProgress: 0,
+    notStarted: 0,
+    banned: 0
+  };
+  
+  // For backward compatibility during development
+  get studentsAssigned(): number {
+    return this.studentStats.total || 0;
+  }
+  
+  get studentsCompleted(): number {
+    return this.studentStats.completed || 0;
+  }
+  
+  get studentsPending(): number {
+    return this.studentStats.notStarted || 0;
+  }
+  
+  get studentsBanned(): number {
+    return this.studentStats.banned || 0;
+  }
 
   constructor(
     private route: ActivatedRoute,
@@ -60,20 +81,26 @@ export class ExamDetailsComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
 
-    this.examService.getExamById(this.examId)
-      .pipe(finalize(() => this.isLoading = false))
-      .subscribe({
-        next: (response: any) => {
-          this.exam = response;
-          // Use statusText from API if available, otherwise calculate it
-          this.selectedStatus = response.statusText || this.getStatusText(this.exam);
-          this.previousStatus = this.selectedStatus;
-        },
-        error: (error: any) => {
-          console.error('Failed to load exam details:', error);
-          this.error = error.error?.message || 'Failed to load exam details. Please try again.';
-        }
-      });
+    // Load both exam details and student statistics
+    forkJoin({
+      examDetails: this.examService.getExamById(this.examId),
+      studentStats: this.examService.getExamStudentStats(this.examId)
+    })
+    .pipe(finalize(() => this.isLoading = false))
+    .subscribe({
+      next: (result: {examDetails: any, studentStats: any}) => {
+        this.exam = result.examDetails;
+        this.studentStats = result.studentStats;
+        
+        // Use statusText from API if available, otherwise calculate it
+        this.selectedStatus = this.exam.statusText || this.getStatusText(this.exam);
+        this.previousStatus = this.selectedStatus;
+      },
+      error: (error: any) => {
+        console.error('Failed to load exam details:', error);
+        this.error = error.error?.message || 'Failed to load exam details. Please try again.';
+      }
+    });
   }
 
   // Helper method to check if status can be changed
@@ -86,22 +113,6 @@ export class ExamDetailsComponent implements OnInit {
     
     // Active and Finished exams can't have their status changed
     return false;
-  }
-  
-  // Get available status options based on current status
-  getAvailableStatusOptions(): string[] {
-    switch (this.selectedStatus) {
-      case 'Draft':
-        return ['Draft', 'Active'];
-      case 'Upcoming':
-        return ['Draft', 'Active'];
-      case 'Active':
-        return ['Active']; // Can't go back to Draft
-      case 'Finished':
-        return []; // No options for finished exams
-      default:
-        return ['Draft', 'Active'];
-    }
   }
 
   navigateBack(): void {
@@ -166,6 +177,22 @@ export class ExamDetailsComponent implements OnInit {
       return 'Active';
     } else {
       return 'Finished';
+    }
+  }
+  
+  // Get available status options based on current status
+  getAvailableStatusOptions(): string[] {
+    switch (this.selectedStatus) {
+      case 'Draft':
+        return ['Draft', 'Active'];
+      case 'Upcoming':
+        return ['Draft', 'Active'];
+      case 'Active':
+        return ['Active']; // Can't go back to Draft
+      case 'Finished':
+        return []; // No options for finished exams
+      default:
+        return ['Draft', 'Active'];
     }
   }
 

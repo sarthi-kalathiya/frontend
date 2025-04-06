@@ -147,20 +147,19 @@
           <div class="stats-container">
             <div class="stat-card">
               <h4>Completed</h4>
-              <div class="stat-number">{{ studentsCompleted }}</div>
-              <div class="stat-subtitle">{{ (studentsCompleted / studentsAssigned * 100) || 0 }}% of students</div>
+              <div class="stat-number">{{ studentStats.completed }}</div>
+              <div class="stat-subtitle">{{ studentStats.percentages?.completed || '0.0' }}% of students</div>
             </div>
 
             <div class="stat-card">
               <h4>Pending</h4>
-              <div class="stat-number">{{ studentsPending }}</div>
-              <div class="stat-subtitle">{{ (studentsPending / studentsAssigned * 100) || 0 }}% of students</div>
+              <div class="stat-number">{{ studentStats.notStarted }}</div>
+              <div class="stat-subtitle">{{ studentStats.percentages?.notStarted || '0.0' }}% of students</div>
             </div>
 
             <div class="stat-card">
               <h4>Banned</h4>
-              <div class="stat-number">{{ studentsBanned }}</div>
-              <div class="stat-subtitle">{{ (studentsBanned / studentsAssigned * 100) || 0 }}% of students</div>
+              <div class="stat-number">{{ studentStats.banned }}</div>
             </div>
           </div>
         </div>
