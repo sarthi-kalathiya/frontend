@@ -88,8 +88,7 @@
                   <div class="option-item p-2 rounded-2" [class.option-correct]="option.isCorrect">
                     <div class="d-flex align-items-center">
                       <div class="option-number me-2">{{ j + 1 }}</div>
-                      <div class="option-text">{{ option.optionText }}</div>
-                      <i class="bi bi-check-lg text-success ms-auto" *ngIf="option.isCorrect"></i>
+                      <div class="option-text" [class.text-success]="option.isCorrect">{{ option.optionText }}</div>
                     </div>
                   </div>
                 </div>

@@ -257,10 +257,12 @@ $danger-color: #f44336;
   background-color: $light-gray;
   border-left: 3px solid transparent;
   border-radius: 4px;
+  transition: all 0.2s ease;
   
   &.option-correct {
-    background-color: rgba($success-color, 0.1);
+    background-color: rgba($success-color, 0.15);
     border-left-color: $success-color;
+    box-shadow: 0 2px 4px rgba($success-color, 0.2);
   }
 }
 
@@ -280,6 +282,22 @@ $danger-color: #f44336;
 .option-text {
   margin-left: 8px;
   font-size: 14px;
+  
+  &.text-success {
+    font-weight: 500;
+    color: darken($success-color, 10%) !important;
+  }
+}
+
+.correct-badge {
+  display: flex;
+  align-items: center;
+  background-color: rgba($success-color, 0.9);
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 12px;
 }
 
 // Drag handle

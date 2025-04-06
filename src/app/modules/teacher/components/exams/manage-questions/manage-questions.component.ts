@@ -9,11 +9,28 @@ import { ToastService } from '@app/core/services/toast.service';
 // Required for Bootstrap dropdown functionality
 declare var bootstrap: any;
 
+interface QuestionData {
+  id: string;
+  questionText: string;
+  marks: number;
+  negativeMarks: number;
+  correctOptionId: string;
+  position: number;
+  options: OptionData[];
+}
+
+interface OptionData {
+  id: string;
+  optionText: string;
+}
+
 interface Question {
   id: string;
   questionText: string;
   marks: number;
   negativeMarks: number;
+  correctOptionId: string;
+  position: number;
   options: {
     id: string;
     optionText: string;
@@ -38,7 +55,7 @@ export class ManageQuestionsComponent implements OnInit, AfterViewInit {
   examId: string = '';
   sessionName: string = '';
   questions: Question[] = [];
-  loading: boolean = false;
+  loading: boolean = true;
   searchQuery: string = '';
 
   constructor(
@@ -57,7 +74,6 @@ export class ManageQuestionsComponent implements OnInit, AfterViewInit {
     }
     
     this.loadExamDetails();
-    this.loadQuestions();
   }
   
   ngAfterViewInit(): void {
@@ -77,29 +93,44 @@ export class ManageQuestionsComponent implements OnInit, AfterViewInit {
   loadExamDetails(): void {
     this.loading = true;
     this.examService.getExamById(this.examId).subscribe({
-      next: (exam) => {
-        this.sessionName = exam.name;
-        this.loading = false;
-      },
-      error: (error) => {
-        this.toastService.showError('Failed to load exam details');
-        this.loading = false;
-      }
-    });
-  }
-
-  loadQuestions(): void {
-    this.loading = true;
-    this.examService.getExamQuestions(this.examId).subscribe({
-      next: (questions) => {
-        this.questions = questions;
+      next: (exam: any) => {
+        // Check if the response has a data property (API response format)
+        const examData = exam.data ? exam.data : exam;
+        
+        this.sessionName = examData.name;
+        
+        // Process questions from the exam details
+        if (examData.questions && Array.isArray(examData.questions)) {
+          this.questions = examData.questions.map((q: QuestionData) => {
+            // Add isCorrect property to each option
+            const questionWithCorrectOptions = {
+              ...q,
+              options: q.options.map((opt: OptionData) => ({
+                ...opt,
+                isCorrect: opt.id === q.correctOptionId
+              }))
+            };
+            return questionWithCorrectOptions;
+          });
+          
+          // Sort by position if available
+          this.questions.sort((a, b) => {
+            // If position exists and is different, sort by position
+            if (a.position !== undefined && b.position !== undefined && a.position !== b.position) {
+              return a.position - b.position;
+            }
+            // Otherwise, don't change order
+            return 0;
+          });
+        }
+        
         this.loading = false;
         
         // Re-initialize dropdowns after data is loaded
         setTimeout(() => this.initDropdowns(), 0);
       },
       error: (error) => {
-        this.toastService.showError('Failed to load questions');
+        this.toastService.showError('Failed to load exam details');
         this.loading = false;
       }
     });
@@ -109,6 +140,11 @@ export class ManageQuestionsComponent implements OnInit, AfterViewInit {
     if (event.previousIndex === event.currentIndex) return;
     
     moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
+    
+    // Update position values
+    this.questions.forEach((question, index) => {
+      question.position = index;
+    });
     
     // Get array of question IDs in new order
     const questionIds = this.questions.map(q => q.id);
@@ -121,7 +157,7 @@ export class ManageQuestionsComponent implements OnInit, AfterViewInit {
       error: (error) => {
         this.toastService.showError('Failed to reorder questions');
         // Reload questions to restore original order
-        this.loadQuestions();
+        this.loadExamDetails();
       }
     });
   }
@@ -145,7 +181,7 @@ export class ManageQuestionsComponent implements OnInit, AfterViewInit {
       this.examService.deleteQuestion(this.examId, questionId).subscribe({
         next: () => {
           this.toastService.showSuccess('Question deleted successfully');
-          this.loadQuestions();
+          this.loadExamDetails();
         },
         error: (error) => {
           this.toastService.showError('Failed to delete question');
