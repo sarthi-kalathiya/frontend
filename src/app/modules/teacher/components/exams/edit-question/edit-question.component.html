@@ -8,7 +8,7 @@
     <div class="modal-header">
       <h2>{{ questionId ? 'Edit Question' : 'Add Question' }}</h2>
       <button type="button" class="close-btn" (click)="onClose()" title="Close">
-        <i class="fas fa-times"></i>
+        <i class="bi bi-x-lg"></i>
       </button>
     </div>
 
@@ -76,7 +76,7 @@
         <!-- Options Section -->
         <div class="options-section">
           <div class="options-header">
-            <label>Answer Options <span class="required">*</span></label>
+            <label>Options <span class="required">*</span></label>
             <button 
               type="button" 
               class="add-option-btn" 
@@ -84,7 +84,7 @@
               [disabled]="!canAddOption"
               title="Add option"
             >
-              <i class="fas fa-plus"></i> Add Option
+              <i class="bi bi-plus"></i>
             </button>
           </div>
 
@@ -92,31 +92,23 @@
           <div class="options-list" formArrayName="options">
             <div class="option-item" *ngFor="let option of options.controls; let i = index" [formGroupName]="i">
               <div class="option-content" [class.selected]="correctOptionIndex === i" (click)="setCorrectOption(i)">
-                <div class="option-radio">
-                  <input 
-                    type="radio" 
-                    [id]="'isCorrect-'+i" 
-                    [name]="'correctOption'" 
-                    [checked]="correctOptionIndex === i"
-                    (change)="setCorrectOption(i)"
-                    title="Mark as correct answer"
-                  >
-                  <label [for]="'isCorrect-'+i" class="option-letter">{{ getOptionLetter(i) }}</label>
-                </div>
+                <input 
+                  type="radio" 
+                  [id]="'isCorrect-'+i" 
+                  [name]="'correctOption'" 
+                  [checked]="correctOptionIndex === i"
+                  title="Mark as correct answer"
+                >
+                <div class="option-letter">{{ getOptionLetter(i) }}</div>
                 
-                <div class="option-input-container">
-                  <input 
-                    type="text" 
-                    [id]="'optionText-'+i" 
-                    formControlName="optionText"
-                    placeholder="Enter option here..."
-                    [class.is-invalid]="isOptionInvalid(i, 'optionText')"
-                    (click)="$event.stopPropagation()"
-                  >
-                  <div class="invalid-feedback" *ngIf="isOptionInvalid(i, 'optionText')">
-                    Option text is required
-                  </div>
-                </div>
+                <input 
+                  type="text" 
+                  [id]="'optionText-'+i" 
+                  formControlName="optionText"
+                  placeholder="Enter option text..."
+                  [class.is-invalid]="isOptionInvalid(i, 'optionText')"
+                  (click)="$event.stopPropagation()"
+                >
                 
                 <button 
                   type="button" 
@@ -125,8 +117,11 @@
                   (click)="removeOption(i); $event.stopPropagation()"
                   title="Remove option"
                 >
-                  <i class="fas fa-trash-alt"></i>
+                  <i class="bi bi-x"></i>
                 </button>
+              </div>
+              <div class="invalid-feedback" *ngIf="isOptionInvalid(i, 'optionText')">
+                Option text is required
               </div>
             </div>
           </div>
