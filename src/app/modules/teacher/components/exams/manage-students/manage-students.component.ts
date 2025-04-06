@@ -9,6 +9,7 @@ import { finalize, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { environment } from '@environments/environment';
 import { ActionMenuComponent, ActionMenuItem } from '@app/shared/components/action-menu/action-menu.component';
+import { AssignStudentsModalComponent } from '../assign-students-modal/assign-students-modal.component';
 
 @Component({
   selector: 'app-manage-students',
@@ -17,7 +18,8 @@ import { ActionMenuComponent, ActionMenuItem } from '@app/shared/components/acti
     CommonModule,
     FormsModule,
     RouterModule,
-    ActionMenuComponent
+    ActionMenuComponent,
+    AssignStudentsModalComponent
   ],
   templateUrl: './manage-students.component.html',
   styleUrls: ['./manage-students.component.scss']
@@ -61,6 +63,9 @@ export class ManageStudentsComponent implements OnInit {
   
   // Students list
   students: any[] = [];
+
+  // Modal state
+  showAssignStudentsModal: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -432,6 +437,21 @@ export class ManageStudentsComponent implements OnInit {
       case 'NOT_STARTED': return 'Not Started';
       case 'BANNED': return 'Banned';
       default: return status;
+    }
+  }
+
+  // Open assign students modal
+  openAssignStudentsModal(): void {
+    this.showAssignStudentsModal = true;
+  }
+  
+  // Close assign students modal
+  closeAssignStudentsModal(refresh: boolean = false): void {
+    this.showAssignStudentsModal = false;
+    
+    // If refresh is true, reload the students list
+    if (refresh) {
+      this.loadFilteredStudents();
     }
   }
 } 

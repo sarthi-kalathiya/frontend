@@ -180,4 +180,13 @@ export class TeacherExamService {
   assignExamToStudents(examId: string, studentIds: string[]): Observable<any> {
     return this.http.post(`${this.apiUrl}/${examId}/assign`, { studentIds });
   }
+
+  /**
+   * Get students eligible for assignment to an exam
+   * @param examId The ID of the exam
+   * @returns Observable with eligible students data
+   */
+  getEligibleStudents(examId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${examId}/eligible-students`);
+  }
 } 

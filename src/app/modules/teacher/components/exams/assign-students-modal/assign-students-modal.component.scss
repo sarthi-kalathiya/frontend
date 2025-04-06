@@ -1,0 +1,363 @@
+@use "sass:color";
+
+// Variables
+$primary-color: #000000;
+$secondary-color: #333333;
+$text-color: #333333;
+$light-gray: #f8f8f8;
+$border-color: #e0e0e0;
+$success-color: #4caf50;
+$danger-color: #f44336;
+
+// Modal backdrop
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+// Modal container
+.modal-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 800px;
+  z-index: 1000;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+// Modal content
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+  position: relative;
+  height: auto;
+}
+
+// Loading overlay
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  padding: 40px;
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: $secondary-color;
+    font-size: 14px;
+  }
+}
+
+// Modal header
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid $border-color;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: $primary-color;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #666;
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: $light-gray;
+    }
+  }
+}
+
+// Modal body
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  max-height: calc(85vh - 120px); // Account for header and footer
+
+  // Alert messages
+  .alert {
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+
+    &.alert-danger {
+      background-color: rgba($danger-color, 0.1);
+      color: $danger-color;
+      border: 1px solid rgba($danger-color, 0.2);
+    }
+
+    &.alert-success {
+      background-color: rgba($success-color, 0.1);
+      color: $success-color;
+      border: 1px solid rgba($success-color, 0.2);
+    }
+  }
+}
+
+// Exam info
+.exam-info {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid $border-color;
+  
+  p {
+    margin: 8px 0;
+    font-size: 14px;
+    
+    strong {
+      font-weight: 600;
+      color: $secondary-color;
+    }
+  }
+}
+
+// Search container
+.search-container {
+  display: flex;
+  margin-bottom: 16px;
+  
+  .search-input {
+    flex: 1;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid $border-color;
+    border-right: none;
+    border-radius: 4px 0 0 4px;
+    font-size: 14px;
+    outline: none;
+    
+    &:focus {
+      border-color: $secondary-color;
+    }
+  }
+  
+  .search-btn {
+    width: 36px;
+    height: 36px;
+    background-color: $primary-color;
+    color: white;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:hover {
+      background-color: $secondary-color;
+    }
+  }
+}
+
+// Students list container
+.students-list-container {
+  border: 1px solid $border-color;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+// Students header
+.students-header {
+  display: flex;
+  background-color: $light-gray;
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  color: $secondary-color;
+  border-bottom: 1px solid $border-color;
+}
+
+// Students list
+.students-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+// Student item
+.student-item {
+  display: flex;
+  padding: 10px 16px;
+  border-bottom: 1px solid $border-color;
+  font-size: 14px;
+  transition: background-color 0.2s;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:hover {
+    background-color: rgba($light-gray, 0.5);
+  }
+}
+
+// Cell styles
+.checkbox-cell {
+  width: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.name-cell {
+  flex: 1;
+  min-width: 150px;
+  padding-right: 16px;
+}
+
+.email-cell {
+  flex: 2;
+  min-width: 200px;
+  padding-right: 16px;
+}
+
+.roll-cell {
+  width: 100px;
+}
+
+// No students message
+.no-students {
+  padding: 32px 16px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  
+  p {
+    margin: 8px 0;
+  }
+}
+
+// Screen reader only class
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Modal footer
+.modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid $border-color;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+// Selected count
+.selected-count {
+  font-size: 14px;
+  color: $secondary-color;
+}
+
+// Button group
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+// Button styles
+.btn-cancel {
+  padding: 8px 16px;
+  background: none;
+  border: 1px solid $border-color;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  color: $secondary-color;
+  
+  &:hover {
+    background-color: $light-gray;
+  }
+}
+
+.btn-save {
+  padding: 8px 16px;
+  background-color: $primary-color;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &:hover:not(:disabled) {
+    background-color: $secondary-color;
+  }
+  
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+}
+
+// Small spinner for button
+.spinner-sm {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+// Animation
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+} 

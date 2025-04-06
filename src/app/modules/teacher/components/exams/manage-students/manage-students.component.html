@@ -25,7 +25,7 @@
         </div>
       </div>
       <div class="header-right">
-        <button class="btn-assign" aria-label="Assign students to exam" title="Assign students to exam">
+        <button class="btn-assign" (click)="openAssignStudentsModal()" aria-label="Assign students to exam" title="Assign students to exam">
           <i class="fas fa-plus"></i>
           Assign Students
         </button>
@@ -189,4 +189,11 @@
       </div>
     </div>
   </div>
+
+  <!-- Assign Students Modal -->
+  <app-assign-students-modal 
+    *ngIf="showAssignStudentsModal" 
+    [examId]="examId"
+    (close)="closeAssignStudentsModal($event)"
+  ></app-assign-students-modal>
 </div> 

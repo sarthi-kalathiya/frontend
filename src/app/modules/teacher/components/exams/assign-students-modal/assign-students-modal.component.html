@@ -1,0 +1,111 @@
+<div class="modal-backdrop" (click)="onClose()"></div>
+<div class="modal-container">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Assign Students to Exam</h2>
+      <button class="close-btn" (click)="onClose()" title="Close" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading students...</p>
+    </div>
+
+    <!-- Modal body -->
+    <div class="modal-body" *ngIf="!isLoading">
+      <!-- Error message -->
+      <div class="alert alert-danger" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Exam and subject info -->
+      <div class="exam-info">
+        <p><strong>Exam:</strong> {{ examName }}</p>
+        <p><strong>Subject:</strong> {{ subjectName }}</p>
+      </div>
+
+      <!-- Search box -->
+      <div class="search-container">
+        <input
+          type="text"
+          placeholder="Search students..."
+          [(ngModel)]="searchQuery"
+          (input)="applySearch()"
+          class="search-input"
+        />
+        <button class="search-btn" aria-label="Search" title="Search">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+
+      <!-- Students list -->
+      <div class="students-list-container">
+        <div class="students-header">
+          <div class="checkbox-cell">
+            <input 
+              type="checkbox" 
+              [checked]="selectedStudentIds.length === filteredStudents.length && filteredStudents.length > 0"
+              [indeterminate]="selectedStudentIds.length > 0 && selectedStudentIds.length < filteredStudents.length"
+              (change)="selectAll()"
+              id="select-all"
+              aria-label="Select all students"
+            />
+            <label for="select-all" class="sr-only">Select all</label>
+          </div>
+          <div class="name-cell">Student Name</div>
+          <div class="email-cell">Email</div>
+          <div class="roll-cell">Roll Number</div>
+        </div>
+
+        <div class="students-list" *ngIf="filteredStudents.length > 0">
+          <div class="student-item" *ngFor="let student of filteredStudents">
+            <div class="checkbox-cell">
+              <input 
+                type="checkbox" 
+                [checked]="isSelected(student.id)"
+                (change)="toggleStudentSelection(student.id)"
+                [id]="'student-' + student.id"
+                aria-label="Select student"
+              />
+              <label [for]="'student-' + student.id" class="sr-only">Select {{ student.firstName }}</label>
+            </div>
+            <div class="name-cell">{{ student.firstName }} {{ student.lastName }}</div>
+            <div class="email-cell">{{ student.email }}</div>
+            <div class="roll-cell">{{ student.rollNumber }}</div>
+          </div>
+        </div>
+
+        <!-- No students message -->
+        <div class="no-students" *ngIf="filteredStudents.length === 0">
+          <p>No unassigned students found for this subject.</p>
+          <p *ngIf="searchQuery">Try clearing your search or contact the administrator to add more students to this subject.</p>
+          <p *ngIf="!searchQuery">All eligible students are already assigned to this exam.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal footer -->
+    <div class="modal-footer">
+      <div class="selected-count" *ngIf="selectedStudentIds.length > 0">
+        {{ selectedStudentIds.length }} student(s) selected
+      </div>
+      <div class="button-group">
+        <button class="btn-cancel" (click)="onClose()">Cancel</button>
+        <button 
+          class="btn-save" 
+          [disabled]="selectedStudentIds.length === 0 || isSaving"
+          (click)="onSave()"
+        >
+          <span *ngIf="!isSaving">Assign Students</span>
+          <span *ngIf="isSaving">
+            <div class="spinner-sm"></div>
+            Assigning...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 
