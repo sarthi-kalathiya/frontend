@@ -5,13 +5,14 @@
     title="More actions"
     (click)="toggle($event)"
   >
-    <i class="bi bi-three-dots-vertical"></i>
+    <i class="fas fa-ellipsis-v"></i>
   </button>
 
   <!-- Action dropdown menu -->
   <div
     class="action-menu-dropdown"
     *ngIf="isOpen"
+    [ngStyle]="{ 'top.px': buttonPosition.top, 'left.px': buttonPosition.left }"
     [class.flip-up]="flipUp"
   >
     <div class="action-dropdown">
@@ -22,7 +23,7 @@
           [attr.title]="item.label"
           (click)="handleAction(item.action)"
         >
-          <i class="bi" [ngClass]="item.icon"></i> {{ item.label }}
+          <i class="fas" [ngClass]="item.icon"></i> {{ item.label }}
         </button>
       </ng-container>
     </div>
