@@ -10,6 +10,8 @@ import { Subject } from 'rxjs';
 import { environment } from '@environments/environment';
 import { ActionMenuComponent, ActionMenuItem } from '@app/shared/components/action-menu/action-menu.component';
 import { AssignStudentsModalComponent } from '../assign-students-modal/assign-students-modal.component';
+import { ConfirmationModalService } from '@app/core/services/confirmation-modal.service';
+import { ConfirmationModalComponent } from '@app/shared/components/confirmation-modal/confirmation-modal.component';
 
 @Component({
   selector: 'app-manage-students',
@@ -19,7 +21,8 @@ import { AssignStudentsModalComponent } from '../assign-students-modal/assign-st
     FormsModule,
     RouterModule,
     ActionMenuComponent,
-    AssignStudentsModalComponent
+    AssignStudentsModalComponent,
+    ConfirmationModalComponent
   ],
   templateUrl: './manage-students.component.html',
   styleUrls: ['./manage-students.component.scss']
@@ -72,7 +75,8 @@ export class ManageStudentsComponent implements OnInit {
     private router: Router,
     private examService: ExamService,
     private teacherExamService: TeacherExamService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private confirmationModalService: ConfirmationModalService
   ) {}
 
   // Action menu items
@@ -405,19 +409,27 @@ export class ManageStudentsComponent implements OnInit {
     const isBanned = student.status === 'BANNED';
     const action = isBanned ? 'unban' : 'ban';
     
-    if (confirm(`Are you sure you want to ${action} this student?`)) {
-      this.teacherExamService.toggleStudentBan(this.examId, studentId)
-        .subscribe({
-          next: () => {
-            this.toastService.showSuccess(`Student ${action}ned successfully`);
-            this.loadFilteredStudents();
-          },
-          error: (error: any) => {
-            console.error(`Failed to ${action} student:`, error);
-            this.toastService.showError(error.error?.message || `Failed to ${action} student`);
-          }
-        });
-    }
+    this.confirmationModalService.confirm({
+      title: `Confirm Student ${action.charAt(0).toUpperCase() + action.slice(1)}`,
+      message: `Are you sure you want to ${action} this student?`,
+      confirmButtonText: `Yes, ${action}`,
+      cancelButtonText: 'Cancel',
+      type: isBanned ? 'success' : 'danger'
+    }).subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.teacherExamService.toggleStudentBan(this.examId, studentId)
+          .subscribe({
+            next: () => {
+              this.toastService.showSuccess(`Student ${action}ned successfully`);
+              this.loadFilteredStudents();
+            },
+            error: (error: any) => {
+              console.error(`Failed to ${action} student:`, error);
+              this.toastService.showError(error.error?.message || `Failed to ${action} student`);
+            }
+          });
+      }
+    });
   }
 
   getStatusClass(status: string): string {
