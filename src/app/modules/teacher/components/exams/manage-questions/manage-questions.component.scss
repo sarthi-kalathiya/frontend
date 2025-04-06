@@ -193,6 +193,7 @@ $danger-color: #f44336;
   transition: all 0.3s ease;
   cursor: move;
   position: relative;
+  overflow: visible;
   
   &:hover {
     transform: translateY(-2px);
@@ -201,6 +202,16 @@ $danger-color: #f44336;
     .drag-handle {
       opacity: 1;
     }
+  }
+  
+  .card-body {
+    position: relative;
+    overflow: visible;
+  }
+  
+  app-action-menu {
+    position: relative;
+    z-index: 5;
   }
 }
 

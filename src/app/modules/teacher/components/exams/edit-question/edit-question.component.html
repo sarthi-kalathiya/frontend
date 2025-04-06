@@ -1,0 +1,153 @@
+<!-- Modal Backdrop -->
+<div class="modal-backdrop" (click)="onClose()"></div>
+
+<!-- Modal Container -->
+<div class="modal-container">
+  <div class="modal-content">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h2>{{ questionId ? 'Edit Question' : 'Add Question' }}</h2>
+      <button type="button" class="close-btn" (click)="onClose()" title="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Loading question data...</p>
+    </div>
+
+    <!-- Modal Body with Form -->
+    <div class="modal-body" *ngIf="!loading">
+      <!-- Error Alert -->
+      <div class="alert alert-danger" *ngIf="error">
+        {{ error }}
+      </div>
+
+      <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
+        <!-- Question Text -->
+        <div class="form-group">
+          <label for="questionText">Question <span class="required">*</span></label>
+          <textarea 
+            id="questionText" 
+            formControlName="questionText" 
+            placeholder="Enter your question here..." 
+            [class.is-invalid]="isInvalid('questionText')"
+          ></textarea>
+          <div class="invalid-feedback" *ngIf="isInvalid('questionText')">
+            Question text is required
+          </div>
+        </div>
+
+        <!-- Marks and Negative Marks Row -->
+        <div class="marks-container">
+          <div class="form-group marks-field">
+            <label for="marks">Marks <span class="required">*</span></label>
+            <input 
+              type="number" 
+              id="marks" 
+              formControlName="marks" 
+              min="0.5" 
+              step="0.5" 
+              [class.is-invalid]="isInvalid('marks')"
+            >
+            <div class="invalid-feedback" *ngIf="isInvalid('marks')">
+              Valid marks are required
+            </div>
+          </div>
+
+          <div class="form-group marks-field">
+            <label for="negativeMarks">Negative Marks</label>
+            <input 
+              type="number" 
+              id="negativeMarks" 
+              formControlName="negativeMarks" 
+              min="0" 
+              step="0.5" 
+              [class.is-invalid]="isInvalid('negativeMarks')"
+            >
+            <div class="invalid-feedback" *ngIf="isInvalid('negativeMarks')">
+              Negative marks must be 0 or greater
+            </div>
+          </div>
+        </div>
+
+        <!-- Options Section -->
+        <div class="options-section">
+          <div class="options-header">
+            <label>Answer Options <span class="required">*</span></label>
+            <button 
+              type="button" 
+              class="add-option-btn" 
+              (click)="addOption()" 
+              [disabled]="!canAddOption"
+              title="Add option"
+            >
+              <i class="fas fa-plus"></i> Add Option
+            </button>
+          </div>
+
+          <!-- Options List -->
+          <div class="options-list" formArrayName="options">
+            <div class="option-item" *ngFor="let option of options.controls; let i = index" [formGroupName]="i">
+              <div class="option-content" [class.selected]="correctOptionIndex === i" (click)="setCorrectOption(i)">
+                <div class="option-radio">
+                  <input 
+                    type="radio" 
+                    [id]="'isCorrect-'+i" 
+                    [name]="'correctOption'" 
+                    [checked]="correctOptionIndex === i"
+                    (change)="setCorrectOption(i)"
+                    title="Mark as correct answer"
+                  >
+                  <label [for]="'isCorrect-'+i" class="option-letter">{{ getOptionLetter(i) }}</label>
+                </div>
+                
+                <div class="option-input-container">
+                  <input 
+                    type="text" 
+                    [id]="'optionText-'+i" 
+                    formControlName="optionText"
+                    placeholder="Enter option here..."
+                    [class.is-invalid]="isOptionInvalid(i, 'optionText')"
+                    (click)="$event.stopPropagation()"
+                  >
+                  <div class="invalid-feedback" *ngIf="isOptionInvalid(i, 'optionText')">
+                    Option text is required
+                  </div>
+                </div>
+                
+                <button 
+                  type="button" 
+                  class="remove-option-btn" 
+                  *ngIf="canRemoveOption"
+                  (click)="removeOption(i); $event.stopPropagation()"
+                  title="Remove option"
+                >
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="onClose()">
+        Cancel
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-primary" 
+        (click)="onSubmit()" 
+        [disabled]="submitting || questionForm.invalid || !hasCorrectOption()"
+      >
+        <span class="spinner-border spinner-border-sm" *ngIf="submitting"></span>
+        {{ submitting ? 'Saving...' : 'Save' }}
+      </button>
+    </div>
+  </div>
+</div> 
