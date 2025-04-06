@@ -13,6 +13,7 @@ $danger-color: #f44336;
   position: relative;
   display: flex;
   justify-content: center;
+  z-index: 1052;
 }
 
 .btn-icon {
@@ -39,8 +40,11 @@ $danger-color: #f44336;
 }
 
 .action-menu-dropdown {
-  position: fixed;
-  z-index: 1051;
+  position: absolute;
+  z-index: 1053;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
 }
 
 .action-dropdown {

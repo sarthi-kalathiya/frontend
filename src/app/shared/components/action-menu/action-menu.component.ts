@@ -58,10 +58,21 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
 
   toggle(event: MouseEvent): void {
     event.stopPropagation();
+    event.preventDefault();
     this.isOpen = !this.isOpen;
 
     if (this.isOpen) {
-      this.calculatePosition(event);
+      // No need for position calculation with absolute positioning
+      // Just reset the flags if needed
+      this.flipUp = false;
+      
+      // Add a timeout to close the menu after a period of inactivity
+      setTimeout(() => {
+        // Close menu after 5 seconds if still open
+        if (this.isOpen) {
+          this.isOpen = false;
+        }
+      }, 5000);
     }
   }
 
