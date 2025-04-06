@@ -152,6 +152,12 @@
             </div>
 
             <div class="stat-card">
+              <h4>In Progress</h4>
+              <div class="stat-number">{{ studentStats.inProgress }}</div>
+              <div class="stat-subtitle">{{ studentStats.percentages?.inProgress || '0.0' }}% of students</div>
+            </div>
+
+            <div class="stat-card">
               <h4>Pending</h4>
               <div class="stat-number">{{ studentStats.notStarted }}</div>
               <div class="stat-subtitle">{{ studentStats.percentages?.notStarted || '0.0' }}% of students</div>
