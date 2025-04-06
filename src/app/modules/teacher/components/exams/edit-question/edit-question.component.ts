@@ -103,12 +103,14 @@ export class EditQuestionComponent implements OnInit {
           if (question) {
             this.populateForm(question);
           } else {
-            this.error = 'Question not found';
+            this.toastService.showError('Question not found');
+            this.onClose();
           }
         },
         error: (err) => {
           console.error('Error loading question:', err);
-          this.error = err.error?.message || 'Failed to load question data';
+          const errorMessage = err.error?.message || 'Failed to load question data';
+          this.toastService.showError(errorMessage);
         }
       });
   }
@@ -213,6 +215,7 @@ export class EditQuestionComponent implements OnInit {
     if (this.questionForm.invalid) {
       // Mark all fields as touched to show validation errors
       this.questionForm.markAllAsTouched();
+      this.toastService.showError('Please fix the validation errors before submitting');
       return;
     }
 
@@ -244,7 +247,8 @@ export class EditQuestionComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error saving question:', err);
-          this.error = err.error?.message || 'Failed to save question. Please try again.';
+          const errorMessage = err.error?.message || 'Failed to save question. Please try again.';
+          this.toastService.showError(errorMessage);
         }
       });
   }
