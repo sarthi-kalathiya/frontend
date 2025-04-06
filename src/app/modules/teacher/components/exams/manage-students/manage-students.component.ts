@@ -1,11 +1,14 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ExamService } from '../../../services/exam.service';
-import { TeacherExamService } from '../../../services/teacher-exam.service';
+import { TeacherExamService, StudentFilterOptions, FilteredStudentsResponse, StudentStatistics } from '../../../services/teacher-exam.service';
 import { ToastService } from '@app/core/services/toast.service';
-import { finalize } from 'rxjs/operators';
+import { finalize, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { environment } from '@environments/environment';
+import { ActionMenuComponent, ActionMenuItem } from '@app/shared/components/action-menu/action-menu.component';
 
 @Component({
   selector: 'app-manage-students',
@@ -13,35 +16,51 @@ import { finalize } from 'rxjs/operators';
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule
+    RouterModule,
+    ActionMenuComponent
   ],
   templateUrl: './manage-students.component.html',
   styleUrls: ['./manage-students.component.scss']
 })
 export class ManageStudentsComponent implements OnInit {
+  // Make Math available to the template
+  Math = Math;
+
   examId: string = '';
   examName: string = 'Sessional 1';
   subjectName: string = 'Discrete Mathematics';
   isLoading: boolean = true;
+  tableLoading: boolean = false;
   error: string | null = null;
   searchQuery: string = '';
   activeFilter: 'All' | 'Completed' | 'In Progress' | 'Not Started' | 'Banned' = 'All';
-
-  // Student statistics - Hardcoded to match design
-  totalStudents: number = 5;
-  completedCount: number = 2;
-  inProgressCount: number = 1;
-  notStartedCount: number = 1;
-  bannedCount: number = 1;
   
-  // Exam statistics - Hardcoded to match design
-  averageScore: number = 25;
-  passRate: number = 100;
-  passCount: number = 2;
+  // Pagination
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalItems: number = 0;
+  totalPages: number = 0;
+  
+  // Dropdown state
+  showStatusDropdown: boolean = false;
+  
+  // Search debounce
+  private searchSubject = new Subject<string>();
+
+  // Student statistics
+  totalStudents: number = 0;
+  completedCount: number = 0;
+  inProgressCount: number = 0;
+  notStartedCount: number = 0;
+  bannedCount: number = 0;
+  
+  // Exam statistics
+  averageScore: number = 0;
+  passRate: number = 0;
+  passCount: number = 0;
   
   // Students list
   students: any[] = [];
-  filteredStudents: any[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -51,6 +70,104 @@ export class ManageStudentsComponent implements OnInit {
     private toastService: ToastService
   ) {}
 
+  // Action menu items
+  getActionMenuItems(student: any): ActionMenuItem[] {
+    const items: ActionMenuItem[] = [];
+    
+    // View answer sheet - only available for completed exams
+    if (student.status === 'COMPLETED') {
+      items.push({
+        id: 'view-sheet',
+        label: 'View Answer Sheet',
+        icon: 'fa-eye',
+        action: 'viewAnswerSheet'
+      });
+    }
+    
+    // View cheating logs - available for all statuses except NOT_STARTED
+    if (student.status !== 'NOT_STARTED') {
+      items.push({
+        id: 'view-logs',
+        label: 'View Cheating Logs',
+        icon: 'fa-exclamation-triangle',
+        action: 'viewCheatLogs'
+      });
+    }
+    
+    // Change status option
+    items.push({
+      id: 'change-status',
+      label: 'Change Status',
+      icon: 'fa-exchange-alt',
+      action: 'changeStatus'
+    });
+    
+    // Ban/Unban student
+    if (student.status === 'BANNED') {
+      items.push({
+        id: 'unban',
+        label: 'Unban Student',
+        icon: 'fa-user-check',
+        action: 'unbanStudent'
+      });
+    } else {
+      items.push({
+        id: 'ban',
+        label: 'Ban Student',
+        icon: 'fa-user-slash',
+        action: 'banStudent',
+      });
+    }
+    
+    return items;
+  }
+
+  // Handle action menu events
+  handleMenuAction(event: { action: string; id: string }): void {
+    const student = this.students.find(s => s.student.id === event.id);
+    if (!student) return;
+    
+    switch (event.action) {
+      case 'viewAnswerSheet':
+        this.viewStudentAnswerSheet(student);
+        break;
+        
+      case 'viewCheatLogs':
+        this.viewStudentCheatLogs(student);
+        break;
+        
+      case 'changeStatus':
+        this.changeStudentStatus(student);
+        break;
+        
+      case 'banStudent':
+      case 'unbanStudent':
+        this.toggleBanStudent(student);
+        break;
+        
+      default:
+        console.warn('Unknown action:', event.action);
+    }
+  }
+  
+  viewStudentAnswerSheet(student: any): void {
+    this.router.navigate(['/teacher/exams', this.examId, 'students', student.student.id, 'answer-sheet']);
+  }
+  
+  viewStudentCheatLogs(student: any): void {
+    this.router.navigate(['/teacher/exams', this.examId, 'students', student.student.id, 'cheat-logs']);
+  }
+  
+  changeStudentStatus(student: any): void {
+    // Implement status change (could be modal or dropdown)
+    this.toastService.showInfo('Status change feature is coming soon');
+  }
+
+  @HostListener('document:click')
+  closeDropdowns() {
+    this.showStatusDropdown = false;
+  }
+
   ngOnInit(): void {
     this.examId = this.route.snapshot.paramMap.get('id') || '';
     if (!this.examId) {
@@ -59,51 +176,113 @@ export class ManageStudentsComponent implements OnInit {
       return;
     }
     
-    this.loadAssignedStudents();
+    // Setup search debounce
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(term => {
+      this.searchQuery = term;
+      this.loadFilteredStudents();
+    });
+    
+    // Load initial data with statistics
+    this.loadExamDetails();
+    this.loadFilteredStudents();
   }
 
-  loadAssignedStudents(): void {
-    this.isLoading = true;
-    
-    this.teacherExamService.getAssignedStudents(this.examId)
-      .pipe(finalize(() => this.isLoading = false))
+  loadExamDetails(): void {
+    // Load exam details in parallel with student data
+    this.examService.getExamById(this.examId)
       .subscribe({
-        next: (response: any) => {
-          console.log('API response:', response);
-          
-          // The actual student data is in response.data
-          if (response.data && Array.isArray(response.data)) {
-            this.students = response.data;
-            
-            // Process students to match UI structure
-            this.processStudentData();
-            
-            // Apply filter
-            this.applyFilter(this.activeFilter);
-          } else {
-            // If API is inconsistent, use mock data
-            this.useMockData();
+        next: (exam: any) => {
+          if (exam && exam.name && exam.subject) {
+            this.examName = exam.name;
+            this.subjectName = exam.subject.name;
           }
         },
         error: (error: any) => {
-          console.error('Failed to load assigned students:', error);
-          this.error = error.error?.message || 'Failed to load assigned students';
-          
-          // Use mock data on error for demo purposes
-          this.useMockData();
+          console.error('Failed to load exam details:', error);
+          // Don't show error here as we're already showing students loading error if needed
         }
       });
   }
 
-  processStudentData(): void {
-    // Map API data to UI structure
-    this.students = this.students.map(student => {
-      return {
-        ...student,
-        // Make sure UI friendly properties are available
-        statusText: this.getStatusText(student.status)
-      };
-    });
+  toggleStatusDropdown(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.showStatusDropdown = !this.showStatusDropdown;
+  }
+
+  loadFilteredStudents(): void {
+    // Only show loading state for the table, not the whole component
+    this.tableLoading = true;
+    
+    // Map UI status values to backend expected values
+    let statusValue = '';
+    if (this.activeFilter !== 'All') {
+      // Send the status in the exact format the backend expects
+      statusValue = this.activeFilter;
+    }
+    
+    // Prepare filter options
+    const options: StudentFilterOptions = {
+      page: this.currentPage,
+      limit: this.pageSize,
+      search: this.searchQuery?.trim() || '',
+      status: statusValue
+    };
+    
+    console.log('Sending filter options:', options);
+    
+    this.teacherExamService.getFilteredStudents(this.examId, options)
+      .pipe(finalize(() => {
+        this.tableLoading = false;
+        this.isLoading = false; // For initial load
+      }))
+      .subscribe({
+        next: (response: any) => {
+          console.log('API response:', response);
+          
+          // Extract data from the nested structure
+          const data = response.data || response;
+          
+          // Make sure we have the students array
+          this.students = data.students || [];
+          
+          // Update pagination if available
+          if (data.pagination) {
+            this.totalItems = data.pagination.total;
+            this.totalPages = data.pagination.totalPages;
+            this.currentPage = data.pagination.page;
+          }
+          
+          // Update statistics if available
+          if (data.statistics) {
+            this.updateStatistics(data.statistics);
+          }
+        },
+        error: (error: any) => {
+          console.error('Failed to load students:', error);
+          this.error = error.error?.message || 'Failed to load students';
+          
+          // If in development, use mock data for preview
+          if (!environment.production) {
+            this.useMockData();
+          }
+        }
+      });
+  }
+
+  updateStatistics(statistics: StudentStatistics): void {
+    this.totalStudents = statistics.totalStudents;
+    this.completedCount = statistics.completedCount;
+    this.inProgressCount = statistics.inProgressCount;
+    this.notStartedCount = statistics.notStartedCount;
+    this.bannedCount = statistics.bannedCount;
+    this.averageScore = statistics.averageScore;
+    this.passRate = statistics.passRate;
+    this.passCount = statistics.passCount;
   }
 
   useMockData(): void {
@@ -178,53 +357,42 @@ export class ManageStudentsComponent implements OnInit {
       }
     ];
     
-    // Apply filter to mock data
-    this.applyFilter(this.activeFilter);
+    // Mock statistics
+    this.totalStudents = 5;
+    this.completedCount = 2;
+    this.inProgressCount = 1;
+    this.notStartedCount = 1;
+    this.bannedCount = 1;
+    this.averageScore = 25;
+    this.passRate = 100;
+    this.passCount = 2;
+    
+    // Mock pagination
+    this.totalItems = 5;
+    this.totalPages = 1;
   }
 
   applyFilter(filter: 'All' | 'Completed' | 'In Progress' | 'Not Started' | 'Banned'): void {
     this.activeFilter = filter;
+    this.showStatusDropdown = false;
+    this.currentPage = 1; // Reset to first page when filter changes
     
-    if (filter === 'All') {
-      this.filteredStudents = [...this.students];
-    } else {
-      const statusMap: Record<string, string> = {
-        'Completed': 'COMPLETED',
-        'In Progress': 'IN_PROGRESS',
-        'Not Started': 'NOT_STARTED',
-        'Banned': 'BANNED'
-      };
-      
-      this.filteredStudents = this.students.filter(s => s.status === statusMap[filter]);
-    }
-    
-    // Apply search filter if there's a query
-    if (this.searchQuery.trim()) {
-      this.applySearch();
-    }
-    
-    console.log('Filtered students:', this.filteredStudents);
-  }
-
-  applySearch(): void {
-    const query = this.searchQuery.toLowerCase().trim();
-    if (!query) {
-      this.applyFilter(this.activeFilter);
-      return;
-    }
-    
-    this.filteredStudents = this.filteredStudents.filter(student => 
-      student.student?.user?.firstName?.toLowerCase().includes(query) ||
-      student.student?.user?.lastName?.toLowerCase().includes(query) ||
-      student.student?.user?.email?.toLowerCase().includes(query) ||
-      student.student?.rollNumber?.toLowerCase().includes(query)
-    );
+    // Call API to get filtered students
+    this.loadFilteredStudents();
   }
 
   search(event: Event): void {
-    this.searchQuery = (event.target as HTMLInputElement).value;
-    this.applyFilter(this.activeFilter);
-    this.applySearch();
+    const value = (event.target as HTMLInputElement).value;
+    this.searchSubject.next(value);
+  }
+
+  changePage(page: number): void {
+    if (page < 1 || page > this.totalPages || page === this.currentPage) {
+      return;
+    }
+    
+    this.currentPage = page;
+    this.loadFilteredStudents();
   }
 
   navigateBack(): void {
@@ -233,13 +401,6 @@ export class ManageStudentsComponent implements OnInit {
 
   formatDate(dateString: string): string {
     if (!dateString) return 'N/A';
-    
-    // For the demo, return formatted date matching screenshot
-    if (dateString.includes('03:15')) {
-      return 'Apr 10, 2025, 03:15 PM';
-    } else if (dateString.includes('03:20')) {
-      return 'Apr 10, 2025, 03:20 PM';
-    }
     
     const date = new Date(dateString);
     return date.toLocaleString('en-US', { 
@@ -261,7 +422,7 @@ export class ManageStudentsComponent implements OnInit {
         .subscribe({
           next: () => {
             this.toastService.showSuccess(`Student ${action}ned successfully`);
-            this.loadAssignedStudents();
+            this.loadFilteredStudents();
           },
           error: (error: any) => {
             console.error(`Failed to ${action} student:`, error);

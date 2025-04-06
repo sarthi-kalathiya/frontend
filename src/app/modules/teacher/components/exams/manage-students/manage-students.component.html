@@ -16,7 +16,7 @@
     <!-- Header -->
     <div class="header">
       <div class="header-left">
-        <button class="back-button" (click)="navigateBack()" aria-label="Go back">
+        <button class="back-button" (click)="navigateBack()" aria-label="Go back" title="Go back">
           <i class="fas fa-arrow-left"></i>
         </button>
         <div class="header-title">
@@ -25,7 +25,7 @@
         </div>
       </div>
       <div class="header-right">
-        <button class="btn-assign">
+        <button class="btn-assign" aria-label="Assign students to exam" title="Assign students to exam">
           <i class="fas fa-plus"></i>
           Assign Students
         </button>
@@ -46,7 +46,7 @@
         <h3>Average Score</h3>
         <div class="stat-value">{{ averageScore }}/30</div>
         <div class="stat-details">
-          83% average
+          {{ Math.round(averageScore / 30 * 100) }}% average
         </div>
       </div>
 
@@ -61,8 +61,11 @@
       <div class="stat-card">
         <h3>Banned Students</h3>
         <div class="stat-value">{{ bannedCount }}</div>
-        <div class="stat-details">
-          20% of total students
+        <div class="stat-details" *ngIf="totalStudents > 0">
+          {{ Math.round(bannedCount / totalStudents * 100) }}% of total students
+        </div>
+        <div class="stat-details" *ngIf="totalStudents === 0">
+          0% of total students
         </div>
       </div>
     </div>
@@ -74,65 +77,153 @@
         <p>Manage students assigned to this exam</p>
       </div>
 
-      <div class="search-container">
-        <input 
-          type="text" 
-          placeholder="Search students..." 
-          [value]="searchQuery"
-          (input)="search($event)"
-        />
-      </div>
+      <!-- Filter bar -->
+      <div class="filter-bar">
+        <div class="search-box">
+          <input
+            type="text"
+            placeholder="Search students..."
+            [ngModel]="searchQuery"
+            (input)="search($event)"
+          />
+          <button class="btn-search" aria-label="Search students" title="Search students">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
 
-      <div class="filter-tabs">
-        <button [class.active]="activeFilter === 'All'" (click)="applyFilter('All')">All</button>
-        <button [class.active]="activeFilter === 'Completed'" (click)="applyFilter('Completed')">Completed</button>
-        <button [class.active]="activeFilter === 'In Progress'" (click)="applyFilter('In Progress')">In Progress</button>
-        <button [class.active]="activeFilter === 'Not Started'" (click)="applyFilter('Not Started')">Not Started</button>
-        <button [class.active]="activeFilter === 'Banned'" (click)="applyFilter('Banned')">Banned</button>
+        <div class="filter-actions">
+          <div class="filter-selects">
+            <div class="custom-select">
+              <button
+                class="form-select"
+                (click)="$event.stopPropagation(); toggleStatusDropdown()"
+                aria-label="Filter by status"
+                title="Filter by status"
+              >
+                {{ activeFilter === 'All' ? 'All Statuses' : activeFilter }}
+              </button>
+              <div class="dropdown-menu" *ngIf="showStatusDropdown">
+                <button
+                  class="dropdown-item"
+                  [ngClass]="{ active: activeFilter === 'All' }"
+                  (click)="applyFilter('All')"
+                >
+                  All Statuses
+                </button>
+                <button
+                  class="dropdown-item"
+                  [ngClass]="{ active: activeFilter === 'Completed' }"
+                  (click)="applyFilter('Completed')"
+                >
+                  Completed
+                </button>
+                <button
+                  class="dropdown-item"
+                  [ngClass]="{ active: activeFilter === 'In Progress' }"
+                  (click)="applyFilter('In Progress')"
+                >
+                  In Progress
+                </button>
+                <button
+                  class="dropdown-item"
+                  [ngClass]="{ active: activeFilter === 'Not Started' }"
+                  (click)="applyFilter('Not Started')"
+                >
+                  Not Started
+                </button>
+                <button
+                  class="dropdown-item"
+                  [ngClass]="{ active: activeFilter === 'Banned' }"
+                  (click)="applyFilter('Banned')"
+                >
+                  Banned
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Roll Number</th>
-              <th>Status</th>
-              <th>Score</th>
-              <th>Submitted At</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngIf="filteredStudents.length === 0">
-              <td colspan="6" class="no-data">No students found with the selected filter</td>
-            </tr>
-            <tr *ngFor="let student of filteredStudents">
-              <td class="student-name">
-                <div>{{ student.student?.user?.firstName }} {{ student.student?.user?.lastName }}</div>
-                <small>{{ student.student?.user?.email }}</small>
-              </td>
-              <td>{{ student.student?.rollNumber || 'N/A' }}</td>
-              <td>
-                <span class="status-badge" [ngClass]="getStatusClass(student.status)">
-                  {{ student.statusText || getStatusText(student.status) }}
-                </span>
-              </td>
-              <td>
-                <span *ngIf="student.status === 'COMPLETED'">
-                  {{ student.result?.marks || '28/30' }}
-                </span>
-                <span *ngIf="student.status !== 'COMPLETED'">-</span>
-              </td>
-              <td>{{ student.submittedAt ? formatDate(student.submittedAt) : 'N/A' }}</td>
-              <td class="actions-cell">
-                <button class="action-btn" title="More options" aria-label="More options">
-                  <i class="fas fa-ellipsis-v"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- Table loading state -->
+        <div *ngIf="tableLoading" class="table-loading">
+          <div class="spinner"></div>
+          <p>Loading data...</p>
+        </div>
+        
+        <!-- Table content -->
+        <div *ngIf="!tableLoading">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Roll Number</th>
+                <th>Status</th>
+                <th>Score</th>
+                <th>Submitted At</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="students.length === 0">
+                <td colspan="6" class="no-data">No students found with the selected filter</td>
+              </tr>
+              <tr *ngFor="let student of students">
+                <td class="student-name">
+                  <div>{{ student.student?.user?.firstName }} {{ student.student?.user?.lastName }}</div>
+                  <small>{{ student.student?.user?.email }}</small>
+                </td>
+                <td>{{ student.student?.rollNumber || 'N/A' }}</td>
+                <td>
+                  <span class="status-badge" [ngClass]="getStatusClass(student.status)">
+                    {{ student.statusText || getStatusText(student.status) }}
+                  </span>
+                </td>
+                <td>
+                  <span *ngIf="student.status === 'COMPLETED'">
+                    {{ student.result?.marks || '28/30' }}
+                  </span>
+                  <span *ngIf="student.status !== 'COMPLETED'">-</span>
+                </td>
+                <td>{{ student.submittedAt ? formatDate(student.submittedAt) : 'N/A' }}</td>
+                <td class="actions-cell">
+                  <app-action-menu
+                    [items]="getActionMenuItems(student)"
+                    [targetId]="student.student.id"
+                    (onAction)="handleMenuAction($event)"
+                  ></app-action-menu>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <!-- Pagination -->
+          <div class="pagination" *ngIf="totalPages > 1">
+            <button 
+              class="page-btn" 
+              [disabled]="currentPage === 1"
+              (click)="changePage(currentPage - 1)"
+              aria-label="Previous page"
+              title="Previous page"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            
+            <div class="page-indicator">
+              Page {{ currentPage }} of {{ totalPages }}
+            </div>
+            
+            <button 
+              class="page-btn" 
+              [disabled]="currentPage === totalPages"
+              (click)="changePage(currentPage + 1)"
+              aria-label="Next page"
+              title="Next page"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

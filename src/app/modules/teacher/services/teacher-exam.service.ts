@@ -1,7 +1,59 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+
+/**
+ * Interface for student statistics
+ */
+export interface StudentStatistics {
+  totalStudents: number;
+  completedCount: number;
+  inProgressCount: number;
+  notStartedCount: number;
+  bannedCount: number;
+  averageScore: number;
+  passRate: number;
+  passCount: number;
+}
+
+/**
+ * Interface for pagination
+ */
+export interface Pagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+/**
+ * Interface for API response
+ */
+export interface ApiResponse<T> {
+  status: string;
+  message: string;
+  data: T;
+}
+
+/**
+ * Interface for filtered students response
+ */
+export interface FilteredStudentsResponse {
+  students: any[];
+  pagination: Pagination;
+  statistics: StudentStatistics;
+}
+
+/**
+ * Interface for filter options
+ */
+export interface StudentFilterOptions {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +70,47 @@ export class TeacherExamService {
    */
   getAssignedStudents(examId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/${examId}/students`);
+  }
+
+  /**
+   * Get filtered students with pagination
+   * @param examId The ID of the exam
+   * @param options Filter options (page, limit, search, status)
+   * @returns Observable with filtered students, pagination and statistics
+   */
+  getFilteredStudents(examId: string, options: StudentFilterOptions = {}): Observable<ApiResponse<FilteredStudentsResponse>> {
+    // Build query parameters
+    let params = new HttpParams();
+    
+    if (options.page !== undefined) {
+      params = params.append('page', options.page.toString());
+    }
+    
+    if (options.limit !== undefined) {
+      params = params.append('limit', options.limit.toString());
+    }
+    
+    if (options.search) {
+      params = params.append('search', options.search);
+    }
+    
+    if (options.status) {
+      params = params.append('status', options.status);
+    }
+    
+    return this.http.get<ApiResponse<FilteredStudentsResponse>>(
+      `${this.apiUrl}/${examId}/students/filtered`, 
+      { params }
+    );
+  }
+
+  /**
+   * Get student statistics for an exam
+   * @param examId The ID of the exam
+   * @returns Observable with student statistics
+   */
+  getExamStudentStatistics(examId: string): Observable<ApiResponse<StudentStatistics>> {
+    return this.http.get<ApiResponse<StudentStatistics>>(`${this.apiUrl}/${examId}/student-statistics`);
   }
 
   /**
