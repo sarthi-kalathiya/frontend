@@ -20,11 +20,6 @@
 
     <!-- Modal Body with Form -->
     <div class="modal-body" *ngIf="!loading">
-      <!-- Error Alert -->
-      <div class="alert alert-danger" *ngIf="error">
-        {{ error }}
-      </div>
-
       <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
         <!-- Question Text -->
         <div class="form-group">
