@@ -171,8 +171,9 @@ export class ManageQuestionsComponent implements OnInit, AfterViewInit {
   }
 
   addQuestion(): void {
-    // Navigate to add question page or open modal
-    this.router.navigate(['/teacher/exams', this.examId, 'add-question']);
+    // Show the add question modal
+    this.selectedQuestionId = '';
+    this.showEditModal = true;
   }
 
   editQuestion(questionId: string): void {
