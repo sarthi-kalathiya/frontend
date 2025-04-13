@@ -361,14 +361,7 @@ export class ExamsComponent implements OnInit, OnDestroy {
         label: 'Assign Students',
         icon: 'fas fa-user-plus',
         action: 'assign',
-      },
-      {
-        id: exam.id,
-        label: 'Delete',
-        icon: 'far fa-trash-alt',
-        action: 'delete',
-        // class: 'delete',
-      },
+      }
     ];
   }
 
@@ -411,13 +404,11 @@ export class ExamsComponent implements OnInit, OnDestroy {
   }
 
   navigateToQuestions(examId: string): void {
-    // TODO: Implement navigation to questions management
-    this.toastService.showInfo('Questions management will be implemented soon');
+    this.router.navigate(['/teacher/exams', examId, 'manage-questions']);
   }
 
   assignStudents(examId: string): void {
-    // TODO: Implement student assignment functionality
-    this.toastService.showInfo('Student assignment will be implemented soon');
+    this.router.navigate(['/teacher/exams', examId, 'manage-students']);
   }
 
   exportResults(examId: string): void {
