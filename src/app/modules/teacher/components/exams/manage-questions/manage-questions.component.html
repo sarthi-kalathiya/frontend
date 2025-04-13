@@ -71,12 +71,15 @@
                 </div>
               </div>
               
-              <!-- Replace dropdown with action menu -->
-              <app-action-menu 
-                [items]="questionActions" 
-                [targetId]="question.id"
-                (onAction)="handleQuestionAction($event)">
-              </app-action-menu>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-link text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Question options">
+                  <i class="bi bi-three-dots-vertical fs-4"></i>
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" (click)="editQuestion(question.id)"><i class="bi bi-pencil me-2"></i> Edit</a></li>
+                  <li><a class="dropdown-item text-danger" (click)="deleteQuestion(question.id)"><i class="bi bi-trash me-2"></i> Delete</a></li>
+                </ul>
+              </div>
             </div>
 
             <div class="options-container mt-3">
@@ -101,12 +104,12 @@
       </div>
     </div>
   </div>
-</div>
 
-<!-- Edit/Add Question Modal -->
-<app-edit-question
-  *ngIf="showQuestionModal"
-  [examId]="examId"
-  [questionId]="selectedQuestionId || ''"
-  (close)="onQuestionModalClose($event)">
-</app-edit-question> 
+  <!-- Edit Question Modal -->
+  <app-edit-question
+    *ngIf="showEditModal"
+    [examId]="examId"
+    [questionId]="selectedQuestionId"
+    (close)="onQuestionModalClose($event)"
+  ></app-edit-question>
+</div> 
